@@ -1,0 +1,40 @@
+// api/generate.js (Vercel / Netlify handler compatible)
+const fetch = require('node-fetch');
+
+module.exports = async (req, res) => {
+  try {
+    if (req.method !== 'POST') return res.status(405).send('Method not allowed');
+    const { prompt, model = 'gpt-3.5-turbo', max_tokens = 600 } = req.body;
+    if (!prompt) return res.status(400).json({ error: 'No prompt provided' });
+
+    const OPENAI_KEY = process.env.OPENAI_API_KEY;
+    if (!OPENAI_KEY) return res.status(500).json({ error: 'OpenAI API key not configured on server' });
+
+    // OpenAI Chat completion (example for gpt-3.5-turbo)
+    const body = {
+      model,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens
+    };
+
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${OPENAI_KEY}`
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (!r.ok) {
+      const txt = await r.text();
+      return res.status(502).json({ error: 'OpenAI error', detail: txt });
+    }
+    const data = await r.json();
+    const out = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : JSON.stringify(data);
+    return res.status(200).json({ result: out });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: err.message });
+  }
+};
