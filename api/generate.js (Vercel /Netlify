@@ -2,7 +2,32 @@
 const fetch = require('node-fetch');
 
 module.exports = async (req, res) => {
-  try {
+  try {{ id:'resume', name:'Resume Generator', desc:'Professional resume...', price:49,
+  run: async (inp) => {
+    // build a prompt
+    const prompt = `Write a professional resume for:
+Name: ${inp.name||'John Doe'}
+Title: ${inp.title||'Software Engineer'}
+Skills: ${inp.skills||'JavaScript, Python'}
+Experience (short): ${inp.experience||''}
+Provide in plain text, clear sections: Summary, Experience, Education, Skills.`;
+    // call serverless endpoint
+    try{
+      const r = await fetch('/api/generate', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+      const j = await r.json();
+      if (j.error) throw new Error(j.error);
+      return j.result;
+    }catch(e){
+      // fallback to mock
+      return `RESUME (fallback)\nName: ${inp.name}\nTitle: ${inp.title}\nSummary: ...`;
+    }
+  }
+}
+
     if (req.method !== 'POST') return res.status(405).send('Method not allowed');
     const { prompt, model = 'gpt-3.5-turbo', max_tokens = 600 } = req.body;
     if (!prompt) return res.status(400).json({ error: 'No prompt provided' });
