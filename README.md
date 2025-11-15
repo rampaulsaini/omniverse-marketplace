@@ -1,3 +1,4 @@
+cd /path/to/omniverse-marketplace
 git init
 git add .
 git commit -m "Add omniverse-marketplace starter"
