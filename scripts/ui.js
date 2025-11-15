@@ -1,5 +1,46 @@
 // scripts/ui.js
-window.OmniUI = (function(){
+window.OmniUI = (function(){// add near top after existing constants
+const btnEnterKey = document.getElementById('btnEnterKey');
+const enterKeyModal = document.getElementById('enterKeyModal');
+const enterKeyClose = document.getElementById('enterKeyClose');
+const applyUnlock = document.getElementById('applyUnlock');
+const buyerUnlockInput = document.getElementById('buyerUnlockInput');
+
+// open modal
+btnEnterKey.addEventListener('click', ()=>enterKeyModal.classList.remove('hidden'));
+enterKeyClose.addEventListener('click', ()=>enterKeyModal.classList.add('hidden'));
+
+// apply key: store in localStorage (buyer device)
+applyUnlock.addEventListener('click', ()=>{
+  const k = buyerUnlockInput.value.trim();
+  if(!k) return alert('Please type the unlock key.');
+  // store locally
+  localStorage.setItem('omni_unlocked_key', k);
+  alert('Unlock key applied locally. Try Download again.');
+  enterKeyModal.classList.add('hidden');
+});
+
+// helper to check unlocked status before download
+function buyerHasValidKey(){
+  // Strategy: if local key equals owner-set premium key (owner stored in their device), we also support server-validated version
+  // client-only check:
+  const localKey = localStorage.getItem('omni_unlocked_key');
+  const premiumKey = localStorage.getItem('omni_premium_key'); // if owner and buyer on same device
+  if(localKey && premiumKey && localKey === premiumKey) return true;
+  // OR: call server to verify key (if you later implement a verification endpoint)
+  // return false for now
+  return !!localKey; // optimistic: if buyer has a key, allow (owner must ensure it's valid)
+}
+
+// In downloadOutput() replace check for getPremiumKey() with buyerHasValidKey()
+// Example: (inside downloadOutput)
+const hasKey = buyerHasValidKey();
+if(tool.price > 0 && !hasKey){
+  const ok = confirm('This is a paid output. Click OK to see payment options / donate. After paying, owner must provide you an unlock key.');
+  if(ok) openDonateModal();
+  return;
+}
+  
   const toolsGrid = document.getElementById('toolsGrid');
   const modal = document.getElementById('modal');
   const modalClose = document.getElementById('modalClose');
