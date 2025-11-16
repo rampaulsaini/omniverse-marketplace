@@ -1,21 +1,24 @@
-# Omniverse Marketplace
+# Omniverse Marketplace Dashboard
 
-Zero-cost AI Tools Marketplace — client-side only, runs on GitHub Pages.
+This repository hosts a **client-side AI + Tips marketplace** for the `rampaulsaini` projects.
 
 ## Features
-- Multiple AI tools (resume, bio, scripts, notes, ideas)
-- Tools run offline/template-based by default (no paid APIs)
-- Premium unlock via local key (owner sets locally)
-- Payments/donations via saved payment link (owner provides)
-- Downloads and usage tracked locally (localStorage)
+- AI template generation (OpenAI API optional)
+- Client-side JSON input → live output
+- Paytm / PayPal tips per tool
+- Tool stats: uses, downloads, tips
+- Add / Edit / Delete / Clone tools
+- Import / Export tools & stats
+- Fully deployable on GitHub Pages
 
-## How to deploy
-1. Create a repo named `omniverse-marketplace` (or any name).
-2. Copy these files into the repo root and commit.
-3. Enable GitHub Pages: Settings → Pages → Branch: `main` → Folder: `(root)`.
-4. Visit `https://<your-username>.github.io/<repo-name>/`.
+## Deployment
+1. Push all files to GitHub repository.
+2. Enable GitHub Pages: Settings → Pages → branch: main → folder: /(root)
+3. Visit: `https://rampaulsaini.github.io/omniverse-dashboard/`
 
-## Notes
-- This is intentionally zero-cost: no server, no external paid API calls by default.
-- If you add an OpenAI API key in Owner Settings (locally), OpenAI calls may be made and will incur costs on that account.
+## Usage
+- Edit Owner name & donation links
+- Add tools and define template + example JSON
+- Click Generate → see live output
+- Tips buttons open Paytm / PayPal
 - 
