@@ -16,7 +16,17 @@ window.OmniTools = (function(){
   const tools = [
     { id:'resume', title:'Resume Generator', price:49,
       prompt: (input)=> `Create a professional resume for: ${input.name || 'John Doe'}. Title: ${input.title||'Software Engineer'}. Skills: ${input.skills||'JavaScript, Python'}. Keep it concise.`,
-      run: async (input)=> await AICore.mockCall( (typeof input==='object'? JSON.stringify(input): input) )
+      run: async (// inside tool.run
+run: async (input) => {
+  const prompt = `Create resume for ${input.name} ...`; // build properly
+  try {
+    return await AICore.callServer(prompt);
+  } catch(e) {
+    console.warn('AI server failed, falling back to mock', e);
+    return AICore.mockCall(prompt);
+  }
+  }
+  )=> await AICore.mockCall( (typeof input==='object'? JSON.stringify(input): input) )
     },
     { id:'bio', title:'Short Bio', price:9,
       prompt: (input)=> `Write a short 2-line professional bio for ${input.name||'John Doe'} in ${input.field||'AI'} field.`,
