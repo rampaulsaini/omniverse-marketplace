@@ -1,0 +1,52 @@
+// Load saved settings
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("paytm").href = localStorage.getItem("paytmLink") || "#";
+    document.getElementById("paypal").href = localStorage.getItem("paypalLink") || "#";
+});
+
+// Open / Close Settings Modal
+document.getElementById("openSettings").onclick = () => {
+    document.getElementById("settingsModal").style.display = "block";
+};
+document.getElementById("closeSettings").onclick = () => {
+    document.getElementById("settingsModal").style.display = "none";
+};
+
+// Save Premium Key
+document.getElementById("saveKey").onclick = () => {
+    const key = document.getElementById("premiumKeyInput").value;
+    localStorage.setItem("premiumKey", key);
+    alert("Premium key saved!");
+};
+
+// Save Payment Links
+document.getElementById("savePaytm").onclick = () => {
+    localStorage.setItem("paytmLink", document.getElementById("paytmLink").value);
+    alert("Paytm link saved!");
+};
+document.getElementById("savePaypal").onclick = () => {
+    localStorage.setItem("paypalLink", document.getElementById("paypalLink").value);
+    alert("PayPal link saved!");
+};
+
+// Generate AI output (demo text for now)
+document.getElementById("generateBtn").onclick = () => {
+    document.getElementById("outputArea").value =
+        "This is your AI generated output.\nCustom tools will be added next.";
+};
+
+// Clear
+document.getElementById("clearBtn").onclick = () => {
+    document.getElementById("toolInput").value = "";
+    document.getElementById("outputArea").value = "";
+};
+
+// Download file
+document.getElementById("downloadBtn").onclick = () => {
+    const text = document.getElementById("outputArea").value;
+    const blob = new Blob([text], { type: "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "ai-output.txt";
+    a.click();
+};
