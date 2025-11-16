@@ -1,125 +1,98 @@
-<<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Omniverse — AI Tools Marketplace</title>
-<link rel="icon" href="assets/favicon.ico">
-<link rel="stylesheet" href="assets/style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Omniverse Marketplace — AI Tools</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="assets/favicon.ico" />
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
-<header class="topbar">
-  <div class="wrap">
-    <div class="brand">
-      <div class="logo"><img src="assets/logo.svg" alt="Omniverse" style="height:28px;vertical-align:middle"> <span style="margin-left:8px">Omniverse</span></div>
-      <div class="tag">AI Tools Marketplace — Free hosting · Donation-ready</div>
+
+    <!-- HEADER -->
+    <header class="header">
+        <img src="assets/logo.svg" class="logo" alt="Omniverse Logo">
+        <h1>Omniverse AI Tools Marketplace</h1>
+        <p class="subtitle">Free tools · Zero hosting cost · Donation-ready · Unlock Premium outputs</p>
+    </header>
+
+    <!-- OWNER SETTINGS -->
+    <section class="settings-box">
+        <h3>Owner Settings</h3>
+
+        <label>Set Premium Unlock Key:</label>
+        <input id="ownerKey" type="password" placeholder="Enter new unlock key">
+        <button onclick="setUnlockKey()">Save Key</button>
+
+        <label>Donation / Payment Link:</label>
+        <input id="donateLink" type="text" placeholder="https://your-payment-link.com">
+        <button onclick="saveDonationLink()">Save Payment Link</button>
+
+        <p class="note">These settings only save locally (browser storage). No server needed.</p>
+    </section>
+
+    <!-- UNLOCK PREMIUM SECTION -->
+    <section class="unlock-box">
+        <h3>Unlock Premium Output</h3>
+        <input id="userUnlock" type="password" placeholder="Enter unlock key">
+        <button onclick="verifyKey()">Unlock</button>
+
+        <a id="donateBtn" href="#" target="_blank" class="donate-btn">Donate / Pay</a>
+
+        <p id="unlockStatus" class="status"></p>
+    </section>
+
+    <!-- TOOL SELECTOR -->
+    <div class="tool-selector">
+        <h2>AI Tools</h2>
+        <select id="toolMenu" onchange="selectTool()">
+            <option value="" disabled selected>Select a Tool</option>
+            <option value="resume">Resume Generator</option>
+            <option value="bio">Bio Generator</option>
+            <option value="script">Script Writer</option>
+            <option value="notes">Notes Maker</option>
+            <option value="business">Business Idea Generator</option>
+            <option value="caption">Social Caption Maker</option>
+            <option value="slogan">Brand Slogan Generator</option>
+            <option value="legal">Legal Letter Generator</option>
+            <option value="template">Website Template Generator</option>
+            <option value="automation">Task Automation Prompter</option>
+        </select>
     </div>
-    <<button id="btnEnterKey" class="btn subtle">Enter Unlock Key</button>
-      >
-      <button id="btnDonate" class="btn">Donate / Pay</button>
-      <button id="btnOwner" class="btn subtle">Owner: Set Premium Key</button>
-    </nav>
-  </div>
-</header>
 
-<main class="container">
-  <section class="intro card">
-    <h1>Omniverse AI Marketplace — Hybrid (Marketplace + Services + Agents)</h1>
-    <p class="muted">Start free: try tools, download outputs. To accept payments, add your PayPal / Ko-fi / UPI links in Settings (owner). For pay-per-download you can ask buyers to send a transaction ID and then give them the unlock key.</p>
-  </section>
-
-  <section class="tools-grid" id="toolsGrid">
-    <!-- dynamic tools inserted here -->
-  </section>
-
-  <section class="card" id="analyticsCard">
-    <h3>Usage Summary (local)</h3>
-    <div id="analyticsList" class="muted">No activity yet.</div>
-  </section>
-</main>
-
-<!-- Donates / Payment modal -->
-<div id="modal" class="modal hidden">
-  <div class="modal-content">
-    <button class="close" id="modalClose">&times;</button>
-    <h3>Donate / Pay — Options</h3>
-    <p>Place your payment links below (owner can update these in the prompt box):</p>
-    <div>
-      <label>PayPal.Me or full PayPal link</label>
-      <input id="inputPayPal" placeholder="https://paypal.me/yourname or https://www.paypal.com/paypalme/..." />
-      <label>Ko-fi / Buy Me a Coffee</label>
-      <input id="inputKofi" placeholder="https://ko-fi.com/yourname" />
-      <label>UPI (text) — show to users as copyable text</label>
-      <input id="inputUPI" placeholder="yourupi@bank or UPI deep link" />
-      <small class="muted">Fill these and click Save (Owner only). They are stored in browser localStorage for this device. For real production, store server-side.</small>
-      <div style="margin-top:10px;text-align:right">
-        <button id="savePayment" class="btn">Save (owner)</button>
-      </div>
+    <!-- TOOL INPUT AREA -->
+    <div class="tool-box">
+        <h3 id="toolTitle">Select a tool above</h3>
+        <textarea id="toolInput" placeholder="Enter your details..."></textarea>
+        <button class="run-btn" onclick="runTool()">Generate</button>
     </div>
-  </div>
-</div>
 
-<!-- Owner premium-key modal -->
-<div id="ownerModal" class="modal hidden">
-  <div class="modal-content">
-    <button class="close" id="ownerClose">&times;</button>
-    <h3>Owner: Set / Remove Premium Unlock Key</h3>
-    <p class="muted">This is a simple manual workflow for zero-cost monetization: when a buyer pays externally (PayPal/UPI/etc), you give them a one-time unlock key to enable premium downloads.</p>
-    <label>Set Premium Key (example: OMNI-2025-XYZ)</label>
-    <input id="premiumKeyInput" placeholder="Type a key (case-sensitive)"/>
-    <div style="margin-top:8px;text-align:right">
-      <button id="saveKey" class="btn">Save Key</button>
-      <button id="removeKey" class="btn subtle">Remove Key</button>
+    <!-- OUTPUT -->
+    <div class="output-box">
+        <h3>AI Output</h3>
+        <pre id="toolOutput">Your output will appear here...</pre>
+
+        <button onclick="downloadOutput()">Download</button>
+        <button onclick="clearOutput()">Clear</button>
     </div>
-  </div>
-</div>
 
-<footer class="footer">
-  <div class="wrap muted small">Built for zero-cost launch. Owner: add your payment links and premium key in Settings. Want me to integrate automatic payment verification later? Ask and I will build the serverless flow.</div>
-</footer>
+    <!-- FOOTER -->
+    <footer class="footer">
+        © 2025 Omniverse Marketplace. Built for zero-cost global launch.
+    </footer>
 
-<script src="scripts/tools.js"></script>
-<script src="scripts/ui.js"></script>
-<script src="scripts/analytics.js"></script>
-<script src="scripts/payments.js"></script>
-<script>
-  OmniUI.init();
-</script>
+    <!-- SCRIPTS -->
+    <script src="scripts/ai-core.js"></script>
+    <script src="scripts/tools.js"></script>
+    <script src="scripts/ui.js"></script>
+    <script src="scripts/marketplace.js"></script>
+
 </body>
-    </html>
-html>
-<html lang="hi">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Omniverse Marketplace — Live</title>
-  <style>
-    body{font-family:Inter,Arial;background:#071428;color:#e6eef8;padding:32px}
-    .card{background:#081425;padding:20px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);max-width:900px;margin:0 auto}
-    a{color:#60a5fa}
-  </style>
-</head>
-<<!-- Buyer: Enter Unlock Key modal -->
-<div id="enterKeyModal" class="modal hidden">
-  <div class="modal-content">
-    <button class="close" id="enterKeyClose">&times;</button>
-    <h3>Enter Premium Unlock Key</h3>
-    <p class="muted">यदि आपने पेमेंट किया है और owner ने आपको एक unlock key दिया है — यहाँ डालें।</p>
-    <input id="buyerUnlockInput" placeholder="Enter unlock key, e.g. OMNI-2025-ABC" />
-    <div style="text-align:right;margin-top:10px">
-      <button id="applyUnlock" class="btn">Apply Key</button>
-    </div>
-  </div>
-</div>
-  >
-  <div class="card">
-    <h1>Omniverse Marketplace</h1>
-    <p>Site is live — congratulations! 🎉</p>
-    <ul>
-      <li>Repo: <strong>rampaulsaini/omniverse-marketplace</strong></li>
-      <li>Pages URL: <a href="https://rampaulsaini.github.io/omniverse-marketplace/" target="_blank">https://rampaulsaini.github.io/omniverse-marketplace/</a></li>
-    </ul>
-    <p class="muted">अब आप आगे full marketplace files (assets/, scripts/) upload कर सकते हैं — मैं उन्हें भी यहाँ paste कर दूँगा/गी ताकि आप सीधे copy/paste कर सकें।</p>
-  </div>
-</body>
-</html>
+              </html>
+  
