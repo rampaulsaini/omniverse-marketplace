@@ -415,3 +415,66 @@
         return;
       }
       const frag = document.
+        function renderDonateButtons(){
+  donateArea.innerHTML = '';
+  const links = owner.donate || [];
+  if(!links.length){
+    donateArea.innerHTML = '<div class="small muted">Donate (visible to users) — no links configured.</div>';
+    return;
+  }
+
+  // create fragment and buttons
+  const frag = document.createDocumentFragment();
+  links.forEach((l, idx) => {
+    const a = document.createElement('a');
+    a.href = l;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.className = 'badge';
+    a.style.marginRight = '8px';
+    // friendly label depending on link type
+    let label = 'Donate';
+    const lower = l.toLowerCase();
+    if(lower.startsWith('upi:') || lower.includes('upi')) label = 'Pay UPI';
+    else if(lower.includes('paypal.me') || lower.includes('paypal')) label = 'PayPal';
+    else if(lower.includes('ko-fi') || lower.includes('kofi')) label = 'Ko-fi';
+    else if(lower.includes('razorpay') || lower.includes('paytm')) label = 'Pay';
+    // display label and short link
+    a.textContent = label;
+    a.title = l;
+    frag.appendChild(a);
+
+    // Also add a small copy button next to each link for users who want to copy UPI or link
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'ghost';
+    copyBtn.style.padding = '6px';
+    copyBtn.style.fontSize = '12px';
+    copyBtn.textContent = 'Copy';
+    copyBtn.title = 'Copy link to clipboard';
+    copyBtn.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      try {
+        navigator.clipboard.writeText(l).then(() => {
+          copyBtn.textContent = 'Copied';
+          setTimeout(()=> copyBtn.textContent = 'Copy', 1200);
+        }).catch(() => {
+          // fallback: create temporary input
+          const tmp = document.createElement('input');
+          tmp.value = l;
+          document.body.appendChild(tmp);
+          tmp.select();
+          try{ document.execCommand('copy'); copyBtn.textContent='Copied'; } catch(e){ alert('Copy failed — manually copy: ' + l); }
+          tmp.remove();
+          setTimeout(()=> copyBtn.textContent = 'Copy', 1200);
+        });
+      } catch(e){
+        alert('Copy not supported: ' + e.message);
+      }
+    });
+
+    frag.appendChild(copyBtn);
+  });
+
+  donateArea.appendChild(frag);
+    }
+    
