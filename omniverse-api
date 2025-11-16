@@ -1,3 +1,6 @@
+<label>OpenAI API Key (optional)</label>
+<input type="text" id="omniverse-openai-key" placeholder="sk-xxxx">
+<button class="action" onclick="saveOpenAIKey()">Save API Key</button>
 {
   "name": "omniverse-api",
   "version": "1.0.0",
