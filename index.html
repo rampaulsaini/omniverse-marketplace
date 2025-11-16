@@ -6,539 +6,462 @@
   <title>Omniverse Marketplace — Local Demo</title>
   <style>
     :root{
-      --bg:#07142a; --card:#08172f; --muted:#9fb0d6; --accent:#60a5fa;
+      --bg:#071025; --card:#081425; --muted:#9fb0d9; --accent:#60a5fa;
       --glass: rgba(255,255,255,0.03);
     }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:linear-gradient(180deg,#041022 0%, #061428 100%);color:#e6eef8;min-height:100vh}
-    .wrap{max-width:1100px;margin:18px auto;padding:18px}
-    header{display:flex;gap:12px;align-items:center;margin-bottom:14px}
-    h1{font-size:18px;margin:0}
-    .grid{display:grid;grid-template-columns:320px 1fr;gap:14px}
-    .card{background:linear-gradient(180deg,var(--card), rgba(0,0,0,0.02));border:1px solid var(--glass);padding:12px;border-radius:10px}
-    label{display:block;font-size:13px;color:var(--muted);margin-top:8px}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;background:linear-gradient(180deg,var(--bg),#021029);color:#e6eef8}
+    .wrap{max-width:1100px;margin:18px auto;padding:16px;display:grid;grid-template-columns:360px 1fr;gap:16px}
+    .card{background:linear-gradient(180deg,var(--card),rgba(0,0,0,0.02));border:1px solid var(--glass);padding:12px;border-radius:10px}
+    header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+    h1{margin:0;font-size:18px}
+    label{display:block;font-size:13px;margin-top:8px;color:var(--muted)}
     input[type="text"], textarea, select {width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
-    button{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:inherit;cursor:pointer}
+    button{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:#e6eef8;cursor:pointer;margin-right:6px}
     .muted{color:var(--muted);font-size:13px}
     .small{font-size:13px}
-    .tools-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-    .tool-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;border:1px dashed rgba(255,255,255,0.02);background:linear-gradient(180deg,transparent, rgba(255,255,255,0.01))}
-    .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .tools-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+    .tool-item{padding:8px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);display:flex;align-items:center;justify-content:space-between}
+    .tool-meta{font-size:13px;color:var(--muted)}
     .flex{display:flex;gap:8px;align-items:center}
-    textarea{min-height:80px;resize:vertical}
-    .preview-box{background:#021426;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);min-height:140px;white-space:pre-wrap}
-    footer{margin-top:12px;color:var(--muted);font-size:13px}
-    .badge{background:rgba(255,255,255,0.02);padding:4px 8px;border-radius:999px;font-size:12px}
-    .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .topbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+    textarea{min-height:90px}
+    .panel{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .full{grid-column:1/-1}
-    .danger{border-color:#ff6b6b;color:#ffb4b4}
-    .ok{border-color:#2dd4bf;color:#bbfff0}
-    .hidden{display:none}
-    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .kbd{background:#0b1220;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);font-family:monospace}
+    footer{margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
+    .notice{background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;font-size:13px;color:var(--muted)}
+    .bignum{font-weight:700;font-size:20px}
+    .split{display:flex;gap:8px;align-items:center}
+    .editor-row{display:flex;gap:8px}
+    @media (max-width:900px){.wrap{grid-template-columns:1fr;}}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <div>
-        <h1>Omniverse Marketplace — Local Demo</h1>
-        <div class="muted">Zero-cost · Donation-ready · Settings & stats local to your browser</div>
-      </div>
-      <div style="margin-left:auto" class="flex">
-        <div class="badge" id="ownerBadge">Owner: —</div>
-        <div class="badge" id="toolsBadge">Tools: 0</div>
-        <div class="badge" id="usesBadge">Uses: 0</div>
-        <div class="badge" id="downloadsBadge">Downloads: 0</div>
-      </div>
-    </header>
+    <div>
+      <div class="card">
+        <header>
+          <div>
+            <h1>Omniverse Marketplace — Local Demo</h1>
+            <div class="muted">Zero-cost · Donation-ready · Settings & stats local to your browser</div>
+          </div>
+        </header>
 
-    <div class="grid">
-      <!-- LEFT: Owner / Controls -->
-      <div>
-        <div class="card">
-          <strong>Owner Settings (Local)</strong>
-          <div class="muted small">Owner settings केवल आपके ब्राउज़र में सेव होते हैं।</div>
-
-          <label>Owner name</label>
-          <input id="ownerName" placeholder="आपका नाम (Owner)">
-
-          <label>Donate / Pay links (comma separated)</label>
-          <input id="ownerLinks" placeholder="upi:abc@bank, https://paypal.me/you, https://ko-fi.com/you">
-
-          <div class="btn-row">
-            <button id="saveOwner">Save Settings</button>
-            <button id="exportOwner">Export</button>
-            <button id="importOwner">Import</button>
-            <button id="resetOwner" class="danger">Reset</button>
+        <div class="topbar">
+          <div>
+            <div class="muted">Owner:</div>
+            <div id="ownerName" class="bignum">—</div>
+          </div>
+          <div style="text-align:right">
+            <div class="muted">Tools:</div>
+            <div id="toolsCount" class="bignum">0</div>
           </div>
         </div>
 
-        <div class="card" style="margin-top:12px">
-          <strong>Marketplace Controls</strong>
-          <div class="muted small">Tools और stats localStorage में रहते हैं।</div>
-          <div style="margin-top:8px">
-            <div class="small">Owner: <span id="ownerNameDisplay">—</span></div>
-            <div class="small">Tools: <span id="toolsCount">0</span></div>
-            <div class="small">Downloads: <span id="totalDownloads">0</span></div>
-            <div class="small">Uses: <span id="totalUses">0</span></div>
-          </div>
-
-          <div class="btn-row" style="margin-top:10px">
-            <button id="addTool">+ Add Demo Tool</button>
-            <button id="resetTools" class="danger">Reset Tools</button>
-            <button id="openDashboard">Open Dashboard</button>
-          </div>
+        <div class="notice">
+          <div class="muted">Owner Settings (Local)</div>
+          <div style="font-size:13px">Owner settings केवल आपके ब्राउज़र में सेव होते हैं।</div>
         </div>
 
-        <div class="card" style="margin-top:12px">
-          <strong>Tools list</strong>
+        <label>Owner name</label>
+        <input id="ownerInput" type="text" placeholder="आपका नाम (Owner)" />
+
+        <label>Donate / Pay links (comma separated)</label>
+        <input id="donateInput" type="text" placeholder="upi:abc@bank, https://paypal.me/you, https://ko-fi.com/you" />
+
+        <div style="margin-top:8px" class="actions">
+          <button id="saveOwner">Save Settings</button>
+          <button id="exportOwner">Export</button>
+          <button id="importOwner">Import</button>
+          <button id="resetOwner">Reset</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div class="muted">Marketplace Controls</div>
+            <div class="muted small">Tools और stats localStorage में रहते हैं।</div>
+          </div>
+          <div class="small muted">Uses: <span id="totalUses">0</span> • Downloads: <span id="totalDownloads">0</span></div>
+        </div>
+
+        <div class="actions" style="margin-top:10px">
+          <button id="addTool">+ Add Demo Tool</button>
+          <button id="resetTools">Reset Tools</button>
+          <button id="openDashboard">Open Dashboard</button>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="muted">Tools list</div>
           <div class="muted small">Import / Export: Paste exported JSON and Apply</div>
 
-          <div style="margin-top:8px" class="cols">
-            <textarea id="importArea" placeholder="Paste exported JSON here"></textarea>
-            <div>
-              <div style="display:flex;flex-direction:column;gap:8px">
-                <button id="applyImport">Apply Import</button>
-                <button id="exportAll">Export All</button>
-                <button id="resetAllStats" class="danger">Reset all stats</button>
-              </div>
-            </div>
+          <textarea id="importArea" placeholder="Paste exported JSON here" style="margin-top:8px"></textarea>
+          <div class="actions" style="margin-top:8px">
+            <button id="applyImport">Apply Import</button>
+            <button id="exportAll">Export All</button>
+            <button id="resetAllStats">Reset all stats</button>
           </div>
 
-          <div class="tools-list" id="toolsList" style="margin-top:10px">
-            <!-- populated -->
-          </div>
+          <div class="tools-list" id="toolsList" style="margin-top:12px"></div>
         </div>
       </div>
 
-      <!-- RIGHT: Tool area -->
-      <div>
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <strong id="selectedToolName">— Select a tool —</strong>
-              <div class="muted small">Tools are local. Generate outputs, download, tip owner.</div>
-            </div>
-            <div class="muted small">Selected Uses: <span id="selUses">0</span> • Downloads: <span id="selDownloads">0</span></div>
-          </div>
-
-          <div style="margin-top:10px">
-            <div class="muted">Tool description</div>
-            <div id="selectedToolDesc" class="muted small" style="margin-top:6px">Tool description will appear here.</div>
-          </div>
-
-          <label style="margin-top:10px">Tip: structured JSON input देने से output बेहतर होगा।</label>
-          <textarea id="jsonInput" placeholder='Enter JSON input for the selected tool e.g. {"name":"Your Name","field":"AI"}'></textarea>
-
-          <div class="btn-row" style="margin-top:10px">
-            <button id="generateBtn">Generate</button>
-            <button id="clearOutput">Clear</button>
-            <button id="copyOutput">Copy</button>
-            <button id="downloadOutput">⬇️ Download</button>
-            <div style="margin-left:auto" class="flex">
-              <button id="resetToolStats" class="danger">Reset Tool Stats</button>
-              <button id="exportTool">Export Tool</button>
-            </div>
-          </div>
-
-          <div style="margin-top:10px">
-            <div class="preview-box" id="outputArea">AI output (demo — client-side)
-No external APIs called. Owner can export/import settings.</div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:12px">
-          <strong>Tool Editor</strong>
-          <div class="muted small">Edit selected tool (saved locally)</div>
-
-          <label>Tool Name</label>
-          <input id="toolName" placeholder="Tool name">
-
-          <label>Template (use {{key}} placeholders)</label>
-          <textarea id="toolTemplate" placeholder="Hello {{name}}, welcome to {{field}}"></textarea>
-
-          <label>Tool description (short)</label>
-          <input id="toolDesc" placeholder="Short description">
-
-          <div class="btn-row" style="margin-top:8px">
-            <button id="saveTool">Save Tool</button>
-            <button id="deleteTool" class="danger">Delete</button>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:12px">
-          <strong>Owner links</strong>
-          <div class="muted small" id="ownerLinksList">—</div>
-        </div>
+      <div class="card" style="margin-top:12px">
+        <div class="muted">Owner links</div>
+        <div id="ownerLinks" style="margin-top:8px">—</div>
+        <footer>© Omniverse Marketplace — localStorage only · Deploy: GitHub Pages<br>For paid integrations add links in Owner Settings</footer>
       </div>
     </div>
 
-    <footer>
-      © Omniverse Marketplace — localStorage only · Deploy: GitHub Pages<br>
-      For paid integrations add links in Owner Settings
-    </footer>
+    <div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div class="muted">— Select a tool —</div>
+            <div id="selectedTitle" class="bignum">Tools are local. Generate outputs, download, tip owner.</div>
+          </div>
+          <div class="muted small">Selected Uses: <span id="selUses">0</span> • Downloads: <span id="selDownloads">0</span></div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="muted">Tool description</div>
+          <div id="selectedDesc" class="muted" style="margin-top:6px">Tool description will appear here.</div>
+          <div class="muted" style="margin-top:6px">Tip: structured JSON input देने से output बेहतर होगा।</div>
+        </div>
+
+        <label style="margin-top:10px">Enter JSON input for the selected tool e.g. {"name":"Your Name","field":"AI"}</label>
+        <textarea id="jsonInput" placeholder='{"name":"Your Name","field":"AI"}'></textarea>
+
+        <div class="actions" style="margin-top:8px">
+          <button id="generateBtn">Generate</button>
+          <button id="clearOutput">Clear</button>
+          <button id="copyOutput">Copy</button>
+          <button id="downloadOutput">⬇️ Download</button>
+          <button id="resetToolStats">Reset Tool Stats</button>
+          <button id="exportTool">Export Tool</button>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="muted">AI output (demo — client-side)</div>
+          <div id="outBox" style="margin-top:8px;white-space:pre-wrap;background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;min-height:160px"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="muted">Tool Editor</div>
+        <div style="margin-top:8px" class="panel">
+          <div>
+            <label>Tool Name</label>
+            <input id="editName" type="text" placeholder="Tool name" />
+            <label style="margin-top:8px">Template (use {{key}} placeholders)</label>
+            <textarea id="editTemplate" placeholder="Hello {{name}}, welcome to {{field}}"></textarea>
+          </div>
+          <div>
+            <label>Tool description (short)</label>
+            <input id="editDesc" type="text" placeholder="Short description" />
+            <label style="margin-top:8px">Example input (JSON)</label>
+            <textarea id="editExample" placeholder='{"name":"Your Name","field":"AI"}'></textarea>
+          </div>
+          <div class="full actions">
+            <button id="saveTool">Save Tool</button>
+            <button id="deleteTool">Delete</button>
+            <div class="muted" style="align-self:center">Saved tools are local to your browser.</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <script>
-    // Single-file local storage Omniverse Marketplace
-    (function(){
-      const LS_KEYS = {
-        OWNER: 'omni_owner_v1',
-        TOOLS: 'omni_tools_v1',
-        STATS: 'omni_stats_v1' // aggregate
-      };
+<script>
+/*
+  Omniverse Marketplace — single-file app
+  - All data stored in localStorage under keys:
+      OMN_OWNER, OMN_TOOLS, OMN_STATS
+  - No external APIs called.
+  - Use: paste this into index.html replacing old file.
+*/
 
-      // Utilities
-      const $ = (id)=>document.getElementById(id);
-      const q = (sel, ctx=document)=>ctx.querySelector(sel);
-      const notify = (t)=>{ console.log('[omni]', t); };
+const LS_OWNER = 'OMN_OWNER_v1';
+const LS_TOOLS = 'OMN_TOOLS_v1';
+const LS_STATS = 'OMN_STATS_v1';
 
-      // State
-      let tools = {}; // {id: {id,name,template,desc}}
-      let stats = { totalUses:0, totalDownloads:0, perTool: {} };
-      let owner = { name:'', links: '' };
-      let selectedToolId = null;
+function now(){ return new Date().toISOString(); }
 
-      // DOM refs
-      const ownerName = $('ownerName'), ownerLinks = $('ownerLinks'), saveOwnerBtn = $('saveOwner');
-      const exportOwnerBtn = $('exportOwner'), importOwnerBtn = $('importOwner'), resetOwnerBtn = $('resetOwner');
-      const ownerBadge = $('ownerBadge'), ownerNameDisplay = $('ownerNameDisplay'), ownerLinksList = $('ownerLinksList');
+/* ---------- Storage helpers ---------- */
+function loadOwner(){
+  try{ return JSON.parse(localStorage.getItem(LS_OWNER) || '{}'); }catch(e){ return {}; }
+}
+function saveOwner(o){ localStorage.setItem(LS_OWNER, JSON.stringify(o||{})); renderOwner(); }
+function resetOwner(){ localStorage.removeItem(LS_OWNER); renderOwner(); }
 
-      const toolsListEl = $('toolsList'), addToolBtn = $('addTool'), resetToolsBtn = $('resetTools'), openDashboardBtn = $('openDashboard');
-      const importArea = $('importArea'), applyImportBtn = $('applyImport'), exportAllBtn = $('exportAll');
-      const resetAllStatsBtn = $('resetAllStats');
+function loadTools(){
+  try{ return JSON.parse(localStorage.getItem(LS_TOOLS) || '[]'); }catch(e){ return []; }
+}
+function saveTools(tools){ localStorage.setItem(LS_TOOLS, JSON.stringify(tools||[])); renderTools(); renderOwner(); }
+function resetTools(){ localStorage.removeItem(LS_TOOLS); renderTools(); renderOwner(); }
 
-      const selectedToolName = $('selectedToolName'), selectedToolDesc = $('selectedToolDesc');
-      const jsonInput = $('jsonInput'), generateBtn = $('generateBtn'), clearOutput = $('clearOutput'), copyOutput = $('copyOutput'), downloadOutput = $('downloadOutput');
-      const outputArea = $('outputArea'), selUses = $('selUses'), selDownloads = $('selDownloads');
+function loadStats(){
+  try{ return JSON.parse(localStorage.getItem(LS_STATS) || '{}'); }catch(e){ return {}; }
+}
+function saveStats(s){ localStorage.setItem(LS_STATS, JSON.stringify(s||{})); renderStats(); }
+function resetStats(){ localStorage.removeItem(LS_STATS); renderStats(); }
 
-      const toolNameIn = $('toolName'), toolTemplateIn = $('toolTemplate'), toolDescIn = $('toolDesc');
-      const saveToolBtn = $('saveTool'), deleteToolBtn = $('deleteTool');
-      const toolsBadge = $('toolsBadge'), toolsCount = $('toolsCount');
-      const totalDownloadsEl = $('totalDownloads'), totalUsesEl = $('totalUses'), usesBadge = $('usesBadge'), downloadsBadge = $('downloadsBadge');
-      const ownerBadgeEl = ownerBadge;
+/* ---------- Utilities ---------- */
+function id(){ return 't_' + Math.random().toString(36).slice(2,9); }
 
-      const resetToolStatsBtn = $('resetToolStats'), exportToolBtn = $('exportTool');
+function parseJSONInput(txt){
+  try{
+    if(!txt || !txt.trim()) return {};
+    const v = JSON.parse(txt);
+    return v && typeof v === 'object' ? v : {};
+  }catch(e){
+    return null; // invalid
+  }
+}
 
-      // helpers
-      function uid(prefix='t'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
-      function loadState(){
-        try{ owner = JSON.parse(localStorage.getItem(LS_KEYS.OWNER)) || {name:'', links:''}; }catch(e){owner={name:'',links:''}}
-        try{ tools = JSON.parse(localStorage.getItem(LS_KEYS.TOOLS)) || {}; }catch(e){tools={}}
-        try{ stats = JSON.parse(localStorage.getItem(LS_KEYS.STATS)) || { totalUses:0, totalDownloads:0, perTool: {} }; }catch(e){stats={ totalUses:0, totalDownloads:0, perTool:{} }}
-      }
-      function saveAll(){
-        localStorage.setItem(LS_KEYS.OWNER, JSON.stringify(owner));
-        localStorage.setItem(LS_KEYS.TOOLS, JSON.stringify(tools));
-        localStorage.setItem(LS_KEYS.STATS, JSON.stringify(stats));
-        renderAll();
-      }
+function applyTemplate(tpl, data){
+  // Replace {{key}} with data[key], nested simple keys supported (a.b)
+  return tpl.replace(/{{\s*([a-zA-Z0-9_.-]+)\s*}}/g, (_, key)=>{
+    const parts = key.split('.');
+    let cur = data;
+    for(const p of parts){
+      if(cur && (p in cur)) cur = cur[p];
+      else { cur = undefined; break; }
+    }
+    return (cur === undefined || cur === null) ? '' : String(cur);
+  });
+}
 
-      function renderOwner(){
-        ownerBadge.textContent = 'Owner: ' + (owner.name || '—');
-        ownerNameDisplay.textContent = owner.name || '—';
-        ownerName.value = owner.name || '';
-        ownerLinks.value = owner.links || '';
-        ownerLinksList.innerHTML = owner.links ? owner.links.split(',').map(s=>s.trim()).filter(Boolean).map(s=> {
-          const a = s.startsWith('http') || s.startsWith('upi:') ? s : s;
-          return `<div><a href="${s.startsWith('http')?s:'#'}" target="_blank" style="color:var(--accent)">${a}</a></div>`;
-        }).join('') : '—';
-      }
+/* ---------- Rendering ---------- */
+let selectedToolId = null;
 
-      function aggregateStats(){
-        const tcount = Object.keys(tools).length;
-        toolsBadge.textContent = 'Tools: ' + tcount;
-        toolsCount.textContent = tcount;
-        totalDownloadsEl.textContent = stats.totalDownloads || 0;
-        totalUsesEl.textContent = stats.totalUses || 0;
-        usesBadge.textContent = 'Uses: ' + (stats.totalUses || 0);
-        downloadsBadge.textContent = 'Downloads: ' + (stats.totalDownloads || 0);
-        toolsCount.textContent = tcount;
-      }
+function renderOwner(){
+  const o = loadOwner();
+  document.getElementById('ownerName').textContent = o.name || '—';
+  document.getElementById('ownerInput').value = o.name || '';
+  document.getElementById('donateInput').value = (o.donates||[]).join(', ') || '';
+  // owner links
+  const links = (o.donates||[]).map(l=> {
+    if(l.startsWith('upi:')) return `<div><a href="#" data-upi="${l}">UPI: ${l.slice(4)}</a></div>`;
+    return `<div><a href="${l}" target="_blank" rel="noreferrer">${l}</a></div>`;
+  }).join('');
+  document.getElementById('ownerLinks').innerHTML = links || '—';
+}
 
-      function renderToolsList(){
-        toolsListEl.innerHTML = '';
-        const ids = Object.keys(tools);
-        if(!ids.length){
-          const el = document.createElement('div');
-          el.className = 'muted small';
-          el.textContent = '— कोई tools नहीं —';
-          toolsListEl.appendChild(el);
-          return;
-        }
-        ids.forEach(id=>{
-          const t = tools[id];
-          const item = document.createElement('div');
-          item.className = 'tool-item';
-          item.innerHTML = `
-            <div>
-              <div style="font-weight:600">${escapeHtml(t.name)}</div>
-              <div class="muted small">${escapeHtml(t.desc || '')}</div>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center">
-              <div class="muted small" style="min-width:80px;text-align:right">Uses: ${stats.perTool[id]?.uses||0} • Dls: ${stats.perTool[id]?.downloads||0}</div>
-              <button data-id="${id}" class="selectBtn">Open</button>
-            </div>
-          `;
-          toolsListEl.appendChild(item);
-        });
+function renderTools(){
+  const tools = loadTools();
+  document.getElementById('toolsCount').textContent = tools.length;
+  const list = document.getElementById('toolsList');
+  list.innerHTML = '';
+  if(tools.length===0){
+    const empty = document.createElement('div'); empty.className='muted small'; empty.textContent='No tools yet.';
+    list.appendChild(empty);
+    selectTool(null);
+    return;
+  }
+  tools.forEach(t=>{
+    const el = document.createElement('div'); el.className='tool-item';
+    const left = document.createElement('div');
+    left.innerHTML = `<div style="font-weight:600">${t.name}</div><div class="tool-meta">${t.desc||''}</div>`;
+    const right = document.createElement('div');
+    right.className='flex';
+    const selBtn = document.createElement('button'); selBtn.textContent = 'Select';
+    selBtn.onclick = ()=> selectTool(t.id);
+    const editBtn = document.createElement('button'); editBtn.textContent = 'Edit';
+    editBtn.onclick = ()=> loadToolToEditor(t.id);
+    right.appendChild(selBtn); right.appendChild(editBtn);
+    el.appendChild(left); el.appendChild(right);
+    list.appendChild(el);
+  });
+  // if selectedToolId null, select first
+  if(!selectedToolId && tools.length>0) selectTool(tools[0].id);
+  updateTotals();
+}
 
-        // attach select handlers
-        toolsListEl.querySelectorAll('.selectBtn').forEach(b=>{
-          b.addEventListener('click', (e)=>{
-            const id = e.currentTarget.getAttribute('data-id');
-            selectTool(id);
-          });
-        });
-      }
+function renderStats(){
+  const s = loadStats();
+  const totalUses = Object.values(s).reduce((acc,t)=> acc + (t.uses||0),0);
+  const totalDownloads = Object.values(s).reduce((acc,t)=> acc + (t.downloads||0),0);
+  document.getElementById('totalUses').textContent = totalUses;
+  document.getElementById('totalDownloads').textContent = totalDownloads;
+  // selected
+  const sel = s[selectedToolId] || {uses:0,downloads:0};
+  document.getElementById('selUses').textContent = sel.uses || 0;
+  document.getElementById('selDownloads').textContent = sel.downloads || 0;
+}
 
-      function selectTool(id){
-        if(!id || !tools[id]) { selectedToolId = null; clearSelection(); return; }
-        selectedToolId = id;
-        const t = tools[id];
-        selectedToolName.textContent = t.name;
-        selectedToolDesc.textContent = t.desc || '—';
-        toolNameIn.value = t.name;
-        toolTemplateIn.value = t.template;
-        toolDescIn.value = t.desc || '';
-        const ps = stats.perTool[id] || {uses:0, downloads:0};
-        selUses.textContent = ps.uses || 0;
-        selDownloads.textContent = ps.downloads || 0;
-      }
+/* ---------- Selection & Editor ---------- */
+function selectTool(idVal){
+  selectedToolId = idVal;
+  const tools = loadTools();
+  const tool = tools.find(t=>t.id === idVal) || null;
+  document.getElementById('selectedTitle').textContent = tool ? tool.name : '— Select a tool —';
+  document.getElementById('selectedDesc').textContent = tool ? (tool.desc || '') : 'Tool description will appear here.';
+  document.getElementById('jsonInput').value = tool && tool.example ? JSON.stringify(tool.example, null, 2) : '';
+  document.getElementById('outBox').textContent = '';
+  // editor fields
+  if(tool){
+    document.getElementById('editName').value = tool.name || '';
+    document.getElementById('editTemplate').value = tool.template || '';
+    document.getElementById('editDesc').value = tool.desc || '';
+    document.getElementById('editExample').value = tool.example ? JSON.stringify(tool.example,null,2) : '';
+  }else{
+    document.getElementById('editName').value = '';
+    document.getElementById('editTemplate').value = '';
+    document.getElementById('editDesc').value = '';
+    document.getElementById('editExample').value = '';
+  }
+  renderStats();
+}
 
-      function clearSelection(){
-        selectedToolName.textContent = '— Select a tool —';
-        selectedToolDesc.textContent = 'Tool description will appear here.';
-        toolNameIn.value = '';
-        toolTemplateIn.value = '';
-        toolDescIn.value = '';
-        selUses.textContent = 0;
-        selDownloads.textContent = 0;
-        jsonInput.value = '';
-        outputArea.textContent = 'AI output (demo — client-side)\nNo external APIs called. Owner can export/import settings.';
-      }
+function loadToolToEditor(idVal){
+  selectTool(idVal);
+  // focus editor
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
-      // template renderer: replaces {{key}} with value; supports nested keys via dot notation.
-      function renderTemplate(tpl, data){
-        if(typeof tpl !== 'string') return '';
-        return tpl.replace(/\{\{\s*([^\}\s]+)\s*\}\}/g, (m, key)=>{
-          const val = readKey(data, key);
-          return val === undefined || val === null ? '' : String(val);
-        });
-      }
-      function readKey(obj, path){
-        try{
-          return path.split('.').reduce((acc, k)=>acc && acc[k] !== undefined ? acc[k] : undefined, obj);
-        }catch(e){ return undefined; }
-      }
+function saveToolFromEditor(){
+  const name = document.getElementById('editName').value.trim();
+  const template = document.getElementById('editTemplate').value;
+  const desc = document.getElementById('editDesc').value.trim();
+  let example;
+  try{ example = JSON.parse(document.getElementById('editExample').value || '{}'); }catch(e){ alert('Example JSON invalid'); return; }
 
-      function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+  if(!name){ alert('Tool name required'); return; }
+  let tools = loadTools();
+  if(selectedToolId){
+    // update existing
+    tools = tools.map(t => {
+      if(t.id === selectedToolId) return {...t, name, template, desc, example};
+      return t;
+    });
+  }else{
+    // create new
+    const t = { id: id(), name, template, desc, example };
+    tools.push(t);
+    selectedToolId = t.id;
+  }
+  saveTools(tools);
+  // initialize stats for new tool
+  const stats = loadStats();
+  stats[selectedToolId] = stats[selectedToolId] || {uses:0,downloads:0,createdAt: now()};
+  saveStats(stats);
+  alert('Tool saved locally');
+}
 
-      // Actions
-      addToolBtn.addEventListener('click', ()=>{
-        const id = uid();
-        const demo = {
-          id,
-          name: 'Demo Tool ' + (Object.keys(tools).length + 1),
-          template: 'Hello {{name}}, welcome to {{field}}.\nThis is a demo output.\nYour email: {{contact.email}}',
-          desc: 'Demo generator — provide JSON input.'
-        };
-        tools[id] = demo;
-        stats.perTool[id] = { uses:0, downloads:0 };
-        saveAll();
-        selectTool(id);
-      });
+function deleteSelectedTool(){
+  if(!selectedToolId){ alert('No tool selected'); return; }
+  if(!confirm('Delete selected tool? This removes it from your local browser.')) return;
+  let tools = loadTools().filter(t=>t.id !== selectedToolId);
+  saveTools(tools);
+  const stats = loadStats(); delete stats[selectedToolId]; saveStats(stats);
+  selectedToolId = null;
+  renderTools();
+}
 
-      resetToolsBtn.addEventListener('click', ()=>{
-        if(!confirm('सभी tools हटाना चाहते हैं? यह irreversible है।')) return;
-        tools = {};
-        stats = { totalUses:0, totalDownloads:0, perTool:{} };
-        saveAll();
-        clearSelection();
-      });
+/* ---------- Actions (Generate / Download / Copy) ---------- */
+function incrementStat(toolId, key){
+  const stats = loadStats();
+  stats[toolId] = stats[toolId] || {uses:0,downloads:0};
+  stats[toolId][key] = (stats[toolId][key]||0) + 1;
+  stats[toolId].updatedAt = now();
+  saveStats(stats);
+}
 
-      // Owner settings
-      saveOwnerBtn.addEventListener('click', ()=>{
-        owner.name = ownerName.value.trim();
-        owner.links = ownerLinks.value.trim();
-        saveAll();
-        notify('Owner saved');
-      });
-      exportOwnerBtn.addEventListener('click', ()=>{
-        const txt = JSON.stringify(owner, null, 2);
-        downloadBlob(txt, 'owner-settings.json');
-      });
-      importOwnerBtn.addEventListener('click', ()=>{
-        const s = prompt('Paste owner JSON here:');
-        if(!s) return;
-        try{
-          const o = JSON.parse(s);
-          owner = o;
-          saveAll();
-          notify('Owner imported');
-        }catch(e){ alert('Invalid JSON'); }
-      });
-      resetOwnerBtn.addEventListener('click', ()=>{
-        if(!confirm('Reset owner settings?')) return;
-        owner = { name:'', links:'' };
-        saveAll();
-      });
+function generateOutput(){
+  if(!selectedToolId){ alert('Select a tool first'); return; }
+  const tools = loadTools();
+  const tool = tools.find(t=>t.id === selectedToolId);
+  if(!tool){ alert('Selected tool not found'); return; }
+  const raw = document.getElementById('jsonInput').value;
+  const parsed = parseJSONInput(raw);
+  if(parsed === null){ alert('Invalid JSON input'); return; }
+  // apply template
+  const out = applyTemplate(tool.template || '', parsed);
+  document.getElementById('outBox').textContent = out || '(empty output)';
+  incrementStat(selectedToolId, 'uses');
+  renderStats();
+}
 
-      // import/export tools
-      applyImportBtn.addEventListener('click', ()=>{
-        const txt = importArea.value.trim();
-        if(!txt){ alert('Paste exported JSON first'); return; }
-        try{
-          const obj = JSON.parse(txt);
-          // obj can be single tool or full object {tools:..., stats:..., owner:...}
-          if(obj.tools){
-            tools = obj.tools;
-          } else {
-            // assume single tool or map
-            if(obj.id && obj.name) tools[obj.id] = obj;
-            else if(typeof obj === 'object') tools = Object.assign({}, tools, obj);
-          }
-          // optionally import stats
-          if(obj.stats) stats = obj.stats;
-          saveAll();
-          notify('Import applied');
-        }catch(e){ alert('Invalid JSON'); }
-      });
+function clearOutput(){ document.getElementById('outBox').textContent = ''; }
 
-      exportAllBtn.addEventListener('click', ()=>{
-        const packageObj = { tools, stats, owner, exportedAt: new Date().toISOString() };
-        downloadBlob(JSON.stringify(packageObj, null, 2), 'omniverse-tools-export.json');
-      });
+function copyOutput(){
+  const t = document.getElementById('outBox').textContent || '';
+  if(!t) return alert('Nothing to copy');
+  navigator.clipboard.writeText(t).then(()=> alert('Copied to clipboard'));
+}
 
-      resetAllStatsBtn.addEventListener('click', ()=>{
-        if(!confirm('Reset all stats (uses & downloads)?')) return;
-        stats = { totalUses:0, totalDownloads:0, perTool:{} };
-        // keep tools
-        Object.keys(tools).forEach(id=>stats.perTool[id] = { uses:0, downloads:0 });
-        saveAll();
-      });
-
-      // select / save / delete tool
-      saveToolBtn.addEventListener('click', ()=>{
-        const name = toolNameIn.value.trim();
-        const tpl = toolTemplateIn.value;
-        const desc = toolDescIn.value.trim();
-        if(!name){ alert('Tool name required'); return; }
-        if(!selectedToolId){ alert('No tool selected'); return; }
-        tools[selectedToolId].name = name;
-        tools[selectedToolId].template = tpl;
-        tools[selectedToolId].desc = desc;
-        saveAll();
-        notify('Tool saved');
-      });
-
-      deleteToolBtn.addEventListener('click', ()=>{
-        if(!selectedToolId) return alert('Select a tool first');
-        if(!confirm('Delete this tool?')) return;
-        delete tools[selectedToolId];
-        delete stats.perTool[selectedToolId];
-        selectedToolId = null;
-        saveAll();
-        clearSelection();
-      });
-
-      // use tool: generate, copy, download
-      generateBtn.addEventListener('click', ()=>{
-        if(!selectedToolId){ alert('Select a tool'); return; }
-        const raw = jsonInput.value.trim();
-        let data = {};
-        if(raw){
-          try{ data = JSON.parse(raw); } catch(e){ alert('Invalid JSON input — देखें example'); return; }
-        }
-        const tpl = tools[selectedToolId].template || '';
-        const out = renderTemplate(tpl, data);
-        outputArea.textContent = out || '(empty output)';
-        // increment stats
-stats.totalUses = (stats.totalUses || 0) + 1;
-stats.perTool[selectedToolId] = stats.perTool[selectedToolId] || { uses:0, downloads:0 };
-stats.perTool[selectedToolId].uses = (stats.perTool[selectedToolId].uses || 0) + 1;
-saveAll();
-selectTool(selectedToolId); // update counts
-});
-
-clearOutput.addEventListener('click', ()=>{ outputArea.textContent = ''; });
-copyOutput.addEventListener('click', ()=>{
-  const txt = outputArea.textContent || '';
-  navigator.clipboard?.writeText(txt).then(()=>notify('Copied')).catch(()=>alert('Copy failed'));
-});
-
-downloadOutput.addEventListener('click', ()=>{
-  if(!selectedToolId){ alert('Select a tool'); return; }
-  const txt = outputArea.textContent || '';
-  if(!txt){ alert('No output to download'); return; }
-  const filename = (tools[selectedToolId].name || 'output').replace(/\s+/g,'-').toLowerCase() + '.txt';
-  downloadBlob(txt, filename);
-  // stats
-  stats.totalDownloads = (stats.totalDownloads || 0) + 1;
-  stats.perTool[selectedToolId] = stats.perTool[selectedToolId] || { uses:0, downloads:0 };
-  stats.perTool[selectedToolId].downloads = (stats.perTool[selectedToolId].downloads || 0) + 1;
-  saveAll();
-  selectTool(selectedToolId);
-});
-
-resetToolStatsBtn.addEventListener('click', ()=>{
-  if(!selectedToolId){ alert('Select a tool'); return; }
-  if(!confirm('Reset stats for this tool?')) return;
-  stats.perTool[selectedToolId] = { uses:0, downloads:0 };
-  saveAll();
-  selectTool(selectedToolId);
-});
-
-exportToolBtn.addEventListener('click', ()=>{
-  if(!selectedToolId){ alert('Select a tool'); return; }
-  const obj = { tool: tools[selectedToolId], stats: stats.perTool[selectedToolId] || {} };
-  downloadBlob(JSON.stringify(obj, null, 2), (tools[selectedToolId].name||'tool') + '.json');
-});
-
-// open dashboard (opens a simple aggregated report in new tab)
-openDashboardBtn.addEventListener('click', ()=>{
-  const report = { owner, tools, stats, generatedAt: new Date().toISOString() };
-  const win = window.open('', '_blank');
-  win.document.write('<pre style="font-family:monospace;white-space:pre-wrap;padding:18px;">' + escapeHtml(JSON.stringify(report, null, 2)) + '</pre>');
-});
-
-// utility to download blob
-function downloadBlob(txt, filename){
-  const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
+function downloadOutput(){
+  const t = document.getElementById('outBox').textContent || '';
+  if(!t) return alert('Nothing to download');
+  const filename = ( (loadTools().find(x=>x.id===selectedToolId)||{}).name || 'omniverse-output' ).replace(/\s+/g,'-') + '.txt';
+  const blob = new Blob([t], {type:'text/plain;charset=utf-8'});
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click();
-  setTimeout(()=>{ a.remove(); URL.revokeObjectURL(url); }, 500);
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  incrementStat(selectedToolId, 'downloads');
+  renderStats();
 }
 
-// initial load + render
-function renderAll(){
-  renderOwner();
-  aggregateStats();
-  renderToolsList();
+/* ---------- Import / Export ---------- */
+function exportAll(){
+  const payload = { owner: loadOwner(), tools: loadTools(), stats: loadStats(), exportedAt: now() };
+  const txt = JSON.stringify(payload, null, 2);
+  const blob = new Blob([txt], {type:'application/json;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'omniverse-export.json';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 }
 
-// boot
-loadState();
-// ensure perTool stats exist
-Object.keys(tools).forEach(id=>{ stats.perTool[id] = stats.perTool[id] || { uses:0, downloads:0 }; });
-saveAll();
-clearSelection();
+function applyImportText(txt){
+  if(!txt || !txt.trim()) return alert('Paste exported JSON first');
+  let obj;
+  try{ obj = JSON.parse(txt); }catch(e){ return alert('Invalid JSON'); }
+  if(obj.owner) saveOwner(obj.owner);
+  if(Array.isArray(obj.tools)) saveTools(obj.tools);
+  if(obj.stats) saveStats(obj.stats);
+  alert('Import applied (local)');
+}
 
-// expose small helper to console for advanced ops
-window.omniverseLocal = {
-  loadState, saveAll,
-  getTools: ()=>tools,
-  getStats: ()=>stats,
-  getOwner: ()=>owner,
-};
+/* ---------- Small helpers ---------- */
+function addDemoTool(){
+  const exampleTool = {
+    id: id(),
+    name: 'Resume Builder (demo)',
+    template: 'Name: {{name}}\nField: {{field}}\nSummary: Experienced in {{field}} with skills: {{skills}}',
+    desc: 'Simple resume template. Provide {"name":"...","field":"...","skills":"..."}',
+    example: { name: 'Ram', field: 'AI', skills: 'JavaScript, ML' }
+  };
+  const tools = loadTools(); tools.push(exampleTool); saveTools(tools);
+  const stats = loadStats(); stats[exampleTool.id] = {uses:0,downloads:0,createdAt: now()}; saveStats(stats);
+  selectTool(exampleTool.id);
+}
 
-// helper: keyboard shortcut to add demo tool (ctrl+shift+n)
-window.addEventListener('keydown', (e)=>{
-  if(e.ctrlKey && e.shiftKey && e.key.toLowerCase()==='n'){ addToolBtn.click(); }
+function resetAllData(){
+  if(!confirm('Reset ALL tools and stats (localStorage)?')) return;
+  resetTools(); resetStats(); resetOwner();
+  alert('All local data cleared');
+}
+
+/* ---------- Events ---------- */
+document.getElementById('saveOwner').addEventListener('click', ()=>{
+  const name = document.getElementById('ownerInput').value.trim();
+  const dones = document.getElementById('donateInput').value.split(',').map(s=>s.trim()).filter(Boolean);
+  saveOwner({ name, donates: dones, savedAt: now() });
+  alert('Owner settings saved (local)');
 });
-})();
-          
-      
+
+document.getElementById('exportOwner').addEventListener('click', ()=>{
+  const payload = JSON.stringify(loadOwner(), null, 2);
+  const blob = new Blob([payload], {type:'application/json'}); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='omniverse-owner.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+document.getElementById('importOwner').addEventListener('click', ()=>{
+  try{
+    const txt = prompt('Paste owner JSON here:');
+    if(!txt) return;
+    const obj = JSON.parse(txt);
+    saveOwner(obj);
+    al
