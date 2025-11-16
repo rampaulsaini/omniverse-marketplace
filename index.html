@@ -3,708 +3,425 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Omniverse AI Tools Marketplace — Zero-cost</title>
+<title>Omniverse Marketplace — Generator</title>
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
 <style>
-  :root{--bg:#071025;--card:#081425;--muted:#9fb0d9;--accent:#60a5fa;--danger:#ff6b6b}
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:linear-gradient(180deg,var(--bg),#021029);color:#e6eef8}
-  .wrap{max-width:1100px;margin:18px auto;padding:12px}
-  header{display:flex;align-items:center;gap:12px}
-  h1{margin:0;font-size:18px}
-  .topline{color:var(--muted);font-size:13px}
-  .grid{display:grid;grid-template-columns:320px 1fr;gap:14px;margin-top:12px}
-  .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border:1px solid rgba(255,255,255,0.03);padding:12px;border-radius:10px}
-  .tool-item{padding:8px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer}
-  .tool-item:hover{background:rgba(255,255,255,0.01)}
-  .tool-title{font-weight:600}
+  :root{--bg:#071025;--card:#081425;--muted:#9fb0d9;--accent:#60a5fa;--glass:rgba(255,255,255,0.03)}
+  *{box-sizing:border-box}
+  body{font-family:Inter,system-ui,Roboto,Arial;background:linear-gradient(180deg,var(--bg),#021029);color:#e6eef8;margin:0;padding:18px}
+  .wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 420px;gap:16px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  h1{font-size:18px;margin:0}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border:1px solid var(--glass);padding:12px;border-radius:10px}
+  label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+  select,input,textarea,button{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+  textarea{min-height:160px;font-family:monospace;resize:vertical}
   .muted{color:var(--muted);font-size:13px}
-  .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:6px 8px;border-radius:8px;color:#e6eef8;cursor:pointer}
-  .btn-primary{background:linear-gradient(90deg,var(--accent),#3b82f6);border:none;color:#04263a}
-  textarea,input{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#e6eef8}
-  pre{background:#021225;padding:10px;border-radius:8px;overflow:auto;color:#d8e8ff}
-  .small{font-size:13px;color:var(--muted)}
-  .stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .badge{background:rgba(255,255,255,0.03);padding:4px 8px;border-radius:999px;font-size:12px;color:var(--muted)}
-  footer{margin-top:12px;color:var(--muted);font-size:13px}
+  .row{display:flex;gap:8px}
+  .col{flex:1}
+  .controls{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .small{font-size:13px;padding:6px 8px}
+  .btn-primary{background:linear-gradient(90deg,var(--accent),#3b82f6);border:none;color:#062244}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+  .badge{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:999px;font-size:13px;border:1px solid rgba(255,255,255,0.02)}
+  .output{min-height:220px;white-space:pre-wrap;background:#061225;border-radius:8px;padding:12px;border:1px solid rgba(255,255,255,0.02);font-family:monospace}
+  footer{margin-top:14px;color:var(--muted);font-size:13px}
   .owner-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .danger{border-color:rgba(255,107,107,0.18);color:var(--danger)}
-  .locked{opacity:0.62}
-  .tool-list{display:flex;flex-direction:column;gap:6px;margin-top:10px}
-  .row{display:flex;gap:8px;align-items:center}
-  .flex-1{flex:1}
-  label.small{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-  .meta{font-size:12px;color:var(--muted);margin-top:6px}
-  /* responsive */
-  @media (max-width:820px){.grid{grid-template-columns:1fr;}.tool-list{flex-direction:row;overflow:auto;padding-bottom:8px}}
+  .link{color:var(--accent);text-decoration:none}
+  .modal{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:flex;align-items:center;justify-content:center;z-index:9999}
+  .modal .card{width:720px;max-width:92%}
+  .right-panel{position:sticky;top:18px}
+  @media (max-width:980px){.wrap{grid-template-columns:1fr;}.right-panel{position:static}}
 </style>
 </head>
 <body>
+<header>
+  <div>
+    <h1>Omniverse AI Tools Marketplace</h1>
+    <div class="muted">Zero-cost · Donation-ready — Built for immediate launch</div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+    <button id="openDashboard" class="small">Open Dashboard</button>
+    <button id="ownerSettingsBtn" class="small">Owner Settings</button>
+  </div>
+</header>
+
 <div class="wrap">
-  <header>
-    <div>
-      <h1>Omniverse AI Tools Marketplace</h1>
-      <div class="topline">Zero-cost · Donation-ready — Built for immediate launch</div>
+  <main class="card">
+    <label>AI Tools</label>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select id="toolSelect" aria-label="Select a tool">
+        <!-- options injected by JS -->
+      </select>
+      <button id="unlockPremiumBtn" class="small">🔒 Unlock Premium</button>
     </div>
-    <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-      <button class="btn" id="openDashboardBtn">Open Dashboard</button>
-      <button class="btn" id="ownerSettingsBtn">Owner Settings</button>
-    </div>
-  </header>
+    <div style="margin-top:10px" class="muted">किसी भी टूल को चुनें, JSON input भरें और <strong>Generate</strong> दबाएँ।</div>
 
-  <div class="grid">
-    <!-- LEFT: Tools list and stats -->
-    <div>
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <strong>AI Tools</strong>
-            <div class="small">किसी भी टूल को चुनें, JSON input भरें और Generate दबाएँ।</div>
-          </div>
-          <div class="small">Uses: <span id="totalUses">0</span> • Downloads: <span id="totalDownloads">0</span></div>
-        </div>
-
-        <div class="tool-list" id="toolsList" role="list">
-          <!-- Filled by JS -->
-        </div>
-
-        <div class="meta">Donate / Pay — owner settings में सेट होंगी।</div>
-        <div class="stats" id="donateLinksArea" style="margin-top:8px"></div>
-
-        <div class="owner-actions" style="margin-top:12px">
-          <button class="btn" id="resetStatsBtn">Reset Stats</button>
-          <button class="btn" id="clearOwnerBtn">Clear Owner Settings</button>
-        </div>
+    <div style="margin-top:12px;">
+      <label>Enter JSON input for the selected tool</label>
+      <textarea id="jsonInput" placeholder='{"name":"Your Name","field":"AI"}'></textarea>
+      <div class="controls">
+        <button id="generateBtn" class="btn-primary small">Generate</button>
+        <button id="downloadBtn" class="small">⬇️ Download</button>
+        <button id="copyBtn" class="small">Copy</button>
+        <button id="clearBtn" class="small">Clear</button>
       </div>
+    </div>
 
-      <div class="card" style="margin-top:12px">
-        <strong>Quick Actions</strong>
-        <div class="meta">Local-only: settings और stats localStorage में रहते हैं — GitHub पर कोई secret नहीं चाहिए।</div>
-        <div style="margin-top:8px">
-          <button class="btn" id="showLocalStatsBtn">Open Dashboard (local stats)</button>
+    <div style="margin-top:12px;">
+      <label>AI output will appear here</label>
+      <div id="outputBox" class="output">Output will appear here...</div>
+      <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+        <div class="muted">Downloads: <span id="downloadsCount">0</span> • Uses: <span id="usesCount">0</span></div>
+        <div style="margin-left:auto">
+          <button id="resetStats" class="small">Reset Stats</button>
+          <button id="clearOwner" class="small">Clear Owner Settings</button>
         </div>
       </div>
     </div>
 
-    <!-- RIGHT: Tool editor / preview -->
-    <div>
-      <div class="card">
-        <div style="display:flex;gap:8px;align-items:center">
-          <div style="flex:1">
-            <div style="display:flex;gap:8px;align-items:center">
-              <h2 id="toolName">Select a tool</h2>
-              <div class="badge" id="toolTag">—</div>
-            </div>
-            <div class="small" id="toolDesc">किसी टूल को सूची में से चुनें।</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <button class="btn" id="lockToggleBtn">🔒 Unlock Premium</button>
-            <button class="btn" id="generateBtn">Generate</button>
-            <button class="btn" id="downloadBtn">⬇️ Download</button>
-          </div>
-        </div>
+    <footer>
+      © Omniverse Marketplace — ये सभी settings और stats आपके ब्राउज़र के localStorage में सेव रहते हैं। <br>
+      Tip: जितना structured JSON देंगे output उतना बेहतर होगा।
+    </footer>
+  </main>
 
-        <div style="margin-top:10px">
-          <label class="small">Enter JSON input for the selected tool</label>
-          <textarea id="jsonInput" rows="6" placeholder='{"name":"Your Name","field":"AI"}'></textarea>
-          <div class="meta" style="margin-top:8px">Tip: जितना structured JSON देंगे output उतना बेहतर होगा।</div>
-        </div>
+  <aside class="right-panel">
+    <div class="card">
+      <strong>Quick Actions</strong>
+      <div class="muted" style="margin-top:6px">Local-only: settings और stats localStorage में रहते हैं — GitHub पर कोई secret नहीं चाहिए।</div>
 
-        <div style="margin-top:10px">
-          <label class="small">AI output will appear here</label>
-          <pre id="outputArea">Output will appear here...</pre>
-          <div style="margin-top:8px;display:flex;gap:8px">
-            <button class="btn" id="clearOutputBtn">Clear</button>
-            <button class="btn" id="copyOutputBtn">Copy</button>
-            <div class="small" style="margin-left:auto">Downloads: <span id="toolDownloads">0</span> • Uses: <span id="toolUses">0</span></div>
-          </div>
-        </div>
-
+      <div class="owner-actions" style="margin-top:10px">
+        <button id="openLocalStats" class="small">Open Dashboard (local stats)</button>
+        <button id="exportSettings" class="small">Export Settings</button>
+        <button id="importSettings" class="small">Import Settings</button>
       </div>
 
-      <footer>
-        © <span id="year"></span> Omniverse Marketplace — ये सभी settings और stats आपके ब्राउज़र के localStorage में सेव रहते हैं।
-      </footer>
+      <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)" />
+      <div>
+        <strong>Donate / Pay</strong>
+        <div class="muted" style="margin-top:6px">Owner settings में donate/pay links रखें — user उन्हें यहाँ देखेंगे।</div>
+        <div id="donateArea" style="margin-top:8px"></div>
+      </div>
     </div>
+
+    <div style="height:12px"></div>
+
+    <div class="card">
+      <strong>Tools List</strong>
+      <div id="toolsList" class="muted" style="margin-top:8px"></div>
+    </div>
+  </aside>
+</div>
+
+<!-- Owner settings modal -->
+<div id="ownerModal" class="modal" style="display:none">
+  <div class="card">
+    <h3>Owner Settings</h3>
+    <div class="muted">यहाँ donations/owner contact और premium toggle सेट करें (localStorage)</div>
+    <div style="margin-top:8px">
+      <label>Owner Name</label>
+      <input id="ownerName" placeholder="Your name or org" />
+      <label style="margin-top:8px">PayPal Link / UPI / Ko-fi (comma separated)</label>
+      <input id="ownerPay" placeholder="https://paypal.me/you,upi:your@upi,https://ko-fi.com/you" />
+      <label style="margin-top:8px">Premium Enabled?</label>
+      <select id="ownerPremium"><option value="no">no</option><option value="yes">yes</option></select>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button id="saveOwner" class="btn-primary small">Save</button>
+        <button id="closeOwner" class="small">Close</button>
+      </div>
+    </div>
+    <hr style="margin:12px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)" />
+    <div class="muted">Export/Import settings available in dashboard panel.</div>
   </div>
 </div>
 
-<!-- Owner Settings Modal (simple) -->
-<div id="ownerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:9999;align-items:center;justify-content:center">
-  <div style="width:720px;max-width:94%;background:#061425;border-radius:10px;padding:14px;border:1px solid rgba(255,255,255,0.03)">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <strong>Owner Settings</strong>
-      <button class="btn" id="closeOwnerModal">Close</button>
-    </div>
-
-    <div style="margin-top:8px">
-      <label class="small">Unlock key (Premium tools का key — जितना चाहें सेट करें)</label>
-      <input id="ownerKey" placeholder="उदा: my-super-key" />
-    </div>
-
-    <div style="margin-top:10px">
-      <label class="small">Donation / Payment links (optional)</label>
-      <input id="paytmLink" placeholder="Paytm / UPI link or text (उदा: upi@bank)" />
-      <input id="paypalLink" placeholder="PayPal link (उदा: https://paypal.me/yourname)" style="margin-top:8px" />
-      <input id="kofiLink" placeholder="Ko-fi / Buymeacoffee link" style="margin-top:8px" />
-    </div>
-
+<!-- Premium modal -->
+<div id="premiumModal" class="modal" style="display:none">
+  <div class="card">
+    <h3>Premium / Unlock</h3>
+    <div class="muted">Premium integration placeholder — अभी local demo में premium paid features केवल UI स्तर पर हैं।</div>
     <div style="margin-top:10px;display:flex;gap:8px">
-      <button class="btn btn-primary" id="saveOwnerBtn">Save Settings</button>
-      <button class="btn danger" id="resetOwnerKeyBtn">Reset Unlock Key</button>
+      <button id="closePremium" class="small">Close</button>
     </div>
-
-    <div class="meta" style="margin-top:8px">Owner settings localStorage में सेव होते हैं — सुरक्षित रखें।</div>
   </div>
 </div>
 
 <script>
-/*
-  Omniverse Marketplace — Single-file client-side application
-  All data stored in localStorage (settings + stats).
-  Replace old index.html with this entire file to update.
-*/
-
-const yearEl = document.getElementById('year'); yearEl.textContent = new Date().getFullYear();
-
-// Tools definition (templates)
+/* ============== Data: tools and templates ============== */
 const TOOLS = [
   {
     id: 'resume',
-    name: 'Resume Generator',
-    desc: 'Simple resume generator using provided JSON. Premium features: enhanced formatting & template variants.',
-    premium: true,
-    ext: 'txt',
-    template: (data, premium=false) => {
-      // simple resume template
-      const lines = [];
-      lines.push((data.name || 'NAME').toUpperCase());
-      if (data.email) lines.push('Email: ' + data.email);
-      if (data.phone) lines.push('Phone: ' + data.phone);
-      lines.push('');
-      lines.push('Field: ' + (data.field || '—'));
-      if (data.summary) lines.push('');
-      if (data.summary) lines.push('Summary: ' + data.summary);
-      if (Array.isArray(data.experience)) {
-        lines.push('');
-        lines.push('Experience:');
-        data.experience.forEach((e, i) => {
-          lines.push(`• ${e.role || 'Role'} @ ${e.company || 'Company'} (${e.years || ''})`);
-          if (e.desc) lines.push('  ' + e.desc);
-        });
-      }
-      if (Array.isArray(data.skills)) {
-        lines.push('');
-        lines.push('Skills: ' + data.skills.join(', '));
-      }
-      if (premium && data.templates && data.templateVariant) {
-        lines.unshift('[Premium Template: ' + data.templateVariant + ']');
-      }
-      return lines.join('\\n');
+    name: 'Resume Builder',
+    desc: 'Simple one-page resume using provided fields.',
+    template: (data) => {
+      const name = data.name || 'Your Name';
+      const title = data.title || data.field || 'Professional';
+      const contact = data.contact || (data.email ? data.email : '');
+      const summary = data.summary || `Experienced ${title} with interest in ${data.field || 'AI'}.`;
+      const skills = (data.skills && Array.isArray(data.skills)) ? data.skills.join(', ') : (data.skills || '');
+      const exp = (data.experience && Array.isArray(data.experience)) ?
+        data.experience.map(e=>`- ${e.role} @ ${e.company} (${e.years || 'N/A'})\n  ${e.detail || ''}`).join('\n') : (data.experience||'');
+      return `# ${name}\n${title}\n\nContact: ${contact}\n\n## Summary\n${summary}\n\n## Skills\n${skills}\n\n## Experience\n${exp}\n`;
     }
   },
   {
     id: 'bio',
     name: 'Bio Generator',
-    desc: 'Short professional bio creation.',
-    premium: false,
-    ext: 'txt',
+    desc: 'Short professional bio for LinkedIn / About pages.',
     template: (data) => {
       const name = data.name || 'Your Name';
-      const field = data.field || 'your field';
-      const years = data.years ? ` with ${data.years} years experience` : '';
-      const tone = data.tone || 'professional';
-      return `${name} is a ${tone} ${field}${years}. ${data.extra || ''}`.trim();
+      const role = data.role || data.field || 'AI Enthusiast';
+      const years = data.years ? `${data.years} years` : '';
+      const special = data.special || 'solving real problems with practical AI';
+      return `${name} is a ${role} ${years ? 'with ' + years + ' experience' : ''} who focuses on ${special}. Available for collaborations and projects.`;
     }
   },
   {
     id: 'script',
     name: 'Script Writer',
-    desc: 'Generate simple JS/Python script based on description.',
-    premium: false,
-    ext: 'txt',
+    desc: 'Small JS snippet or script scaffold from prompt.',
     template: (data) => {
-      const lang = (data.lang || 'js').toLowerCase();
-      if (lang === 'py' || lang === 'python') {
-        return `# Python script - ${data.title || 'script'}\\n# Description: ${data.desc || ''}\\n\\ndef main():\\n    print(\"Hello from Omniverse script\")\\n\\nif __name__ == '__main__':\\n    main()`;
-      } else {
-        return `// JS script - ${data.title || 'script'}\\n// Description: ${data.desc || ''}\\nfunction main(){\\n  console.log('Hello from Omniverse script');\\n}\\nmain();`;
-      }
+      const purpose = data.purpose || 'utility function';
+      const name = (data.fnName || 'doThing').replace(/\s+/g,'_');
+      const comment = data.comment || `Auto-generated ${purpose}`;
+      return `// ${comment}\nfunction ${name}(){\n  // TODO: implement ${purpose}\n  return null;\n}\n\nmodule.exports = ${name};\n`;
     }
   },
   {
     id: 'notes',
     name: 'Notes Generator',
-    desc: 'Meeting / study notes based on bullets.',
-    premium: false,
-    ext: 'txt',
+    desc: 'Meeting / study notes from bullets.',
     template: (data) => {
       const title = data.title || 'Notes';
-      const bullets = Array.isArray(data.bullets) ? data.bullets : (data.bullets? [data.bullets] : []);
-      return `${title}\\n\\n${bullets.map(b=>'- '+b).join('\\n')}`;
+      const bullets = (data.bullets && Array.isArray(data.bullets)) ? data.bullets.map(b=>`- ${b}`).join('\n') : (data.bullets || '');
+      const summary = data.summary || '';
+      return `# ${title}\n\n${bullets}\n\n## Summary\n${summary}\n`;
     }
   },
   {
     id: 'site',
-    name: 'Website Template',
-    desc: 'Simple static HTML template (download as .html).',
-    premium: true,
-    ext: 'html',
-    template: (data, premium=false) => {
-      const title = data.title || 'My Site';
-      const header = `<h1>${title}</h1>`;
-      const body = `<p>${data.desc || 'A simple site generated by Omniverse.'}</p>`;
-      let badge = '';
-      if (premium) badge = '<!-- Premium template variant applied -->\\n';
-      return `<!doctype html>\\n<html><head><meta charset="utf-8"><title>${title}</title></head><body>${badge}${header}${body}</body></html>`;
-    }
-  },
-  {
-    id: 'idea',
-    name: 'Business Idea Generator',
-    desc: 'Generate short startup ideas + 3 action steps.',
-    premium: false,
-    ext: 'txt',
+    name: 'Website Template (Simple)',
+    desc: 'Minimal static HTML landing page using provided brand and tagline.',
     template: (data) => {
-      const domain = data.domain || 'tech';
-      const idea = `Idea: ${data.idea || `A ${domain}-based microservice that solves X for Y`}`;
-      const steps = ['Validate demand', 'Build MVP', 'Get first customers'];
-      return `${idea}\\n\\nSteps:\\n1. ${steps[0]}\\n2. ${steps[1]}\\n3. ${steps[2]}`;
-    }
-  },
-  {
-    id: 'legal',
-    name: 'Legal Letter Generator',
-    desc: 'Simple formal letter / notice.',
-    premium: false,
-    ext: 'txt',
-    template: (data) => {
-      const name = data.name || 'Sender';
-      const to = data.to || 'Recipient';
-      return `${name}\\nTo: ${to}\\n\\nSubject: ${data.subject || 'Formal Notice'}\\n\\n${data.body || 'Dear Sir/Madam,\\n\\nThis is to inform you...'}\\n\\nRegards,\\n${name}`;
-    }
-  },
-  {
-    id: 'caption',
-    name: 'Social Caption Generator',
-    desc: 'Short captions for social posts.',
-    premium: false,
-    ext: 'txt',
-    template: (data) => {
-      const tone = data.tone || 'friendly';
-      return `${data.topic || 'A post'} — ${tone} caption: ${data.extra || 'Share your story here.'}`;
-    }
-  },
-  {
-    id: 'slogan',
-    name: 'Slogan Generator',
-    desc: 'Brand slogan / tagline.',
-    premium: false,
-    ext: 'txt',
-    template: (data) => {
-      const brand = data.brand || 'Brand';
-      return `${brand} — ${data.style || 'Bold. Simple. Memorable.'}`;
-    }
-  },
-  {
-    id: 'prompt',
-    name: 'Prompt Generator',
-    desc: 'Generate structured prompts for automation or AI agents.',
-    premium: false,
-    ext: 'txt',
-    template: (data) => {
-      return `Task: ${data.task || 'Describe task'}\\nPersona: ${data.persona || 'assistant'}\\nExample input: ${JSON.stringify(data.example || {})}`;
+      const brand = data.brand || 'MyProject';
+      const tagline = data.tagline || 'Built with Omniverse';
+      const color = data.color || '#60a5fa';
+      return `<!doctype html>\n<html>\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n  <title>${brand}</title>\n  <style>body{font-family:Inter,Arial;background:#0b1220;color:#e6eef8}a{color:${color}}</style>\n</head>\n<body>\n  <header><h1>${brand}</h1><p>${tagline}</p></header>\n  <main><p>Welcome to ${brand} — a simple static site scaffold generated by Omniverse.</p></main>\n  <footer><small>Generated with Omniverse Marketplace</small></footer>\n</body>\n</html>\n`;
     }
   }
 ];
 
-// localStorage keys
-const LS = {
-  STATS: 'omniverse_stats_v1',
-  OWNER: 'omniverse_owner_v1'
-};
+/* ============== Local storage keys and helpers ============== */
+const LS_STATS = 'omniverse_stats_v1';
+const LS_OWNER = 'omniverse_owner_v1';
 
-// utilities
-function lsRead(key){ try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch(e){ return null; } }
-function lsWrite(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
-function lsRemove(key){ localStorage.removeItem(key); }
+function loadStats(){ try{ return JSON.parse(localStorage.getItem(LS_STATS)) || {uses:0,downloads:0}; }catch(e){return {uses:0,downloads:0}} }
+function saveStats(s){ localStorage.setItem(LS_STATS, JSON.stringify(s)); }
+function loadOwner(){ try{ return JSON.parse(localStorage.getItem(LS_OWNER)) || {}; }catch(e){ return {}; } }
+function saveOwner(o){ localStorage.setItem(LS_OWNER, JSON.stringify(o)); }
 
-// initialize stats structure
-function initStatsIfMissing(){
-  const s = lsRead(LS.STATS) || {};
-  let changed = false;
-  TOOLS.forEach(t => {
-    if(!s[t.id]){ s[t.id] = { uses:0, downloads:0 }; changed = true; }
-  });
-  if(changed) lsWrite(LS.STATS, s);
-  return s;
-}
-
-// get owner settings
-function getOwner(){
-  return lsRead(LS.OWNER) || { key:'', paytm:'', paypal:'', kofi:'' };
-}
-function saveOwner(obj){ lsWrite(LS.OWNER, obj); }
-
-// UI elements
-const toolsListEl = document.getElementById('toolsList');
-const toolNameEl = document.getElementById('toolName');
-const toolDescEl = document.getElementById('toolDesc');
-const toolTagEl = document.getElementById('toolTag');
-const jsonInputEl = document.getElementById('jsonInput');
-const outputAreaEl = document.getElementById('outputArea');
+/* ============== UI elements ============== */
+const toolSelect = document.getElementById('toolSelect');
+const toolsList = document.getElementById('toolsList');
+const jsonInput = document.getElementById('jsonInput');
 const generateBtn = document.getElementById('generateBtn');
 const downloadBtn = document.getElementById('downloadBtn');
-const lockToggleBtn = document.getElementById('lockToggleBtn');
+const copyBtn = document.getElementById('copyBtn');
+const clearBtn = document.getElementById('clearBtn');
+const outputBox = document.getElementById('outputBox');
+const usesCount = document.getElementById('usesCount');
+const downloadsCount = document.getElementById('downloadsCount');
+const donateArea = document.getElementById('donateArea');
+const openDashboard = document.getElementById('openDashboard');
 const ownerSettingsBtn = document.getElementById('ownerSettingsBtn');
 const ownerModal = document.getElementById('ownerModal');
-const closeOwnerModal = document.getElementById('closeOwnerModal');
-const saveOwnerBtn = document.getElementById('saveOwnerBtn');
-const ownerKeyInput = document.getElementById('ownerKey');
-const paytmInput = document.getElementById('paytmLink');
-const paypalInput = document.getElementById('paypalLink');
-const kofiInput = document.getElementById('kofiLink');
-const donateLinksArea = document.getElementById('donateLinksArea');
-const resetStatsBtn = document.getElementById('resetStatsBtn');
-const clearOwnerBtn = document.getElementById('clearOwnerBtn');
-const openDashboardBtn = document.getElementById('openDashboardBtn');
-const showLocalStatsBtn = document.getElementById('showLocalStatsBtn');
-const copyOutputBtn = document.getElementById('copyOutputBtn');
-const clearOutputBtn = document.getElementById('clearOutputBtn');
-const totalUsesEl = document.getElementById('totalUses');
-const totalDownloadsEl = document.getElementById('totalDownloads');
-const toolUsesEl = document.getElementById('toolUses');
-const toolDownloadsEl = document.getElementById('toolDownloads');
-const toolTag = document.getElementById('toolTag');
+const ownerName = document.getElementById('ownerName');
+const ownerPay = document.getElementById('ownerPay');
+const ownerPremium = document.getElementById('ownerPremium');
+const saveOwner = document.getElementById('saveOwner');
+const closeOwner = document.getElementById('closeOwner');
+const resetStats = document.getElementById('resetStats');
+const clearOwner = document.getElementById('clearOwner');
+const openLocalStats = document.getElementById('openLocalStats');
+const exportSettings = document.getElementById('exportSettings');
+const importSettings = document.getElementById('importSettings');
+const toolsListDiv = document.getElementById('toolsList');
+const unlockPremiumBtn = document.getElementById('unlockPremiumBtn');
+const premiumModal = document.getElementById('premiumModal');
+const closePremium = document.getElementById('closePremium');
 
-let selectedTool = TOOLS[0];
-let stats = initStatsIfMissing();
-let owner = getOwner();
-let unlocked = false;
-
-// render tools list
-function renderTools(){
-  toolsListEl.innerHTML = '';
+/* ============== Initialize UI ============== */
+function initTools(){
+  toolSelect.innerHTML = '';
+  toolsListDiv.innerHTML = '';
   TOOLS.forEach(t=>{
-    const el = document.createElement('div');
-    el.className = 'tool-item' + (t.premium && !unlocked ? ' locked' : '');
-    el.innerHTML = `<div>
-                      <div class="tool-title">${t.name}${t.premium ? ' 🔒' : ''}</div>
-                      <div class="small">${t.desc}</div>
-                    </div>
-                    <div style="text-align:right">
-                      <div class="small">Uses: ${stats[t.id].uses}</div>
-                      <div class="small">Dl: ${stats[t.id].downloads}</div>
-                    </div>`;
-    el.addEventListener('click', ()=>selectTool(t.id));
-    toolsListEl.appendChild(el);
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = t.name;
+    toolSelect.appendChild(opt);
+
+    const d = document.createElement('div');
+    d.innerHTML = `<strong>${t.name}</strong><div class="muted">${t.desc}</div>`;
+    toolsListDiv.appendChild(d);
   });
-  renderTotals();
 }
-
-// render donate links
-function renderDonateLinks(){
-  donateLinksArea.innerHTML = '';
-  if(owner.paytm) {
-    const b = document.createElement('div'); b.className='badge'; b.textContent='Paytm: '+owner.paytm; donateLinksArea.appendChild(b);
-  }
-  if(owner.paypal) {
-    const b = document.createElement('div'); b.className='badge'; b.textContent='PayPal: '+owner.paypal; donateLinksArea.appendChild(b);
-  }
-  if(owner.kofi) {
-    const b = document.createElement('div'); b.className='badge'; b.textContent='Ko-fi: '+owner.kofi; donateLinksArea.appendChild(b);
-  }
-  if(!owner.paytm && !owner.paypal && !owner.kofi){
-    donateLinksArea.innerHTML = '<div class="muted">Pay links not set — set in Owner Settings</div>';
-  }
+function refreshStatsUI(){
+  const s = loadStats();
+  usesCount.textContent = s.uses || 0;
+  downloadsCount.textContent = s.downloads || 0;
 }
-
-// select tool
-function selectTool(id){
-  const t = TOOLS.find(x=>x.id===id);
-  if(!t) return;
-  // if premium and not unlocked, still allow preview but mark locked
-  selectedTool = t;
-  toolNameEl.textContent = t.name;
-  toolDescEl.textContent = t.desc;
-  toolTagEl.textContent = t.premium ? 'Premium' : 'Free';
-  jsonInputEl.value = t.example || JSON.stringify({ name: 'Your Name', field: 'AI' }, null, 2);
-  outputAreaEl.textContent = 'Output will appear here...';
-  toolUsesEl.textContent = stats[t.id].uses;
-  toolDownloadsEl.textContent = stats[t.id].downloads;
-  renderTools();
-}
-
-// parse JSON input safely
-function parseInput(){
-  const v = jsonInputEl.value.trim();
-  if(!v) return {};
-  try {
-    return JSON.parse(v);
-  } catch(e) {
-    // try to treat as plain text -> put into { text: v }
-    return { text: v };
+function renderDonate(){
+  const o = loadOwner();
+  donateArea.innerHTML = '';
+  if(o && o.pay){
+    const items = o.pay.split(',').map(x=>x.trim()).filter(Boolean);
+    items.forEach(it=>{
+      // simple handling: if looks like url show link otherwise show as text
+      const a = document.createElement('a');
+      a.href = it.startsWith('http') ? it : '#';
+      a.target = '_blank';
+      a.className = 'link';
+      a.textContent = it;
+      donateArea.appendChild(a);
+      donateArea.appendChild(document.createTextNode(' '));
+    });
+  } else {
+    donateArea.innerHTML = `<div class="muted">No donate links set by owner.</div>`;
   }
 }
 
-// generate output
-function generateOutput(){
-  const t = selectedTool;
-  if(!t) return;
-  if(t.premium && !unlocked){
-    alert('यह टूल Premium है — Owner ने unlock key सेट नहीं किया है या आप unlock नहीं हुए। Owner settings में जाकर key डालें।');
-    return;
-  }
-  const input = parseInput();
-  let out;
-  try {
-    out = t.template(input, unlocked); // pass premium flag
-  } catch(e) {
-    out = 'Error generating output: ' + (e.message || e);
-  }
-  outputAreaEl.textContent = out;
-  // update stats
-  stats = lsRead(LS.STATS) || stats;
-  stats[t.id] = stats[t.id] || { uses:0, downloads:0 };
-  stats[t.id].uses += 1;
-  lsWrite(LS.STATS, stats);
-  toolUsesEl.textContent = stats[t.id].uses;
-  renderTools();
-  renderTotals();
+/* ============== Core: generate from template ============== */
+function parseJsonSafe(txt){
+  if(!txt || !txt.trim()) return {};
+  try{ return JSON.parse(txt); }catch(e){ return {__error: 'Invalid JSON: ' + e.message}; }
 }
 
-// download output
-function downloadOutput(){
-  const t = selectedTool;
-  if(!t) return;
-  const content = outputAreaEl.textContent || '';
-  if(!content) { alert('No output to download'); return; }
-  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+function generateOutput(toolId, inputObj){
+  const tool = TOOLS.find(t=>t.id===toolId);
+  if(!tool) return 'Tool not found.';
+  try{
+    if(inputObj && inputObj.__error) return inputObj.__error;
+    return tool.template(inputObj || {});
+  }catch(e){
+    return 'Error generating output: ' + (e.message || e);
+  }
+}
+
+/* ============== Actions ============== */
+generateBtn.addEventListener('click', ()=>{
+  const toolId = toolSelect.value;
+  const parsed = parseJsonSafe(jsonInput.value);
+  const out = generateOutput(toolId, parsed);
+  outputBox.textContent = out;
+  // update stats uses
+  const s = loadStats(); s.uses = (s.uses||0) + 1; saveStats(s); refreshStatsUI();
+});
+
+copyBtn.addEventListener('click', async ()=>{
+  try{
+    await navigator.clipboard.writeText(outputBox.textContent || '');
+    alert('Copied to clipboard');
+  }catch(e){ alert('Copy failed: ' + e.message); }
+});
+
+downloadBtn.addEventListener('click', ()=>{
+  const content = outputBox.textContent || '';
+  const toolId = toolSelect.value || 'output';
+  const filename = `${toolId}-${Date.now()}.txt`;
+  const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = (t.name.replace(/\s+/g,'-').toLowerCase() || 'omni') + '.' + (t.ext || 'txt');
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
-  // update downloads stat
-  stats = lsRead(LS.STATS) || stats;
-  stats[t.id] = stats[t.id] || { uses:0, downloads:0 };
-  stats[t.id].downloads += 1;
-  lsWrite(LS.STATS, stats);
-  toolDownloadsEl.textContent = stats[t.id].downloads;
-  renderTools();
-  renderTotals();
-}
+  // update download stats
+  const s = loadStats(); s.downloads = (s.downloads||0)+1; saveStats(s); refreshStatsUI();
+});
 
-/* =========================
-   Lock / Unlock Premium Module
-   =========================
-   Usage:
-   - paste this after your existing "// lock/unlock premium (owner view)" comment
-   - relies on: `owner` object (owner.key), `unlocked` boolean, `TOOLS`, renderTools()
-   - stores unlock state in sessionStorage (temporary) or localStorage (persistent opt-in)
-*/
+clearBtn.addEventListener('click', ()=>{
+  jsonInput.value = '';
+  outputBox.textContent = 'Output will appear here...';
+});
 
-/**
- * Storage keys
- */
-const UNLOCK_SESSION_KEY = 'omniverse_unlocked_session_v1'; // session-only
-const UNLOCK_PERSIST_KEY = 'omniverse_unlocked_persist_v1'; // persistent flag (localStorage)
+/* ============== Owner modal handlers ============== */
+ownerSettingsBtn.addEventListener('click', ()=>{
+  const o = loadOwner();
+  ownerName.value = o.name || '';
+  ownerPay.value = o.pay || '';
+  ownerPremium.value = o.premium || 'no';
+  ownerModal.style.display = 'flex';
+});
+closeOwner.addEventListener('click', ()=> ownerModal.style.display = 'none');
+saveOwner.addEventListener('click', ()=>{
+  const o = {name: ownerName.value.trim(), pay: ownerPay.value.trim(), premium: ownerPremium.value};
+  saveOwner(o); ownerModal.style.display = 'none'; renderDonate();
+  alert('Owner settings saved locally.');
+});
 
-/**
- * Check if there's any persisted unlock flag (from previous saved owner unlock)
- * If owner.key is empty we treat premium as locked until owner sets it.
- */
-function loadPersistedUnlockState() {
-  try {
-    // If persisted flag set AND owner.key exists -> keep unlocked
-    const persistFlag = JSON.parse(localStorage.getItem(UNLOCK_PERSIST_KEY) || 'false');
-    const sessionFlag = JSON.parse(sessionStorage.getItem(UNLOCK_SESSION_KEY) || 'false');
-    if (sessionFlag) return true;
-    if (persistFlag && owner && owner.key) return true;
-    return false;
-  } catch (e) {
-    return false;
-  }
-}
+/* ============== Reset / Import / Export ============== */
+resetStats.addEventListener('click', ()=>{
+  if(confirm('Reset all local stats?')){ saveStats({uses:0,downloads:0}); refreshStatsUI(); alert('Stats reset'); }
+});
+clearOwner.addEventListener('click', ()=>{
+  if(confirm('Clear owner settings from this browser?')){ localStorage.removeItem(LS_OWNER); renderDonate(); alert('Owner settings cleared'); }
+});
+openLocalStats.addEventListener('click', ()=>{
+  const s = loadStats(); alert('Local stats:\\nUses: ' + (s.uses||0) + '\\nDownloads: ' + (s.downloads||0));
+});
+exportSettings.addEventListener('click', ()=>{
+  const data = {owner: loadOwner(), stats: loadStats(), tools: TOOLS.map(t=>({id:t.id,name:t.name}))};
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'omniverse-settings.json'; document.body.appendChild(a); a.click(); a.remove();
+});
+importSettings.addEventListener('click', ()=>{
+  const input = prompt('Paste exported JSON here:');
+  if(!input) return;
+  try{
+    const d = JSON.parse(input);
+    if(d.owner) saveOwner(d.owner);
+    if(d.stats) saveStats(d.stats);
+    alert('Imported (owner & stats) into localStorage.');
+    renderDonate(); refreshStatsUI();
+  }catch(e){ alert('Invalid JSON: ' + e.message); }
+});
 
-/**
- * Apply unlocked state globally in this page.
- * - unlockedVar: boolean
- * - persist: if true, save to localStorage (persistent across sessions)
- * - sessionOnly: if true, save only in sessionStorage (cleared on browser close)
- */
-function applyUnlockedState(unlockedVar, { persist=false, sessionOnly=false } = {}) {
-  unlocked = !!unlockedVar;
-  // set storage based on options
-  if (persist) {
-    localStorage.setItem(UNLOCK_PERSIST_KEY, JSON.stringify(true));
-    sessionStorage.removeItem(UNLOCK_SESSION_KEY);
-  } else if (sessionOnly) {
-    sessionStorage.setItem(UNLOCK_SESSION_KEY, JSON.stringify(true));
-    localStorage.removeItem(UNLOCK_PERSIST_KEY);
-  } else {
-    // neither persist nor session -> clear stored flags
-    sessionStorage.removeItem(UNLOCK_SESSION_KEY);
-    localStorage.removeItem(UNLOCK_PERSIST_KEY);
-  }
-  // Update UI text / buttons
-  updateLockUI();
-  // Re-render tool list so locked classes update
-  if (typeof renderTools === 'function') renderTools();
-}
+/* ============== Unlock / Premium ============== */
+unlockPremiumBtn.addEventListener('click', ()=>{
+  premiumModal.style.display = 'flex';
+});
+closePremium.addEventListener('click', ()=> premiumModal.style.display = 'none');
 
-/**
- * Update UI elements related to lock state (button text, badges)
- */
-function updateLockUI() {
-  try {
-    if (unlocked) {
-      lockToggleBtn.textContent = '🔓 Premium unlocked';
-      lockToggleBtn.classList.remove('btn');
-      lockToggleBtn.classList.add('btn-primary');
-    } else {
-      lockToggleBtn.textContent = '🔒 Unlock Premium';
-      lockToggleBtn.classList.remove('btn-primary');
-      lockToggleBtn.classList.add('btn');
-    }
-    // set toolTag for selected tool
-    if (selectedTool && toolTag) {
-      toolTag.textContent = selectedTool.premium ? (selectedTool.premium && !unlocked ? 'Premium' : 'Premium (Unlocked)') : 'Free';
-    }
-  } catch (e) {
-    // ignore UI errors
-    console.warn('updateLockUI error', e);
-  }
-}
+/* ============== Startup ============== */
+initTools();
+refreshStatsUI();
+renderDonate();
 
-/**
- * Verify provided key against owner.key
- * Returns true/false
- */
-function verifyUnlockKey(candidateKey) {
-  if (!owner || !owner.key) return false;
-  try {
-    const saved = String(owner.key || '').trim();
-    return saved.length > 0 && candidateKey === saved;
-  } catch (e) {
-    return false;
-  }
-}
+/* open dashboard button: show local stats quick */
+openDashboard.addEventListener('click', ()=> {
+  const s = loadStats();
+  alert('Local Dashboard\\nUses: ' + (s.uses||0) + '\\nDownloads: ' + (s.downloads||0));
+});
 
-/**
- * Prompt user for unlock key and handle flow.
- * Options presented:
- *  - Enter key to unlock for this session
- *  - If verification passes, offer to persist (remember) unlock in this browser
- */
-function promptAndUnlock() {
-  const inputKey = prompt('Unlock key दर्ज करें (owner से प्राप्त key):');
-  if (inputKey === null) return; // user cancelled
-  if (verifyUnlockKey(inputKey)) {
-    // ask user whether to persist
-    const persist = confirm('Key सही है। क्या आप इसे इस ब्राउज़र में स्थायी रूप से save करना चाहते हैं? (OK = Yes, Cancel = Session-only)');
-    applyUnlockedState(true, { persist: persist, sessionOnly: !persist });
-    alert('Premium features unlocked' + (persist ? ' (persisted)' : ' (session)') + '.');
-  } else {
-    alert('Unlock key गलत है। कृपया सही key डालें या owner से संपर्क करें।');
-  }
-}
+/* small convenience: prefill sample JSON for selected tool */
+toolSelect.addEventListener('change', ()=>{
+  const t = toolSelect.value;
+  const sample = {
+    resume: `{"name":"Amit Sharma","title":"Software Engineer","email":"amit@example.com","skills":["JavaScript","Node.js"],"experience":[{"role":"Dev","company":"X","years":"2019-2022","detail":"Worked on web apps"}]}`,
+    bio: `{"name":"Anita Verma","role":"Data Scientist","years":"5","special":"building ML systems"}`,
+    script: `{"purpose":"parse CSV and print summary","fnName":"parseCSV","comment":"CSV utility"}`,
+    notes: `{"title":"Sprint Meeting","bullets":["Fix bug #12","Design review on Fri"],"summary":"Reviewed priorities"}`,
+    site: `{"brand":"OmniSite","tagline":"Your AI playground","color":"#60a5fa"}`
+  }[t] || '';
+  jsonInput.value = sample;
+});
 
-/**
- * Owner-only quick unlock: If current user is the owner (we assume owner modal access),
- * allow directly toggling unlocked state without prompt.
- * This method is useful in Owner Settings save flow to instantly enable premium for dev.
- */
-function ownerDirectUnlock(option = { persist: false }) {
-  // Only allow if owner.key exists (owner is configured in this browser)
-  if (!owner || !owner.key) {
-    alert('Owner key configured नहीं है — पहले Owner Settings में key सेट करें।');
-    return;
-  }
-  applyUnlockedState(true, { persist: !!option.persist, sessionOnly: !option.persist });
-  alert('Premium unlocked by owner' + (option.persist ? ' (persisted)' : ' (session)') + '.');
-}
+/* Populate initial sample */
+toolSelect.dispatchEvent(new Event('change'));
 
-/**
- * Owner direct lock (revoke)
- */
-function ownerDirectLock() {
-  applyUnlockedState(false, { persist: false });
-  alert('Premium lock वापस लगा दिया गया (unlocked state cleared).');
-}
-
-/**
- * Helper: enforce premium on action (e.g., Generate/Download)
- * If tool is premium and not unlocked -> show message and optionally open owner settings prompt.
- * Returns true if allowed, false if blocked.
- */
-function requirePremiumOrShowNotice(tool) {
-  if (!tool) return true;
-  if (tool.premium && !unlocked) {
-    const goOwner = confirm('यह टूल Premium है और अभी अनलॉक नहीं है। Owner से अनलॉक key लें या Owner settings खोलें।\n\nOK = Open Owner Settings, Cancel = Cancel');
-    if (goOwner) {
-      ownerSettingsBtn.click();
-    }
-    return false;
-  }
-  return true;
-}
-
-/* ====== Integrate with existing UI actions ====== */
-
-// Override generate action wrapper to ensure premium check (if your code calls generateOutput directly keep it)
-const originalGenerate = window.generateOutput || function(){};
-window.generateOutput = function() {
-  if (!requirePremiumOrShowNotice(selectedTool)) return;
-  // call existing generateOutput implementation (if present)
-  if (typeof originalGenerate === 'function' && originalGenerate !== window.generateOutput) {
-    // originalGenerate might be our older function; call it
-    originalGenerate();
-    return;
-  }
-  // fallback: if your code defines generateOutput below this block, remove fallback.
-  console.warn('generateOutput wrapper: original generate function not found; ensure your generateOutput function exists.');
-};
-
-/* Hook download similarly */
-const originalDownload = window.downloadOutput || function(){};
-window.downloadOutput = function() {
-  if (!requirePremiumOrShowNotice(selectedTool)) return;
-  if (typeof originalDownload === 'function' && originalDownload !== window.downloadOutput) {
-    originalDownload();
-    return;
-  }
-  console.warn('downloadOutput wrapper: original download function not found; ensure your downloadOutput function exists.');
-};
-
-/* Event binding for lockToggleBtn */
-if (typeof lockToggleBtn !== 'undefined' && lockToggleBtn) {
-  lockToggleBtn.addEventListener('click', () => {
-    // If unlocked -> ask to lock? else prompt to unlock
-    if (unlocked) {
-      if (confirm('Premium को lock करना है? (इस ब्राउज़र से अनलॉक हट जाएगा)')) {
-        ownerDirectLock();
-      }
-    } else {
-      promptAndUnlock();
-    }
-  });
-}
-
-/* When Owner saves settings: if they set a key and also want immediate unlock, you can call ownerDirectUnlock(true)
-   Ensure you call this in saveOwnerBtn handler if you want auto-unlock after saving key.
-   Example (in your saveOwnerBtn listener):
-     saveOwner(owner);
-     ownerDirectUnlock({ persist: true }); // optional
-*/
-
-/* Initialize state on load */
-(function bootLockModule(){
-  // load persisted/session flags
-  const hadUnlocked = loadPersistedUnlockState();
-  applyUnlockedState(hadUnlocked, { persist: !!JSON.parse(localStorage.getItem(UNLOCK_PERSIST_KEY) || 'false'), sessionOnly: !!JSON.parse(sessionStorage.getItem(UNLOCK_SESSION_KEY) || 'false') });
-  // ensure UI updated
-  updateLockUI();
-})();
-  
+/* show owner donate area on load */
+renderDonate();
+</script>
+</body>
+                               </html>
+      
