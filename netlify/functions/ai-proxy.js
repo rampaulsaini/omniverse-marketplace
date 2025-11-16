@@ -1,6 +1,16 @@
 // netlify/functions/ai-proxy.js
 const fetch = require('// top of netlify function file
+const RATE = {// top of netlify function file
 const RATE = {};
+function checkRate(ip) {
+  const now = Date.now();
+  const bucket = RATE[ip] || { t: now, n: 0 };
+  if (now - bucket.t > 60_000) { bucket.t = now; bucket.n = 1; RATE[ip] = bucket; return true; }
+  bucket.n++;
+  RATE[ip] = bucket;
+  return bucket.n <= 40; // 40 requests per minute
+}
+};
 function checkRate(ip) {
   const now = Date.now();
   const bucket = RATE[ip] || { t: now, n: 0 };
