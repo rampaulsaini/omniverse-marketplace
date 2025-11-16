@@ -1,257 +1,162 @@
 <!doctype html>
 <html lang="hi">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Omniverse Marketplace — Local Demo</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Omniverse Marketplace — AI & Tips Demo</title>
 <style>
-  :root{
-    --bg:#071026; --card:#07182a; --muted:#9fb0d9; --accent:#60a5fa; --glass: rgba(255,255,255,0.03);
-  }
-  html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;background:linear-gradient(180deg,#041025 0%, #071026 100%);color:#e6eef8}
-  .container{max-width:1100px;margin:18px auto;padding:18px}
-  header{display:flex;gap:12px;align-items:center}
-  h1{margin:0;font-size:20px}
-  .sub{color:var(--muted);font-size:13px}
-  .grid{display:grid;grid-template-columns:320px 1fr;gap:14px;margin-top:14px}
-  .card{background:linear-gradient(180deg,var(--card),#021426);border:1px solid var(--glass);padding:12px;border-radius:10px}
-  button{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:#e6eef8;cursor:pointer}
-  input,textarea,select{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#e6eef8;box-sizing:border-box}
-  label{display:block;font-size:13px;margin-top:8px;color:var(--muted)}
-  .muted{color:var(--muted);font-size:13px}
-  .tools-list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
-  .tool-item{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px;border-radius:8px;background:rgba(255,255,255,0.01);border:1px solid rgba(255,255,255,0.02)}
-  .tool-meta{font-size:13px;color:var(--muted)}
-  .small{font-size:13px;padding:6px 8px}
-  .row{display:flex;gap:8px;align-items:center}
-  .right{margin-left:auto}
-  .panel{padding:12px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.02)}
-  pre{background:#021a2a;padding:12px;border-radius:8px;overflow:auto;color:#dff0ff}
-  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .big{font-size:16px;padding:10px 12px}
-  .accent{background:linear-gradient(90deg,#1e3a8a,#60a5fa);border:none;color:#021426}
-  .danger{border:1px solid rgba(255,80,80,0.25);color:#ffb4b4}
-  .stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .badge{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:8px;font-size:13px;color:var(--muted)}
-  main .tool-editor{display:grid;grid-template-columns:1fr 360px;gap:12px}
-  .footer{margin-top:18px;color:var(--muted);font-size:13px}
-  .copy-btn{cursor:pointer;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent}
-  @media (max-width:900px){ .grid{grid-template-columns:1fr} .main-preview iframe{height:320px} .tool-editor{grid-template-columns:1fr} }
+:root{--bg:#071026;--card:#07182a;--muted:#9fb0d9;--accent:#60a5fa;--glass:rgba(255,255,255,0.03);}
+html,body{margin:0;height:100%;font-family:Inter,sans-serif;background:var(--bg);color:#e6eef8;}
+.container{max-width:1100px;margin:12px auto;padding:12px;}
+h1{margin:0;font-size:22px;}
+.sub{color:var(--muted);font-size:13px;}
+.grid{display:grid;grid-template-columns:320px 1fr;gap:12px;margin-top:12px;}
+.card{background:linear-gradient(180deg,var(--card),#021426);border:1px solid var(--glass);padding:12px;border-radius:10px;}
+button{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;color:#e6eef8;cursor:pointer;}
+input,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#e6eef8;box-sizing:border-box;}
+label{display:block;font-size:13px;margin-top:8px;color:var(--muted);}
+.muted{color:var(--muted);font-size:13px;}
+.tools-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.tool-item{display:flex;justify-content:space-between;align-items:center;padding:6px;border-radius:6px;background:rgba(255,255,255,0.01);border:1px solid rgba(255,255,255,0.02);}
+.panel{padding:12px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.02);}
+pre{background:#021a2a;padding:12px;border-radius:8px;overflow:auto;color:#dff0ff;white-space:pre-wrap;word-break:break-word;}
+.accent{background:linear-gradient(90deg,#1e3a8a,#60a5fa);border:none;color:#021426;}
+.danger{border:1px solid rgba(255,80,80,0.25);color:#ffb4b4;}
+.badge{background:rgba(255,255,255,0.02);padding:4px 6px;border-radius:6px;font-size:13px;color:var(--muted);}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="container">
-<header>
-  <div>
-    <h1>Omniverse Marketplace — Local Demo</h1>
-    <div class="sub">Zero-cost · Donation-ready · Settings & stats local to your browser</div>
-  </div>
-  <div style="margin-left:auto" class="muted">Deploy: GitHub Pages · Local only</div>
-</header>
+<h1>Omniverse Marketplace — AI & Tips Demo</h1>
+<div class="sub">Client-side demo · Paytm / PayPal tips · AI template generate</div>
 
 <div class="grid">
 <!-- LEFT PANEL -->
 <div>
   <div class="card">
-    <strong>Owner Settings (Local)</strong>
-    <div class="muted">Owner settings केवल आपके ब्राउज़र में सुरक्षित रहते हैं।</div>
+    <strong>Owner Settings</strong>
     <label>Owner name</label>
-    <input id="ownerName" placeholder="आपका नाम (Owner)" />
-    <label>Donate / Pay links (comma separated)</label>
-    <input id="ownerLinks" placeholder="upi:abc@paytm, https://paypal.me/you" />
-    <div style="display:flex;gap:8px;margin-top:10px">
-      <button id="saveOwner" class="small">Save Settings</button>
-      <button id="exportOwner" class="small">Export</button>
-      <button id="importOwnerBtn" class="small">Import</button>
+    <input id="ownerName" placeholder="आपका नाम">
+    <label>Pay / Donate Links (comma separated)</label>
+    <input id="ownerLinks" placeholder="upi:abc@paytm, https://paypal.me/you">
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <button id="saveOwner" class="accent">Save</button>
+      <button id="exportOwner">Export</button>
+      <button id="importOwnerBtn">Import</button>
     </div>
-    <hr style="margin:10px 0;border:none;border-top:1px solid rgba(255,255,255,0.02)" />
-    <strong>Marketplace Controls</strong>
-    <div class="muted">Tools और stats localStorage में रहते हैं।</div>
-    <div class="toolbar" style="margin-top:8px">
-      <button id="addDemo" class="small">+ Add Demo Tool</button>
-      <button id="resetTools" class="small danger">Reset Tools</button>
-      <button id="openDashboard" class="small">Open Dashboard (local)</button>
+    <hr>
+    <strong>Tools</strong>
+    <div class="tools-list" id="toolsList"></div>
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <button id="addToolBtn" class="accent">+ Add Tool</button>
+      <button id="resetTools" class="danger">Reset All Tools</button>
     </div>
-    <hr style="margin:10px 0;border:none;border-top:1px solid rgba(255,255,255,0.02)" />
-    <strong>Import / Export</strong>
-    <div class="muted">Paste exported JSON and Apply</div>
-    <textarea id="importJson" placeholder="Paste exported JSON here" rows="4" style="margin-top:8px"></textarea>
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <button id="applyImport" class="small">Apply Import</button>
-      <button id="exportAll" class="small">Export All</button>
-      <button id="resetStats" class="small">Reset all stats</button>
-    </div>
-    <hr style="margin:10px 0;border:none;border-top:1px solid rgba(255,255,255,0.02)" />
-    <div class="muted">Owner links</div>
-    <div id="ownerLinksRender" style="margin-top:8px"></div>
-    <div class="footer">© Omniverse Marketplace — localStorage only</div>
-  </div>
-
-  <div class="card" style="margin-top:12px">
-    <strong>Tools list</strong>
-    <div class="muted">Tools are local. Generate outputs, download, tip owner.</div>
-    <div id="toolsList" class="tools-list" style="margin-top:10px"></div>
+    <hr>
+    <strong>Owner Links</strong>
+    <div id="ownerLinksRender"></div>
   </div>
 </div>
 
 <!-- RIGHT PANEL -->
 <div>
-  <div class="card">
-    <div style="display:flex;gap:12px;align-items:center">
-      <div>
-        <strong style="font-size:16px">— Select a tool —</strong>
-        <div class="muted">Tools are local. Generate outputs, download, tip owner.</div>
-      </div>
-      <div class="right stats">
-        <div class="badge">Uses: <span id="globalUses">0</span></div>
-        <div class="badge">Downloads: <span id="globalDownloads">0</span></div>
-      </div>
-    </div>
-    <hr style="margin:10px 0;border:none;border-top:1px solid rgba(255,255,255,0.02)" />
-    <div id="toolArea" class="panel">
-      <div class="muted" id="noToolMsg">कृपया बाएँ से एक tool चुनें या <button id="addToolBtn" class="small">+ Add Tool</button> दबाएँ।</div>
+  <div class="card panel">
+    <div id="toolArea">
+      <div id="noToolMsg">कृपया बाएँ से एक tool चुनें।</div>
       <div id="toolMain" style="display:none">
         <h3 id="toolTitle"></h3>
-        <div id="toolDesc" class="muted"></div>
-        <label style="margin-top:10px">Tip: structured JSON input देने से output बेहतर होगा।</label>
-        <textarea id="toolInput" rows="6" placeholder='{"name":"Your Name","field":"AI"}'></textarea>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <button id="generateBtn" class="big accent">Generate</button>
-          <button id="clearOutput" class="big">Clear</button>
-          <button id="copyOutput" class="big">Copy</button>
-          <button id="downloadOutput" class="big">⬇️ Download</button>
-          <button id="resetToolStats" class="big" title="Reset stats for this tool">Reset Tool Stats</button>
+        <div class="muted" id="toolDesc"></div>
+        <label>Input JSON:</label>
+        <textarea id="toolInput" rows="4"></textarea>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <button id="generateBtn" class="accent">Generate</button>
+          <button id="clearOutput">Clear</button>
+          <button id="copyOutput">Copy</button>
+          <button id="downloadOutput">⬇️ Download</button>
+          <button id="resetToolStats" class="danger">Reset Stats</button>
         </div>
-        <div style="margin-top:10px" class="muted">Selected Uses: <span id="selUses">0</span> • Selected Downloads: <span id="selDownloads">0</span></div>
-        <hr style="margin:10px 0;border:none;border-top:1px solid rgba(255,255,255,0.02)" />
+        <label style="margin-top:6px;">Output (live client-side)</label>
+        <pre id="toolOutput"></pre>
+        <hr>
         <div>
-          <label>AI output (demo — client-side)</label>
-          <pre id="toolOutput" style="min-height:140px">Generated output will appear here.</pre>
+          <label>Tool Editor</label>
+          <input id="editorName" placeholder="Tool name">
+          <input id="editorDesc" placeholder="Short description" style="margin-top:4px">
+          <textarea id="editorTemplate" rows="6" placeholder="Hello {{name}}, welcome to {{field}}" style="margin-top:4px"></textarea>
+          <textarea id="editorExample" rows="3" placeholder='{"name":"Aman","field":"AI"}' style="margin-top:4px"></textarea>
+          <div style="display:flex;gap:6px;margin-top:4px">
+            <button id="saveToolBtn" class="accent">Save Tool</button>
+            <button id="delToolBtn" class="danger">Delete Tool</button>
+            <button id="cloneToolBtn">Clone Tool</button>
+          </div>
         </div>
-        <hr style="margin:10px 0;border:none;border-top:1px solid rgba(255,255,255,0.02)" />
-        <div class="tool-editor">
-          <div>
-            <label>Tool description</label>
-            <input id="editorDesc" placeholder="Short description" />
-            <label style="margin-top:8px">Tip: use simple keys like <code>{{name}}</code> in templates and pass JSON input.</label>
-            <label>Example input (JSON)</label>
-            <textarea id="editorExample" rows="3" placeholder='{"name":"Your Name","field":"AI"}'></textarea>
-            <div style="display:flex;gap:8px;margin-top:8px">
-              <button id="saveToolBtn" class="small accent">Save Tool</button>
-              <button id="delToolBtn" class="small danger">Delete Tool</button>
-            </div>
-          </div>
-          <div>
-            <label>Tool Editor</label>
-            <input id="editorName" placeholder="Tool name" />
-            <label style="margin-top:8px">Template (use {{key}} placeholders)</label>
-            <textarea id="editorTemplate" rows="10" placeholder="Hello {{name}}, welcome to {{field}}"></textarea>
-            <div style="margin-top:8px" class="muted">Preview: the generator replaces unknown keys with empty string.</div>
-          </div>
+        <hr>
+        <div class="muted">Tips Received: <span id="toolTips">0</span></div>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <button id="tipPaytm">💰 Paytm Tip</button>
+          <button id="tipPaypal">💳 PayPal Tip</button>
         </div>
       </div>
     </div>
   </div>
 </div>
-</div>
-
-<div style="margin-top:12px" class="container">
-  <div class="card">
-    <strong>Help & Notes</strong>
-    <div class="muted" style="margin-top:8px">
-      - यह demo client-side template generator है — आगे आप इसे AI APIs और payment integrations से जोड़ सकते हैं।<br>
-      - Download button सिर्फ client-side फ़ाइल (.txt / .html) बनाता है।<br>
-      - Import/Export से पूरे tools और stats को बैकअप करें।<br>
-      - Paytm और PayPal donate links support हो गई है।<br>
-      - Replace old index.html with this file for live deployment.
-    </div>
-  </div>
 </div>
 
 <script>
-// --- STORAGE KEYS ---
-const LS_TOOLS = 'omniverse_tools_v2';
-const LS_STATS = 'omniverse_stats_v2';
-const LS_OWNER = 'omniverse_owner_v2';
+// STORAGE
+const LS_TOOLS='omniverse_tools_v3',LS_STATS='omniverse_stats_v3',LS_OWNER='omniverse_owner_v3';
+let state={tools:{},stats:{},owner:{},selected:null};
 
-// --- UTILITY ---
-function uid(name){ return (name||'tool').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') || ('t-'+Math.random().toString(36).slice(2,8)); }
-function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];}); }
-function downloadText(filename, text){ const blob = new Blob([text], {type:'text/plain;charset=utf-8'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),5000); }
+// UTIL
+function uid(name){ return (name||'tool').toLowerCase().replace(/[^a-z0-9]+/g,'-')+Math.random().toString(36).slice(2,6);}
+function downloadText(filename,text){ const blob=new Blob([text],{type:'text/plain;charset=utf-8'}); const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();}
 
-// --- LOAD / SAVE ---
-function loadTools(){ try{return JSON.parse(localStorage.getItem(LS_TOOLS)||'{}');}catch(e){return{}} }
+// LOAD/SAVE
+function loadTools(){ try{return JSON.parse(localStorage.getItem(LS_TOOLS)||'{}')}catch(e){return{}} }
 function saveTools(t){ localStorage.setItem(LS_TOOLS,JSON.stringify(t)); }
-function loadStats(){ try{return JSON.parse(localStorage.getItem(LS_STATS)||'{}');}catch(e){return{}} }
+function loadStats(){ try{return JSON.parse(localStorage.getItem(LS_STATS)||'{}')}catch(e){return{} } }
 function saveStats(s){ localStorage.setItem(LS_STATS,JSON.stringify(s)); }
-function loadOwner(){ try{return JSON.parse(localStorage.getItem(LS_OWNER)||'{}');}catch(e){return{}} }
+function loadOwner(){ try{return JSON.parse(localStorage.getItem(LS_OWNER)||'{}')}catch(e){return{} } }
 function saveOwner(o){ localStorage.setItem(LS_OWNER,JSON.stringify(o)); }
 
-// --- STATE ---
-let state={tools:loadTools(),stats:loadStats(),owner:loadOwner(),selected:null};
-
-// --- DEMO TOOL ---
-function ensureDemo(){
-if(Object.keys(state.tools).length===0){
-  state.tools['resume-generator']={name:'Resume Generator',desc:'Simple resume template generator',template:'Name: {{name}}\nRole: {{title}}\nSkills: {{skills}}\nSummary: {{summary}}',example:'{"name":"Aman Kumar","title":"Frontend Developer","skills":"HTML, CSS, JS","summary":"Passionate dev..."}'};
-  state.tools['bio-generator']={name:'Bio Generator',desc:'Short bio generator',template:'{{name}} is a {{tone}} professional focused on building user-centric web applications.',example:'{"name":"Aman","tone":"professional"}'};
-  saveTools(state.tools);
-}}
-ensureDemo();
+// STATE INIT
+state.tools=loadTools(); state.stats=loadStats(); state.owner=loadOwner();
 
 // --- OWNER LINKS RENDER ---
-function renderOwnerLinks(){
-  const links=(state.owner.links||[]);
-  if(links.length===0){ ownerLinksRender.innerHTML='<span class="muted">—</span>'; return;}
-  ownerLinksRender.innerHTML=links.map(l=>{
-    let href=l.trim(),label=href,icon='';
-    if(href.startsWith('upi:')){ const upiId=href.slice(4); href=`https://paytm.me/${upiId}`; label='Paytm'; icon='💰'; }
-    else if(href.includes('paypal.me')){ label='PayPal'; icon='💳'; }
-    return `<div style="margin-bottom:6px"><a href="${href}" target="_blank" rel="noopener" style="color:var(--accent)">${icon} ${escapeHtml(label)}</a></div>`;
-  }).join('');
-}
+function renderOwnerLinks(){ const links=(state.owner.links||[]); ownerLinksRender.innerHTML=links.map(l=>{ let href=l.trim(),label=href,icon=''; if(href.startsWith('upi:')){ href=`https://paytm.me/${href.slice(4)}`; label='Paytm'; icon='💰';} else if(href.includes('paypal.me')){ label='PayPal'; icon='💳'; } return `<div><a href="${href}" target="_blank" style="color:var(--accent)">${icon} ${label}</a></div>` }).join(''); }
 
-// --- RENDER & STATS ---
-function renderOwner(){ ownerName.value=state.owner.name||''; ownerLinks.value=(state.owner.links||[]).join(', '); renderOwnerLinks(); }
-function renderStatsSummary(){ let u=0,d=0; Object.values(state.stats||{}).forEach(s=>{u+=s.uses||0; d+=s.downloads||0}); globalUses.textContent=u; globalDownloads.textContent=d; }
-function renderToolsList(){ toolsList.innerHTML=''; const keys=Object.keys(state.tools); if(keys.length===0){ toolsList.innerHTML='<div class="muted">No tools yet — add one.</div>'; return; } keys.forEach(k=>{ const t=state.tools[k]; const s=state.stats[k]||{uses:0,downloads:0}; const el=document.createElement('div'); el.className='tool-item'; el.innerHTML=`<div><div style="font-weight:600">${escapeHtml(t.name)}</div><div class="tool-meta">${escapeHtml(t.desc||'')}</div><div class="tool-meta" style="margin-top:6px">Uses: ${s.uses||0} • Dls: ${s.downloads||0}</div></div><div style="display:flex;flex-direction:column;gap:6px"><button class="small" data-slug="${k}" data-act="select">Open</button><div style="display:flex;gap:6px;flex-direction:column"><button class="small" data-slug="${k}" data-act="edit">Edit</button><button class="small" data-slug="${k}" data-act="clone">Clone</button></div></div>`; toolsList.appendChild(el); el.querySelector('[data-act="select"]').addEventListener('click',()=>selectTool(k)); el.querySelector('[data-act="edit"]').addEventListener('click',()=>selectTool(k,true)); el.querySelector('[data-act="clone"]').addEventListener('click',()=>cloneTool(k));});}
-function selectTool(slug,openEditor=false){ const t=state.tools[slug]; if(!t) return; state.selected=slug; noToolMsg.style.display='none'; toolMain.style.display='block'; toolTitle.textContent=t.name; toolDesc.textContent=t.desc||''; toolInput.value=t.example||''; editorName.value=t.name||''; editorDesc.value=t.desc||''; editorTemplate.value=t.template||''; editorExample.value=t.example||''; const s=state.stats[slug]||{uses:0,downloads:0}; selUses.textContent=s.uses||0; selDownloads.textContent=s.downloads||0; }
-function renderAll(){ renderOwner(); renderStatsSummary(); renderToolsList(); }
+// --- RENDER TOOLS ---
+function renderToolsList(){ toolsList.innerHTML=''; Object.keys(state.tools).forEach(k=>{ const t=state.tools[k]; const s=state.stats[k]||{uses:0,downloads:0,tips:0}; const el=document.createElement('div'); el.className='tool-item'; el.innerHTML=`<div>${t.name}</div><div><button data-s="${k}" class="openBtn">Open</button></div>`; toolsList.appendChild(el); el.querySelector('.openBtn').addEventListener('click',()=>selectTool(k));});}
+function selectTool(slug){ const t=state.tools[slug]; if(!t) return; state.selected=slug; toolMain.style.display='block'; noToolMsg.style.display='none'; toolTitle.textContent=t.name; toolDesc.textContent=t.desc||''; toolInput.value=t.example||''; editorName.value=t.name; editorDesc.value=t.desc||''; editorTemplate.value=t.template||''; editorExample.value=t.example||''; toolTips.textContent=(state.stats[slug]?.tips||0); }
 
-// --- TOOL FUNCTIONS ---
-function generateOutput(){ const slug=state.selected; if(!slug) return; let t=state.tools[slug]; let inp={}; try{inp=JSON.parse(toolInput.value||'{}');}catch(e){toolOutput.textContent='Invalid JSON input'; return;} let out=t.template; Object.keys(inp).forEach(k=>{const re=new RegExp('{{'+k+'}}','g'); out=out.replace(re,inp[k])}); toolOutput.textContent=out; state.stats[slug].uses=(state.stats[slug].uses||0)+1; selUses.textContent=state.stats[slug].uses; renderStatsSummary(); saveStats(state.stats); }
-function clearOutput(){ toolOutput.textContent=''; }
-function copyOutput(){ navigator.clipboard.writeText(toolOutput.textContent||''); alert('Copied!'); }
-function downloadOutput(){ downloadText((state.tools[state.selected]?.name||'output')+'.txt', toolOutput.textContent||''); state.stats[state.selected].downloads=(state.stats[state.selected].downloads||0)+1; selDownloads.textContent=state.stats[state.selected].downloads; renderStatsSummary(); saveStats(state.stats); }
-function resetToolStats(){ const s=state.selected; if(!s) return; state.stats[s]={uses:0,downloads:0}; selUses.textContent='0'; selDownloads.textContent='0'; renderStatsSummary(); saveStats(state.stats); }
-function cloneTool(src){ const t=state.tools[src]; if(!t) return; const newSlug=uid(t.name+'-copy-'+Math.random().toString(36).slice(2,6)); state.tools[newSlug]={name:t.name+' (copy)',desc:t.desc,template:t.template,example:t.example}; state.stats[newSlug]={uses:0,downloads:0}; saveTools(state.tools); saveStats(state.stats); renderAll(); selectTool(newSlug,true); }
-function addNewTool(){ const slug=uid('New Tool'); state.tools[slug]={name:'New Tool',desc:'Demo description',template:'Hello {{name}}','example':'{"name":"Aman"}'}; state.stats[slug]={uses:0,downloads:0}; saveTools(state.tools); renderAll(); selectTool(slug,true); }
-function saveToolEdits(){ const slug=state.selected; if(!slug) return; state.tools[slug]={name:editorName.value,desc:editorDesc.value,template:editorTemplate.value,example:editorExample.value}; saveTools(state.tools); renderAll(); selectTool(slug); }
-function deleteTool(){ const slug=state.selected; if(!slug) return; if(confirm('Delete this tool?')){ delete state.tools[slug]; delete state.stats[slug]; saveTools(state.tools); renderAll(); toolMain.style.display='none'; noToolMsg.style.display='block'; state.selected=null; renderStatsSummary(); }}
+// --- GENERATE OUTPUT CLIENT-SIDE ---
+function generateOutput(){ const slug=state.selected; if(!slug) return; const t=state.tools[slug]; let inp={}; try{inp=JSON.parse(toolInput.value||'{}')}catch(e){toolOutput.textContent='Invalid JSON'; return;} let out=t.template; Object.keys(inp).forEach(k=>{ const re=new RegExp('{{'+k+'}}','g'); out=out.replace(re,inp[k]); }); toolOutput.textContent=out; state.stats[slug].uses=(state.stats[slug].uses||0)+1; saveStats(state.stats); }
+
+// --- TOOL MANAGEMENT ---
+function addTool(){ const slug=uid('New Tool'); state.tools[slug]={name:'New Tool',desc:'Demo desc',template:'Hello {{name}}','example':'{"name":"Aman"}'}; state.stats[slug]={uses:0,downloads:0,tips:0}; saveTools(state.tools); renderToolsList(); selectTool(slug); }
+function saveTool(){ const slug=state.selected; if(!slug) return; state.tools[slug]={name:editorName.value,desc:editorDesc.value,template:editorTemplate.value,example:editorExample.value}; saveTools(state.tools); renderToolsList(); selectTool(slug); }
+function deleteTool(){ const slug=state.selected; if(!slug) return; delete state.tools[slug]; delete state.stats[slug]; saveTools(state.tools); saveStats(state.stats); renderToolsList(); toolMain.style.display='none'; noToolMsg.style.display='block'; state.selected=null; }
+
+// --- TIPS ---
+function tipPaytm(){ const slug=state.selected; if(!slug) return; const link=state.owner.links?.find(l=>l.startsWith('upi:')); if(!link){alert('Owner Paytm link not set');return;} window.open(`https://paytm.me/${link.slice(4)}`,'_blank'); state.stats[slug].tips=(state.stats[slug].tips||0)+1; toolTips.textContent=state.stats[slug].tips; saveStats(state.stats);}
+function tipPaypal(){ const slug=state.selected; if(!slug) return; const link=state.owner.links?.find(l=>l.includes('paypal.me')); if(!link){alert('Owner PayPal link not set');return;} window.open(link,'_blank'); state.stats[slug].tips=(state.stats[slug].tips||0)+1; toolTips.textContent=state.stats[slug].tips; saveStats(state.stats); }
 
 // --- EVENT LISTENERS ---
-document.getElementById('saveOwner').addEventListener('click',()=>{ state.owner.name=ownerName.value; state.owner.links=(ownerLinks.value||'').split(',').map(s=>s.trim()).filter(Boolean); saveOwner(state.owner); renderOwnerLinks(); });
-document.getElementById('exportOwner').addEventListener('click',()=>{ downloadText('owner.json',JSON.stringify(state.owner,null,2)); });
-document.getElementById('importOwnerBtn').addEventListener('click',()=>{ const j=prompt('Paste Owner JSON'); if(j){ try{state.owner=JSON.parse(j); saveOwner(state.owner); renderOwner(); }catch(e){alert('Invalid JSON')}}});
-document.getElementById('addDemo').addEventListener('click',addNewTool);
-document.getElementById('resetTools').addEventListener('click',()=>{if(confirm('Reset all tools?')){state.tools={}; state.stats={}; saveTools(state.tools); saveStats(state.stats); renderAll();}});
-document.getElementById('applyImport').addEventListener('click',()=>{try{const imported=JSON.parse(importJson.value||'{}'); state.tools=imported.tools||{}; state.stats=imported.stats||{}; saveTools(state.tools); saveStats(state.stats); renderAll(); alert('Import applied');}catch(e){alert('Invalid JSON')}});
-document.getElementById('exportAll').addEventListener('click',()=>{ downloadText('tools_export.json',JSON.stringify({tools:state.tools,stats:state.stats},null,2)); });
-document.getElementById('resetStats').addEventListener('click',()=>{if(confirm('Reset all stats?')){ state.stats={}; Object.keys(state.tools).forEach(k=>state.stats[k]={uses:0,downloads:0}); saveStats(state.stats); renderAll();}});
-document.getElementById('generateBtn').addEventListener('click',generateOutput);
-document.getElementById('clearOutput').addEventListener('click',clearOutput);
-document.getElementById('copyOutput').addEventListener('click',copyOutput);
-document.getElementById('downloadOutput').addEventListener('click',downloadOutput);
-document.getElementById('resetToolStats').addEventListener('click',resetToolStats);
-document.getElementById('saveToolBtn').addEventListener('click',saveToolEdits);
-document.getElementById('delToolBtn').addEventListener('click',deleteTool);
-document.getElementById('addToolBtn').addEventListener('click',addNewTool);
-document.getElementById('openDashboard').addEventListener('click',()=>alert('This is the local dashboard. All changes are in your browser only.'));
+saveOwner.addEventListener('click',()=>{ state.owner.name=ownerName.value; state.owner.links=(ownerLinks.value||'').split(',').map(s=>s.trim()).filter(Boolean); saveOwner(state.owner); renderOwnerLinks();});
+addToolBtn.addEventListener('click',addTool);
+saveToolBtn.addEventListener('click',saveTool);
+delToolBtn.addEventListener('click',deleteTool);
+cloneToolBtn.addEventListener('click',()=>{ const slug=state.selected; if(!slug) return; const newSlug=uid(state.tools[slug].name+'-copy'); state.tools[newSlug]={...state.tools[slug]}; state.stats[newSlug]={uses:0,downloads:0,tips:0}; saveTools(state.tools); saveStats(state.stats); renderToolsList(); selectTool(newSlug);});
+generateBtn.addEventListener('click',generateOutput);
+clearOutput.addEventListener('click',()=>{ toolOutput.textContent='';});
+copyOutput.addEventListener('click',()=>{ navigator.clipboard.writeText(toolOutput.textContent||''); alert('Copied!');});
+downloadOutput.addEventListener('click',()=>{ downloadText(state.tools[state.selected]?.name+'.txt',toolOutput.textContent||''); state.stats[state.selected].downloads=(state.stats[state.selected].downloads||0)+1; saveStats(state.stats);});
+resetToolStats.addEventListener('click',()=>{ const s=state.selected; if(!s) return; state.stats[s]={uses:0,downloads:0,tips:0}; toolTips.textContent='0'; saveStats(state.stats);});
+tipPaytmBtn.addEventListener('click',tipPaytm);
+tipPaypalBtn.addEventListener('click',tipPaypal);
 
-// --- INITIAL RENDER ---
-renderAll();
-
+// INITIAL RENDER
+renderOwnerLinks(); renderToolsList();
 </script>
 </body>
-                                                                      </html>
-  
+</html>
