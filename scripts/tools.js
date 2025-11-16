@@ -1,124 +1,99 @@
 // scripts/tools.js
-window.OmniTools = (function(# omniverse-api
-
-Serverless API for Omniverse Marketplace:
-- `/api/generate` : OpenAI proxy (POST { prompt })
-- `/api/create-checkout` : Create Stripe Checkout session
-- `/api/webhook` : Stripe webhook to auto-issue keys (stores in a private gist)
-
-Set environment variables before deploy:
-OPENAI_API_KEY, STRIPE_SECRET, STRIPE_WEBHOOK_SECRET, GITHUB_TOKEN, PUBLIC_URL
-  ){
-  const tools = [// scripts/tools.js
-// List of tools and run() implementations (use AICore.mockCall for now)
+// Replace existing file with this version that calls serverless AI proxy.
 
 window.OmniTools = (function(){
   const tools = [
     { id:'resume', title:'Resume Generator', price:49,
-      prompt: (input)=> `Create a professional resume for: ${input.name || 'John Doe'}. Title: ${input.title||'Software Engineer'}. Skills: ${input.skills||'JavaScript, Python'}. Keep it concise.`,
-      run: async (// inside tool.run
-run: async (input) => {
-  const prompt = `Create resume for ${input.name} ...`; // build properly
-  try {
-    return await AICore.callServer(prompt);
-  } catch(e) {
-    console.warn('AI server failed, falling back to mock', e);
-    return AICore.mockCall(prompt);
-  }
-  }
-  )=> await AICore.mockCall( (typeof input==='object'? JSON.stringify(input): input) )
+      buildPrompt: (input)=> `Write a concise professional resume for ${input.name||'John Doe'}. Title: ${input.title||'Software Engineer'}. Skills: ${input.skills||'JavaScript, Python'}. Keep it 6-10 bullet points and a short summary.`,
+      run: async (input)=> {
+        const p = (typeof input === 'string') ? input : (typeof input==='object' ? JSON.stringify(input) : String(input));
+        const prompt = toolsMap('resume').buildPrompt(input);
+        try { return await AICore.callServer(prompt, { max_tokens: 400 }); }
+        catch(e){ console.warn('AI server failed, fallback to mock', e); return await AICore.mockCall(prompt); }
+      }
     },
     { id:'bio', title:'Short Bio', price:9,
-      prompt: (input)=> `Write a short 2-line professional bio for ${input.name||'John Doe'} in ${input.field||'AI'} field.`,
-      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+      buildPrompt: (input)=> `Write a short two-line professional bio for ${input.name||'John Doe'}. Mention field: ${input.field||'AI'} and one sentence about strengths.`,
+      run: async (input)=> {
+        const prompt = toolsMap('bio').buildPrompt(input);
+        try { return await AICore.callServer(prompt, { max_tokens: 80 }); }
+        catch(e){ return AICore.mockCall(prompt); }
+      }
     },
     { id:'script', title:'Script Writer', price:19,
-      prompt: (input)=> `Create a small ${input.lang||'JS'} script that ${input.task||'demonstrates something'}.`,
-      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+      buildPrompt: (input)=> `Generate a small ${input.lang||'JavaScript'} script that ${input.task||'demonstrates the requested functionality'}. Keep it concise and runnable.`,
+      run: async (input)=> {
+        const prompt = toolsMap('script').buildPrompt(input);
+        try { return await AICore.callServer(prompt, { max_tokens: 200 }); }
+        catch(e){ return AICore.mockCall(prompt); }
+      }
     },
     { id:'notes', title:'Notes Maker', price:9,
-      prompt: (input)=> `Summarize notes for topic: ${input.topic||'Meeting'}; produce bullets and action items.`,
-      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+      buildPrompt: (input)=> `Summarize notes for topic: ${input.topic||'Meeting'}. Provide bullets, key points, and 3 action items.`,
+      run: async (input)=> {
+        const prompt = toolsMap('notes').buildPrompt(input);
+        try { return await AICore.callServer(prompt, { max_tokens: 200 }); }
+        catch(e){ return AICore.mockCall(prompt); }
+      }
     },
     { id:'business', title:'Business Idea Generator', price:19,
-      prompt: (input)=> `Generate a short business idea in the domain: ${input.domain||'AI automation'} with target audience and revenue model.`,
-      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+      buildPrompt: (input)=> `Generate a short business idea for domain: ${input.domain||'AI automation'}. Include target users, revenue model, and a 2-sentence pitch.`,
+      run: async (input)=> {
+        const prompt = toolsMap('business').buildPrompt(input);
+        try { return await AICore.callServer(prompt, { max_tokens: 200 }); }
+        catch(e){ return AICore.mockCall(prompt); }
+      }
     },
     { id:'caption', title:'Social Caption Maker', price:9,
-      prompt: (input)=> `Write 10 social media captions for subject: ${input.subject||'product'}.`,
-      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+      buildPrompt: (input)=> `Write 8 short social media captions for: ${input.subject||'product'}. Tone: ${input.tone||'friendly'}.`,
+      run: async (input)=> {
+        const prompt = toolsMap('caption').buildPrompt(input);
+        try { return await AICore.callServer(prompt, { max_tokens: 160 }); }
+        catch(e){ return AICore.mockCall(prompt); }
+      }
     },
     { id:'slogan', title:'Brand Slogan Generator', price:9,
-      prompt: (input)=> `Give 8 slogan ideas for brand: ${input.brand||'MyBrand'}.`,
-      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+      buildPrompt: (input)=> `Create 10 slogan/tagline ideas for brand: ${input.brand||'Brand'}. Keep them short, catchy, and unique.`,
+      run: async (input)=> {
+        const prompt = toolsMap('slogan').buildPrompt(input);
+        try { return await AICore.callServer(prompt, { max_tokens: 120 }); }
+        catch(e){ return AICore.mockCall(prompt); }
+      }
     },
     { id:'legal', title:'Legal Letter Generator', price:49,
-      prompt: (input)=> `Draft a simple legal letter for: ${input.subject||'agreement'} between ${input.partyA||'A'} and ${input.partyB||'B'}.`,
-      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+      buildPrompt: (input)=> `Draft a simple legal letter for: ${input.subject||'agreement'} between ${input.partyA||'A'} and ${input.partyB||'B'}. Use clear formal tone.`,
+      run: async (input)=> {
+        const prompt = toolsMap('legal').buildPrompt(input);
+        try { return await AICore.callServer(prompt, { max_tokens: 400 }); }
+        catch(e){ return AICore.mockCall(prompt); }
+      }
     },
     { id:'template', title:'Website Template Generator', price:99,
-      prompt: (input)=> `Generate a simple single-page HTML template for: ${input.title||'Landing Page'}.`,
-      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+      buildPrompt: (input)=> `Generate a simple single-page HTML template for: ${input.title||'Landing Page'}. Include header, hero, features and footer (HTML only).`,
+      run: async (input)=> {
+        const prompt = toolsMap('template').buildPrompt(input);
+        try { return await AICore.callServer(prompt, { max_tokens: 600 }); }
+        catch(e){ return AICore.mockCall(prompt); }
+      }
     },
     { id:'automation', title:'Task Automation Prompter', price:19,
-      prompt: (input)=> `Create prompts & steps for automating: ${input.task||'email scheduling'} using AI agents.`,
-      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+      buildPrompt: (input)=> `Create a step-by-step prompt and plan for automating: ${input.task||'email scheduling'} using AI agents. Include triggers, inputs and expected outputs.`,
+      run: async (input)=> {
+        const prompt = toolsMap('automation').buildPrompt(input);
+        try { return await AICore.callServer(prompt, { max_tokens: 300 }); }
+        catch(e){ return AICore.mockCall(prompt); }
+      }
     }
   ];
+
+  // helper to find tool by id quickly inside run functions
+  function toolsMap(id){
+    return tools.find(t=>t.id===id);
+  }
 
   function all(){ return tools; }
   function find(id){ return tools.find(t=>t.id===id); }
 
   return { all, find };
 })();
-    
-    {id:'resume', name:'Resume Generator', desc:'Professional resume from simple fields', price:49,
-      run: async (inp)=> {
-        const name = inp.name||'John Doe', title=inp.title||'Software Engineer';
-        return `RESUME\nName: ${name}\nTitle: ${title}\nSummary: An experienced ${title} with expertise in ${inp.skills||'JavaScript, Python'}.\nExperience:\n- Company A: Role\n- Company B: Role\nEducation: ${inp.education||'B.Tech / M.Sc'}`;
-      }
-    },
-    {id:'bio', name:'Short Bio', desc:'2-line professional bio', price:9,
-      run: async (inp)=> `I am ${inp.name||'John Doe'}, a ${inp.title||'developer'} focused on ${inp.field||'AI & automation'}. Passionate about building practical tools.` },
-    {id:'linkedin', name:'LinkedIn Headline + About', desc:'Optimized LinkedIn headline and about text', price:29,
-      run: async (inp)=> `Headline: ${inp.title||'Product Engineer'} • ${inp.keySkill||'AI, ML'}\nAbout: I build... (AI-generated summary tailored to ${inp.industry||'tech'})`},
-    {id:'cover', name:'Cover Letter', desc:'Job application cover letter', price:49,
-      run: async (inp)=> `To Hiring Manager,\nI, ${inp.name||'John Doe'}, apply for ${inp.position||'role'} at ${inp.company||'Company'}. I bring ${inp.experience||'X years'} of experience...`},
-    {id:'script', name:'Code Snippet Generator', desc:'JS/Python starter snippet', price:19,
-      run: async (inp)=> `// Snippet for: ${inp.task||'example task'}\nconsole.log('This is a starter snippet for ${inp.task||'task'}');`},
-    {id:'website', name:'Simple Website Template', desc:'Static HTML template (single page)', price:99,
-      run: async (inp)=> `<html><head><title>${inp.siteTitle||'My Site'}</title></head><body><h1>${inp.siteTitle||'Hello'}</h1><p>Powered by Omniverse</p></body></html>`},
-    {id:'notes', name:'Meeting / Study Notes', desc:'Organize topics into notes', price:9,
-      run: async (inp)=> `Notes for ${inp.topic||'Topic'}\n- Point 1\n- Point 2\nActions:\n- Next steps`},
-    {id:'idea', name:'Business Idea', desc:'New startup/product idea', price:19,
-      run: async (inp)=> `Idea: ${inp.field||'AI-enabled scheduling'}\nWhy: Solves ... Audience: ...`},
-    {id:'social', name:'Social Media Captions', desc:'10 captions for a post', price:9,
-      run: async (inp)=> Array.from({length:10},(_,i)=>`Caption ${i+1} about ${inp.subject||'your topic'}`).join('\n')},
-    {id:'seo', name:'SEO Meta + Title', desc:'Title + meta description suggestions', price:9,
-      run: async (inp)=> `Title: ${inp.title||'Your Page Title'} | ${inp.brand||'Brand'}\nMeta: Short description focusing on ${inp.keywords||'keywords'}`},
-    {id:'email', name:'Cold Email Template', desc:'Sales/outreach email', price:29,
-      run: async (inp)=> `Hi ${inp.contact||'Name'},\nI'm reaching out about ${inp.offer||'service'}...`},
-    {id:'sop', name:'Statement of Purpose (SOP)', desc:'Academic / Program SOP starter', price:49,
-      run: async (inp)=> `Statement of Purpose for ${inp.program||'program'} by ${inp.name||'Applicant'}...`},
-    {id:'contract', name:'Simple Contract/Letter', desc:'Basic agreement template', price:49,
-      run: async (inp)=> `Agreement between ${inp.partyA||'A'} and ${inp.partyB||'B'} regarding ${inp.subject||'work'}.`},
-    {id:'logo', name:'Brand Slogan / Tagline', desc:'Slogans & taglines', price:9,
-      run: async (inp)=> `Tagline ideas for ${inp.brand||'Brand'}:\n- ${inp.brand||'Brand'}: Make it simple.`},
-    {id:'prompt', name:'Prompt Generator (for AI)', desc:'High-quality prompts for ChatGPT / image models', price:19,
-      run: async (inp)=> `Prompt:\nGenerate a ${inp.style||'concise'} ${inp.type||'marketing copy'} about ${inp.topic||'topic'} with examples.`},
-    {id:'resume-review', name:'Resume Review + Tips', desc:'Feedback + quick edits', price:59,
-      run: async (inp)=> `Quick review notes for resume: improve headings, use metrics, clarify experience.`},
-    {id:'ad', name:'Short Ad Copy (Google/Facebook)', desc:'3 variations of ad copy', price:29,
-      run: async (inp)=> `1) ${inp.product||'Product'} — fast, reliable\n2) Variation two\n3) Variation three`},
-    {id:'namegen', name:'Product / Company Name', desc:'Name ideas and rationale', price:9,
-      run: async (inp)=> `Names: ${[ 'Nova', 'Koyab', 'OmniPlus' ].join(', ')}\nReasons: Memorable, short.`},
-    {id:'studyplan', name:'Study / Learning Plan', desc:'30-day study plan', price:19,
-      run: async (inp)=> `30-day plan for ${inp.subject||'ML'}: Week1: Basics; Week2: Intermediate...`},
-    {id:'pitch', name:'Investor Pitch Summary', desc:'One-page pitch summary', price:99,
-      run: async (inp)=> `Pitch: Problem: ${inp.problem||'...'}\nSolution: ${inp.solution||'...'}\nMarket: ${inp.market||'...'}\nAsk: ${inp.ask||'...'} `},
-  ];
-
-  function getAll(){ return tools; }
-  function find(id){ return tools.find(t=>t.id===id); }
-  return { getAll, find };
-})();
+                    
