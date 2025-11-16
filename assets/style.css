@@ -1,4 +1,41 @@
-a.click:root{
+a.click:root{/* style.css - Omniverse Marketplace theme (paste at repo root as style.css) */
+
+:root{
+  --bg:#071225; --card:#081425; --muted:#9fb0d9; --accent:#60a5fa; --glass:rgba(255,255,255,0.03);
+  --radius:10px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter, Poppins, system-ui, Arial;background:linear-gradient(180deg,var(--bg),#021029);color:#e6eef8}
+.header{padding:18px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.03)}
+.logo{height:34px;vertical-align:middle;margin-bottom:6px}
+.header h1{margin:6px 0 2px;font-size:22px;color:var(--accent)}
+.subtitle{margin:0;font-size:13px;color:var(--muted)}
+
+.container{max-width:1100px;margin:18px auto;padding:12px}
+.settings-box, .unlock-box, .tool-box, .output-box{background:linear-gradient(180deg,var(--card),rgba(0,0,0,0.02));border:1px solid var(--glass);padding:12px;border-radius:var(--radius);margin:12px 16px}
+.settings-box h3, .unlock-box h3, .tool-box h3, .output-box h3{margin:0 0 8px 0;color:var(--accent)}
+.settings-box label, .unlock-box label{display:block;font-size:13px;color:var(--muted);margin-top:8px}
+.settings-box input, .unlock-box input, .tool-box textarea, .tool-selector select{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:#021225;color:#e6eef8}
+.settings-box button, .unlock-box button, .run-btn, .tool-box button, .output-box button{background:var(--accent);color:#021225;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;margin-top:10px}
+.donate-btn{display:inline-block;margin-left:12px;background:#0b1220;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 10px;border-radius:8px;text-decoration:none}
+.tool-selector{margin:14px 16px;display:flex;gap:12px;align-items:center}
+.tool-selector h2{margin:0;color:var(--accent)}
+.tool-box textarea{min-height:140px;resize:vertical}
+.output-box pre{white-space:pre-wrap;background:#021225;border-radius:8px;padding:12px;min-height:160px;border:1px solid rgba(255,255,255,0.02);color:#e6eef8}
+.footer{padding:18px;text-align:center;color:var(--muted);font-size:13px}
+
+/* responsive */
+@media (min-width:1000px){
+  .layout-2col{display:grid;grid-template-columns:1fr 420px;gap:12px}
+  .left-col{padding-right:6px}
+}
+@media (max-width:999px){
+  .container{padding:8px}
+  .settings-box, .unlock-box, .tool-box, .output-box{margin:10px}
+}
+.small{font-size:13px;color:var(--muted)}
+.status{margin-top:8px;color:var(--muted)}
+  
   --bg:#071225;--card:#081425;--muted:#9fb0d9;--accent:#60a5fa;--glass:rgba(255,255,255,0.03)
 }
 *{box-sizing:border-box}
