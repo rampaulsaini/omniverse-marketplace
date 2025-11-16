@@ -1,5 +1,107 @@
 // scripts/ui.js
-window.OmniUI = (function(){// add near top after existing constants
+window.OmniUI = (function(// scripts/ui.js
+
+(function(){
+  // DOM references
+  const toolMenu = document.getElementById('toolMenu');
+  const toolTitle = document.getElementById('toolTitle');
+  const toolInput = document.getElementById('toolInput');
+  const toolOutput = document.getElementById('toolOutput');
+
+  // current tool id
+  let currentTool = null;
+
+  window.selectTool = function(){
+    const id = toolMenu.value;
+    const t = OmniTools.find(id);
+    currentTool = t ? t.id : null;
+    if(!t){ toolTitle.textContent = 'Select a tool above'; return; }
+    toolTitle.textContent = `${t.title} — ₹${t.price}`;
+    // prefill input with JSON suggestion
+    toolInput.value = JSON.stringify( { name:'John Doe', title:'Software Engineer', skills:'JS, Python' }, null, 2 );
+    toolOutput.textContent = 'Your output will appear here...';
+  };
+
+  window.runTool = async function(){
+    if(!currentTool){ alert('Select a tool first'); return; }
+    const tool = OmniTools.find(currentTool);
+    let inputObj = {};
+    try{ inputObj = JSON.parse(toolInput.value); } catch(e){ alert('Input must be valid JSON.'); return; }
+    toolOutput.textContent = 'Generating... (mock AI)';
+    try{
+      // for now use tool.run which calls AICore.mockCall
+      const out = await tool.run(inputObj);
+      toolOutput.textContent = typeof out === 'string' ? out : JSON.stringify(out,null,2);
+      // analytics: increment local counter
+      const key = 'omnianal_'+tool.id;
+      const n = parseInt(localStorage.getItem(key)||'0') + 1;
+      localStorage.setItem(key, n);
+    }catch(err){
+      toolOutput.textContent = 'Error: ' + (err.message || err);
+    }
+  };
+
+  window.clearOutput = function(){
+    toolOutput.textContent = '';
+  };
+
+  window.downloadOutput = function(){
+    const text = toolOutput.textContent || '';
+    if(!text){ alert('No output to download'); return; }
+    // check premium unlock: if tool price>0 and ownerKey not present on user, prevent download
+    const tool = OmniTools.find(currentTool);
+    const userKey = localStorage.getItem('omni_user_unlock');
+    const ownerKeyExists = !!localStorage.getItem('omni_owner_key'); // owner sets locally
+    if(tool && tool.price > 0 && !userKey && !ownerKeyExists){
+      const proceed = confirm('This is a paid output. Open donation options?');
+      if(proceed) document.getElementById('donateBtn').click();
+      return;
+    }
+    const blob = new Blob([text], {type: 'text/plain'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (currentTool || 'omniverse') + '-output.txt';
+    a.click();
+  };
+
+  // unlock flow
+  window.verifyKey = function(){
+    const entered = document.getElementById('userUnlock').value.trim();
+    if(!entered) return alert('Enter unlock key provided by owner');
+    const ownerKey = localStorage.getItem('omni_owner_key');
+    if(ownerKey && entered === ownerKey){
+      localStorage.setItem('omni_user_unlock', entered);
+      document.getElementById('unlockStatus').textContent = 'Unlocked. You can download premium outputs on this device.';
+    } else {
+      alert('Invalid key or owner has not set a key yet.');
+    }
+  };
+
+  // owner setters
+  window.setUnlockKey = function(){
+    const k = document.getElementById('ownerKey').value.trim();
+    if(!k) { localStorage.removeItem('omni_owner_key'); alert('Owner key removed'); return; }
+    localStorage.setItem('omni_owner_key', k);
+    alert('Owner key saved locally. Share this key with paid buyers manually.');
+  };
+  window.saveDonationLink = function(){
+    const url = document.getElementById('donateLink').value.trim();
+    if(!url) { localStorage.removeItem('omni_donate_link'); alert('Donation link removed'); return; }
+    localStorage.setItem('omni_donate_link', url);
+    // update anchor
+    const d = document.getElementById('donateBtn');
+    if(d) d.href = url;
+    alert('Donation link saved locally.');
+  };
+
+  // on load, set donate anchor if saved
+  window.addEventListener('load', ()=>{
+    const url = localStorage.getItem('omni_donate_link');
+    if(url) document.getElementById('donateBtn').href = url;
+  });
+
+})();
+    ){// add near top after existing constants
 const btnEnterKey = document.getElementById('btnEnterKey');
 const enterKeyModal = document.getElementById('enterKeyModal');
 const enterKeyClose = document.getElementById('enterKeyClose');
