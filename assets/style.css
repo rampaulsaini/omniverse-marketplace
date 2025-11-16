@@ -1,13 +1,10 @@
-/* style.css - clean minimal theme */
-:root{
-  --bg:#071324; --panel:#0b1220; --muted:#9fb0d9; --accent:#60a5fa; --glass:rgba(255,255,255,0.03);
-}
+:root{ --bg:#071324; --panel:#0b1220; --muted:#9fb0d9; --accent:#60a5fa; --glass:rgba(255,255,255,0.03); }
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;color:#e6eef8;background:linear-gradient(180deg,var(--bg),#021229);min-height:100vh}
 .topbar{background:linear-gradient(90deg,#051025,#081425);padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.03)}
 .topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1200px;margin:0 auto}
 .brand{display:flex;gap:12px;align-items:center}
-.logo{width:52px;height:52px}
+.logo{width:52px;height:52px;background:linear-gradient(45deg,#123,#456);border-radius:8px}
 .brand h1{margin:0;font-size:18px;color:var(--accent)}
 .tag{font-size:12px;color:var(--muted)}
 .container{max-width:1200px;margin:18px auto;display:flex;gap:18px;padding:0 12px}
@@ -27,11 +24,9 @@ textarea{min-height:160px;resize:vertical}
 .muted{color:var(--muted);font-size:13px}
 .premium-row{margin-top:8px;display:flex;gap:8px;align-items:center}
 .output-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:8px}
-
-/* modal */
 .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:999}
 .modal[aria-hidden="false"]{display:flex}
 .modal-content{background:#061425;border-radius:10px;padding:16px;border:1px solid rgba(255,255,255,0.04);width:520px;max-width:94%}
 .form-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .small{font-size:13px}
-     
+
