@@ -1,7 +1,6 @@
 // scripts/tools.js
 // Defines the list of tools and simple generation templates.
 // Each tool.run(input, opts) returns a string result (Promise).
-
 window.OmniTools = (function(){
   const tools = [
     {
@@ -14,7 +13,6 @@ window.OmniTools = (function(){
         const title = input.title || 'Software Engineer';
         const skills = input.skills || 'JavaScript, Python, Git';
         const summary = input.summary || `Result-driven ${title} with experience in building web apps.`;
-        // Template output
         return [
           `${n}`,
           `${title}`,
@@ -92,10 +90,8 @@ window.OmniTools = (function(){
       }
     }
   ];
-
   function getList(){ return tools.map(t => ({id:t.id,name:t.name,description:t.description,premium:!!t.premium})); }
   function getTool(id){ return tools.find(t=>t.id===id); }
-
   return { getList, getTool };
 })();
-      
+          
