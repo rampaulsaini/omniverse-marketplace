@@ -9,7 +9,59 @@ Serverless API for Omniverse Marketplace:
 Set environment variables before deploy:
 OPENAI_API_KEY, STRIPE_SECRET, STRIPE_WEBHOOK_SECRET, GITHUB_TOKEN, PUBLIC_URL
   ){
+  const tools = [// scripts/tools.js
+// List of tools and run() implementations (use AICore.mockCall for now)
+
+window.OmniTools = (function(){
   const tools = [
+    { id:'resume', title:'Resume Generator', price:49,
+      prompt: (input)=> `Create a professional resume for: ${input.name || 'John Doe'}. Title: ${input.title||'Software Engineer'}. Skills: ${input.skills||'JavaScript, Python'}. Keep it concise.`,
+      run: async (input)=> await AICore.mockCall( (typeof input==='object'? JSON.stringify(input): input) )
+    },
+    { id:'bio', title:'Short Bio', price:9,
+      prompt: (input)=> `Write a short 2-line professional bio for ${input.name||'John Doe'} in ${input.field||'AI'} field.`,
+      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+    },
+    { id:'script', title:'Script Writer', price:19,
+      prompt: (input)=> `Create a small ${input.lang||'JS'} script that ${input.task||'demonstrates something'}.`,
+      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+    },
+    { id:'notes', title:'Notes Maker', price:9,
+      prompt: (input)=> `Summarize notes for topic: ${input.topic||'Meeting'}; produce bullets and action items.`,
+      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+    },
+    { id:'business', title:'Business Idea Generator', price:19,
+      prompt: (input)=> `Generate a short business idea in the domain: ${input.domain||'AI automation'} with target audience and revenue model.`,
+      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+    },
+    { id:'caption', title:'Social Caption Maker', price:9,
+      prompt: (input)=> `Write 10 social media captions for subject: ${input.subject||'product'}.`,
+      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+    },
+    { id:'slogan', title:'Brand Slogan Generator', price:9,
+      prompt: (input)=> `Give 8 slogan ideas for brand: ${input.brand||'MyBrand'}.`,
+      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+    },
+    { id:'legal', title:'Legal Letter Generator', price:49,
+      prompt: (input)=> `Draft a simple legal letter for: ${input.subject||'agreement'} between ${input.partyA||'A'} and ${input.partyB||'B'}.`,
+      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+    },
+    { id:'template', title:'Website Template Generator', price:99,
+      prompt: (input)=> `Generate a simple single-page HTML template for: ${input.title||'Landing Page'}.`,
+      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+    },
+    { id:'automation', title:'Task Automation Prompter', price:19,
+      prompt: (input)=> `Create prompts & steps for automating: ${input.task||'email scheduling'} using AI agents.`,
+      run: async (input)=> await AICore.mockCall(JSON.stringify(input))
+    }
+  ];
+
+  function all(){ return tools; }
+  function find(id){ return tools.find(t=>t.id===id); }
+
+  return { all, find };
+})();
+    
     {id:'resume', name:'Resume Generator', desc:'Professional resume from simple fields', price:49,
       run: async (inp)=> {
         const name = inp.name||'John Doe', title=inp.title||'Software Engineer';
