@@ -455,4 +455,90 @@ No external APIs called. Owner can export/import settings.</div>
         const out = renderTemplate(tpl, data);
         outputArea.textContent = out || '(empty output)';
         // increment stats
+stats.totalUses = (stats.totalUses || 0) + 1;
+stats.perTool[selectedToolId] = stats.perTool[selectedToolId] || { uses:0, downloads:0 };
+stats.perTool[selectedToolId].uses = (stats.perTool[selectedToolId].uses || 0) + 1;
+saveAll();
+selectTool(selectedToolId); // update counts
+});
+
+clearOutput.addEventListener('click', ()=>{ outputArea.textContent = ''; });
+copyOutput.addEventListener('click', ()=>{
+  const txt = outputArea.textContent || '';
+  navigator.clipboard?.writeText(txt).then(()=>notify('Copied')).catch(()=>alert('Copy failed'));
+});
+
+downloadOutput.addEventListener('click', ()=>{
+  if(!selectedToolId){ alert('Select a tool'); return; }
+  const txt = outputArea.textContent || '';
+  if(!txt){ alert('No output to download'); return; }
+  const filename = (tools[selectedToolId].name || 'output').replace(/\s+/g,'-').toLowerCase() + '.txt';
+  downloadBlob(txt, filename);
+  // stats
+  stats.totalDownloads = (stats.totalDownloads || 0) + 1;
+  stats.perTool[selectedToolId] = stats.perTool[selectedToolId] || { uses:0, downloads:0 };
+  stats.perTool[selectedToolId].downloads = (stats.perTool[selectedToolId].downloads || 0) + 1;
+  saveAll();
+  selectTool(selectedToolId);
+});
+
+resetToolStatsBtn.addEventListener('click', ()=>{
+  if(!selectedToolId){ alert('Select a tool'); return; }
+  if(!confirm('Reset stats for this tool?')) return;
+  stats.perTool[selectedToolId] = { uses:0, downloads:0 };
+  saveAll();
+  selectTool(selectedToolId);
+});
+
+exportToolBtn.addEventListener('click', ()=>{
+  if(!selectedToolId){ alert('Select a tool'); return; }
+  const obj = { tool: tools[selectedToolId], stats: stats.perTool[selectedToolId] || {} };
+  downloadBlob(JSON.stringify(obj, null, 2), (tools[selectedToolId].name||'tool') + '.json');
+});
+
+// open dashboard (opens a simple aggregated report in new tab)
+openDashboardBtn.addEventListener('click', ()=>{
+  const report = { owner, tools, stats, generatedAt: new Date().toISOString() };
+  const win = window.open('', '_blank');
+  win.document.write('<pre style="font-family:monospace;white-space:pre-wrap;padding:18px;">' + escapeHtml(JSON.stringify(report, null, 2)) + '</pre>');
+});
+
+// utility to download blob
+function downloadBlob(txt, filename){
+  const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ a.remove(); URL.revokeObjectURL(url); }, 500);
+}
+
+// initial load + render
+function renderAll(){
+  renderOwner();
+  aggregateStats();
+  renderToolsList();
+}
+
+// boot
+loadState();
+// ensure perTool stats exist
+Object.keys(tools).forEach(id=>{ stats.perTool[id] = stats.perTool[id] || { uses:0, downloads:0 }; });
+saveAll();
+clearSelection();
+
+// expose small helper to console for advanced ops
+window.omniverseLocal = {
+  loadState, saveAll,
+  getTools: ()=>tools,
+  getStats: ()=>stats,
+  getOwner: ()=>owner,
+};
+
+// helper: keyboard shortcut to add demo tool (ctrl+shift+n)
+window.addEventListener('keydown', (e)=>{
+  if(e.ctrlKey && e.shiftKey && e.key.toLowerCase()==='n'){ addToolBtn.click(); }
+});
+})();
+          
       
