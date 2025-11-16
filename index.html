@@ -1,4 +1,11 @@
-<!doctype html>
+# Creating the omniverse-marketplace repo files and zipping them for user download.
+import os, json, textwrap, zipfile
+
+base = '/mnt/data/omniverse-marketplace'
+os.makedirs(base, exist_ok=True)
+
+files = {
+"index.html": """<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -35,7 +42,7 @@
 
         <div class="input-area">
           <label for="userInput">Enter your details...</label>
-          <textarea id="userInput" placeholder='{"name":"Your Name","field":"AI"}'></textarea>
+          <textarea id="userInput" placeholder='{\"name\":\"Your Name\",\"field\":\"AI\"}'></textarea>
           <div class="controls-row">
             <button id="generateBtn" class="btn primary">Generate</button>
             <button id="downloadBtn" class="btn" disabled>Download</button>
@@ -107,8 +114,406 @@
   <script src="scripts/ui.js"></script>
   <script>
     // init (ui.js will call OmniMarketplace.init)
-    document.addEventListener('DOMContentLoaded', () => OmniMarketplace.init());
+    document.addEventListener('DOMContentLoaded', () => OmniMarketplace && OmniMarketplace.init && OmniMarketplace.init());
   </script>
 </body>
-  </html>
-          
+</html>
+""",
+"style.css": """:root{
+  --bg:#071324; --panel:#0b1220; --muted:#9fb0d9; --accent:#60a5fa; --glass:rgba(255,255,255,0.03);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;color:#e6eef8;background:linear-gradient(180deg,var(--bg),#021229);min-height:100vh}
+.topbar{background:linear-gradient(90deg,#051025,#081425);padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.03)}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1200px;margin:0 auto}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:52px;height:52px}
+.brand h1{margin:0;font-size:18px;color:var(--accent)}
+.tag{font-size:12px;color:var(--muted)}
+.container{max-width:1200px;margin:18px auto;display:flex;gap:18px;padding:0 12px}
+.left-col{flex:1;min-width:320px}
+.right-col{width:420px}
+.panel{background:var(--panel);border-radius:10px;padding:14px;border:1px solid var(--glass);margin-bottom:12px}
+.panel.small{padding:12px}
+.panel.tiny{font-size:13px;padding:10px;opacity:0.95}
+.tool-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+select,input,textarea{background:#021225;border:1px solid rgba(255,255,255,0.03);color:#e6eef8;padding:8px;border-radius:8px;width:100%;font-family:inherit}
+textarea{min-height:160px;resize:vertical}
+.controls-row{display:flex;gap:8px;margin-top:10px}
+.btn{background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;cursor:pointer}
+.btn.primary{background:var(--accent);color:#021225;border:none}
+.btn.small{padding:6px 8px;font-size:13px}
+.btn.tiny{padding:6px 8px;font-size:12px}
+.muted{color:var(--muted);font-size:13px}
+.premium-row{margin-top:8px;display:flex;gap:8px;align-items:center}
+.output-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:8px}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:999}
+.modal[aria-hidden="false"]{display:flex}
+.modal-content{background:#061425;border-radius:10px;padding:16px;border:1px solid rgba(255,255,255,0.04);width:520px;max-width:94%}
+.form-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.small{font-size:13px}
+""",
+"assets/logo.svg": """<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#60a5fa"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="40" fill="#071425"/>
+  <g transform="translate(40,40)">
+    <circle cx="88" cy="88" r="70" fill="url(#g)" opacity="0.95"/>
+    <path d="M88 38 L118 118 L58 118 Z" fill="#021225"/>
+  </g>
+</svg>
+""",
+"scripts/tools.js": """// scripts/tools.js
+// Defines the list of tools and simple generation templates.
+// Each tool.run(input, opts) returns a string result (Promise).
+
+window.OmniTools = (function(){
+  const tools = [
+    {
+      id: 'resume',
+      name: 'Resume Generator',
+      description: 'Generate a professional one-page resume.',
+      premium: true,
+      run: async (input, opts) => {
+        const n = input.name || 'John Doe';
+        const title = input.title || 'Software Engineer';
+        const skills = input.skills || 'JavaScript, Python, Git';
+        const summary = input.summary || `Result-driven ${title} with experience in building web apps.`;
+        // Template output
+        return [
+          `${n}`,
+          `${title}`,
+          '',
+          'Summary',
+          summary,
+          '',
+          'Skills',
+          skills.split(',').map(s=>s.trim()).join(', '),
+          '',
+          'Experience',
+          input.experience || '- Company A (2020-2023): Worked on product features',
+          '',
+          'Education',
+          input.education || 'B.Sc / M.Sc - Relevant University',
+          '',
+          'Generated by Omniverse AI Marketplace'
+        ].join('\\n');
+      }
+    },
+    {
+      id: 'bio',
+      name: 'Bio Generator',
+      description: 'Short personal or professional bios.',
+      premium: false,
+      run: async (input) => {
+        const name = input.name || 'John Doe';
+        const field = input.field || 'technology';
+        const tone = input.tone || 'professional';
+        const lines = [];
+        lines.push(`${name} is a ${tone} ${field} professional who focuses on building practical solutions.`);
+        lines.push(`Driven by curiosity and collaboration — interested in projects that scale.`);
+        lines.push(`Contact: ${input.email || 'your.email@example.com'}`);
+        lines.push('');
+        lines.push('— Generated by Omniverse');
+        return lines.join(' ');
+      }
+    },
+    {
+      id: 'script',
+      name: 'Script Writer',
+      description: 'Small JS / Python starter scripts.',
+      premium: false,
+      run: async (input) => {
+        const lang = (input.lang || 'js').toLowerCase();
+        const task = input.task || 'example task';
+        if (lang === 'py' || lang === 'python') {
+          return `# Python script — ${task}\\n\\ndef main():\\n    print(\"Hello from Omniverse AI script generator\")\\n\\nif __name__ == \"__main__\":\\n    main()`;
+        } else {
+          return `// JS script — ${task}\\nfunction main(){\\n  console.log('Hello from Omniverse AI script generator');\\n}\\nmain();`;
+        }
+      }
+    },
+    {
+      id: 'notes',
+      name: 'Notes Generator',
+      description: 'Meeting / study notes summarizer (template-based).',
+      premium: false,
+      run: async (input) => {
+        const topic = input.topic || 'Untitled';
+        const points = input.points || '1. Key idea\\n2. Action items\\n3. Next steps';
+        return `Notes — ${topic}\\n\\n${points}\\n\\n— Generated by Omniverse`;
+      }
+    },
+    {
+      id: 'idea',
+      name: 'Business Idea Generator',
+      description: 'Quick startup / product ideas tuned to a field.',
+      premium: true,
+      run: async (input) => {
+        const field = input.field || 'education';
+        const core = `AI-powered ${field} assistant that automates repetitive tasks for small teams.`;
+        const revenue = `Revenue model: subscription, freemium, marketplace take-rate.`;
+        return `Idea — ${field}\\n\\nConcept: ${core}\\n\\nHow it helps: Reduce manual work and increase output.\\n\\n${revenue}\\n\\n— Omniverse`;
+      }
+    }
+  ];
+
+  function getList(){ return tools.map(t => ({id:t.id,name:t.name,description:t.description,premium:!!t.premium})); }
+  function getTool(id){ return tools.find(t=>t.id===id); }
+
+  return { getList, getTool };
+})();
+""",
+"scripts/ai-core.js": """// scripts/ai-core.js
+// Central generation core. Default: offline/template-based.
+// Optional: if user supplies OpenAI API key in settings, this module can forward requests to OpenAI (note: costs may apply).
+// For zero-cost operation we use built-in templates (tools.js).
+
+window.OmniAI = (function(){
+  // check settings from local storage
+  function getSettings(){
+    try { return JSON.parse(localStorage.getItem('omniverse_settings')||'{}'); }
+    catch { return {}; }
+  }
+
+  // Mock LLM call (deterministic + small random touches)
+  function mockGenerate(text){
+    // for safety: short transformation
+    const suffixes = [
+      " — Generated by Omniverse",
+      " (AI-assisted draft)",
+      " — Omniverse Marketplace",
+      ""
+    ];
+    const pick = suffixes[Math.floor(Math.random()*suffixes.length)];
+    return text + '\\n\\n' + pick;
+  }
+
+  // generate: uses tool.run; if premiumRequested and openaiKey present, optionally call actual API
+  async function generate(tool, input = {}, opts = {}) {
+    opts = opts || {};
+    const settings = getSettings();
+    const useOpenAI = settings.openaiKey && opts.forceOpenAI; // don't call by default
+    if (useOpenAI) {
+      // OPTIONAL: forward to OpenAI (developer/user must supply key in settings modal)
+      // This branch is off by default for zero-cost operation.
+      try {
+        const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json',
+            'Authorization':'Bearer ' + settings.openaiKey
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [{role:'user', content: `Generate content for tool ${tool.id} using input ${JSON.stringify(input)}`}],
+            max_tokens: 600
+          })
+        });
+        const json = await resp.json();
+        if (json && json.choices && json.choices[0]) {
+          return json.choices[0].message.content;
+        }
+      } catch(e){
+        console.warn('OpenAI call failed:', e);
+        // fallback to template
+      }
+    }
+
+    // Default: use tool's built-in run()
+    try {
+      const out = await tool.run(input, opts);
+      return mockGenerate(out);
+    } catch(e){
+      return `Error generating: ${String(e)}`;
+    }
+  }
+
+  return { generate, getSettings };
+})();
+""",
+"scripts/marketplace.js": """// scripts/marketplace.js
+// Marketplace + local stats + premium key handling
+
+window.OmniMarketplace = (function(){
+  const S_KEY = 'omniverse_settings';
+  const USAGE_KEY = 'omniverse_usage';
+  const DL_KEY = 'omniverse_downloads';
+
+  function readSettings(){
+    try { return JSON.parse(localStorage.getItem(S_KEY)||'{}'); } catch { return {}; }
+  }
+  function saveSettings(s){
+    localStorage.setItem(S_KEY, JSON.stringify(s||{}));
+  }
+
+  function incUsage(toolId){
+    const u = JSON.parse(localStorage.getItem(USAGE_KEY)||'{}');
+    u[toolId] = (u[toolId]||0)+1;
+    localStorage.setItem(USAGE_KEY, JSON.stringify(u));
+  }
+  function incDownload(){
+    const n = parseInt(localStorage.getItem(DL_KEY)||'0')+1;
+    localStorage.setItem(DL_KEY, String(n));
+  }
+  function getUsageCount(toolId){
+    const u = JSON.parse(localStorage.getItem(USAGE_KEY)||'{}');
+    return u[toolId]||0;
+  }
+  function getDownloadCount(){
+    return parseInt(localStorage.getItem(DL_KEY)||'0');
+  }
+
+  // Premium key validation (pure local)
+  function setPremiumKey(key){ const s = readSettings(); s.premiumKey = String(key||''); saveSettings(s); }
+  function getPremiumKey(){ return readSettings().premiumKey || null; }
+  function checkUnlockKey(entered){ const key = getPremiumKey(); return key && key.length && entered===key; }
+
+  // Payment link
+  function setPaymentLink(url){ const s = readSettings(); s.paymentLink = url; saveSettings(s); }
+  function getPaymentLink(){ return readSettings().paymentLink || ''; }
+
+  return {
+    readSettings, saveSettings,
+    incUsage, incDownload, getUsageCount, getDownloadCount,
+    setPremiumKey, getPremiumKey, checkUnlockKey,
+    setPaymentLink, getPaymentLink
+  };
+})();
+""",
+"scripts/ui.js": """// scripts/ui.js
+// Handles DOM, events, settings modal and generation flow.
+
+window.OmniUI = (function(){
+
+  function $(id){ return document.getElementById(id); }
+
+  function populateTools(){
+    const list = OmniTools.getList();
+    const sel = $('toolSelect');
+    sel.innerHTML = '';
+    list.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.id;
+      opt.textContent = t.name + (t.premium ? ' 🔒' : '');
+      sel.appendChild(opt);
+    });
+    // build initial panel
+  }
+
+  function showCounts(toolId){
+    $('usageCount').textContent = 'Uses: ' + OmniMarketplace.getUsageCount(toolId);
+    $('downloadCount').textContent = 'Downloads: ' + OmniMarketplace.getDownloadCount();
+  }
+
+  function openSettings(){
+    const modal = $('settingsModal');
+    modal.setAttribute('aria-hidden','false');
+    // populate fields
+    $('premiumKeyInput').value = OmniMarketplace.getPremiumKey() || '';
+    $('modalPaymentLink').value = OmniMarketplace.getPaymentLink() || '';
+  }
+  function closeSettings(){
+    const modal = $('settingsModal');
+    modal.setAttribute('aria-hidden','true');
+  }
+
+  async function generateCurrent(){
+    const toolId = $('toolSelect').value;
+    const tool = OmniTools.getTool(toolId);
+    if(!tool) return alert('Tool not found');
+    let input = {};
+    try { input = JSON.parse($('userInput').value || '{}'); } catch(e) { alert('Invalid JSON in input'); return; }
+    const premiumRequested = $('usePremiumToggle').checked;
+    // premium check
+    if (premiumRequested && tool.premium) {
+      const unlocked = sessionStorage.getItem('omniverse_premium_unlocked') === '1';
+      if(!unlocked){ alert('Premium output locked — unlock via Owner Settings or enter correct key.'); return; }
+    }
+
+    $('aiOutput').value = 'Generating...';
+    const out = await OmniAI.generate(tool, input, {premium: premiumRequested});
+    $('aiOutput').value = out;
+    $('downloadBtn').disabled = false;
+    OmniMarketplace.incUsage(toolId);
+    showCounts(toolId);
+  }
+
+  function downloadOutput(){
+    const out = $('aiOutput').value || '';
+    if(!out) return;
+    const blob = new Blob([out], {type:'text/plain;charset=utf-8'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    const tool = $('toolSelect').value || 'output';
+    a.download = tool + '-omniverse.txt';
+    document.body.appendChild(a); a.click(); a.remove();
+    OmniMarketplace.incDownload();
+    showCounts($('toolSelect').value);
+  }
+
+  function clearAll(){
+    $('aiOutput').value = '';
+    $('userInput').value = '{}';
+    $('downloadBtn').disabled = true;
+  }
+
+  function unlockPremiumFlow(){
+    const entered = prompt('Enter unlock key to enable premium outputs:');
+    if(!entered) return;
+    if(OmniMarketplace.checkUnlockKey(entered)){
+      sessionStorage.setItem('omniverse_premium_unlocked','1');
+      alert('Premium unlocked for this browser session.');
+    } else {
+      alert('Incorrect key.');
+    }
+  }
+
+  function savePremiumKey(){
+    const k = $('premiumKeyInput').value.trim();
+    OmniMarketplace.setPremiumKey(k);
+    alert('Premium key saved locally.');
+  }
+
+  function savePaymentLink(){
+    const u = $('modalPaymentLink').value.trim();
+    OmniMarketplace.setPaymentLink(u);
+    alert('Payment link saved locally.');
+  }
+
+  function openDonate(){
+    const url = OmniMarketplace.getPaymentLink();
+    if(!url) return alert('No payment link saved in settings.');
+    window.open(url, '_blank');
+  }
+
+  function openDashboard(){
+    // quick local dashboard (simple alert)
+    const usages = JSON.parse(localStorage.getItem('omniverse_usage')||'{}');
+    const downloads = localStorage.getItem('omniverse_downloads')||'0';
+    const lines = ['Local Omniverse Stats:','Downloads: '+downloads,'Tool uses:'];
+    for(const k of Object.keys(usages)) lines.push(`${k}: ${usages[k]}`);
+    alert(lines.join('\\n'));
+  }
+
+  function bind(){
+    $('openSettingsBtn').addEventListener('click', openSettings);
+    $('closeSettings').addEventListener('click', closeSettings);
+    $('savePremiumKey').addEventListener('click', savePremiumKey);
+    $('savePaymentLink').addEventListener('click', savePaymentLink);
+    $('generateBtn').addEventListener('click', generateCurrent);
+    $('downloadBtn').addEventListener('click', downloadOutput);
+    $('clearBtn').addEventListener('click', clearAll);
+    $('unlockBtn').addEventListener('click', unlockPremiumFlow);
+    $('openDonate').addEventListener('click', openDonate);
+    $('openDashboard').addEventListener('click', openDashboard);
+    $('toolSelect').addEventListener('change', ()=> showCounts($('toolSelect').value));
+  }
+
+  function init(){
+    populateTools();
+  
