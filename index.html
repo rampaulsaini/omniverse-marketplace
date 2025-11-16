@@ -440,12 +440,103 @@
     const a = document.createElement('a'); a.href = url; a.download = 'omniverse-export.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   }
   function importAllFile(){
-    const inp = document.createElement('input'); inp.type='file'; inp.accept='application/json';
-    inp.onchange = e => {
-      const f = e.target.files[0]; if(!f) return;
-      const reader = new FileReader();
-      reader.onload = ev => {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = 'application/json';
+  inp.onchange = e => {
+    const f = e.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+
+        // Validate basic shape
+        if(!data || typeof data !== 'object') throw new Error('Invalid JSON structure.');
+
+        // Optional: backup current state before overwrite
         try {
-          const data = JSON.parse(ev.target.result);
-          if(data.tools) tools = data.tools;
-          if(da
+          const backup = { tools: tools || [], owner: owner || {}, stats: stats || {} };
+          const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `omniverse-backup-${new Date().toISOString()}.json`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+        } catch (bkErr) {
+          // backup failed — non-fatal
+          console.warn('Backup failed:', bkErr);
+        }
+
+        // Apply imported data (only if present)
+        if (Array.isArray(data.tools)) {
+          tools = data.tools.map(t => {
+            // Ensure required fields exist
+            return {
+              id: t.id || uid('t'),
+              name: t.name || 'Unnamed Tool',
+              description: t.description || '',
+              template: t.template || (t.template === '' ? '' : (t.template || '')),
+              exampleJson: t.exampleJson || t.exampleJSON || '{}'
+            };
+          });
+        }
+
+        if (data.owner && typeof data.owner === 'object') {
+          owner = {
+            name: data.owner.name || '',
+            paylinks: data.owner.paylinks || data.owner.payLinks || ''
+          };
+        }
+
+        if (data.stats && typeof data.stats === 'object') {
+          // Basic sanity for stats
+          stats = {
+            totalUses: Number(data.stats.totalUses || 0),
+            totalDownloads: Number(data.stats.totalDownloads || 0),
+            perTool: (data.stats.perTool && typeof data.stats.perTool === 'object') ? data.stats.perTool : {}
+          };
+          // ensure perTool has entries for all tools
+          tools.forEach(t => {
+            if (!stats.perTool[t.id]) stats.perTool[t.id] = { uses: 0, downloads: 0 };
+          });
+        } else {
+          // if no stats provided, rebuild minimal stats object for tools
+          stats = stats || { totalUses:0, totalDownloads:0, perTool: {} };
+          tools.forEach(t => {
+            if (!stats.perTool[t.id]) stats.perTool[t.id] = { uses: 0, downloads: 0 };
+          });
+        }
+
+        // Persist and render everything
+        saveTools();
+        saveOwner();
+        saveStats();
+        renderTools();
+        renderOwner();
+        renderGlobalStats();
+
+        // Auto-select first tool if nothing selected
+        if (!selectedToolId && tools.length) {
+          selectedToolId = tools[0].id;
+          renderSelectedTool();
+        }
+
+        alert('Import successful — settings and tools updated locally.');
+      } catch (err) {
+        console.error('Import failed:', err);
+        alert('Import failed: ' + (err && err.message ? err.message : 'Unknown error'));
+      } finally {
+        // clear input to allow re-import same file if needed
+        inp.value = '';
+      }
+    };
+    reader.readAsText(f);
+  };
+  // trigger file selector
+  inp.click();
+ }
+  
