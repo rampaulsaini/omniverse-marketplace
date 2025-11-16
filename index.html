@@ -440,8 +440,10 @@
       navigator.clipboard.writeText(text).then(()=> alert('Copied to clipboard') ).catch(()=> alert('Copy failed'));
     });
 
-    downloadOutputBtn.addEventListener('click', ()=>{
-      const text = outputArea.textContent || '';
-      if(!text){ alert('No output to download'); return; }
-      const tid = toolsSelect.value;
-      const tool = (state.tools || 
+    
+    downloadOutputBtn.addEventListener('click', ()=>{
+      const text = outputArea.textContent || '';
+      if(!text){ alert('No output to download'); return; }
+      const tid = toolsSelect.value;
+      const tool = (state.tools
+इस से आगे की script दे 
