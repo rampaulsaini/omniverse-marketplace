@@ -12,12 +12,12 @@ header{padding:12px;background:#081425;display:flex;align-items:center;justify-c
 header h1{margin:0;font-size:1.3rem}
 header button{padding:6px 10px;border:none;border-radius:6px;background:#152040;color:#e6eef8;cursor:pointer}
 .container{display:flex;height:calc(100vh - 50px)}
-.sidebar{width:250px;background:#0a1020;border-right:1px solid rgba(255,255,255,0.05);overflow-y:auto;padding:12px}
+.sidebar{width:260px;background:#0a1020;border-right:1px solid rgba(255,255,255,0.05);overflow-y:auto;padding:12px}
 .sidebar button{width:100%;margin-bottom:4px;padding:6px;border:none;border-radius:6px;background:#081425;color:#e6eef8;cursor:pointer;text-align:left;font-size:0.85rem}
 .sidebar button.active{background:#152040}
 .main{flex:1;padding:12px;overflow-y:auto}
 .tool-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap}
-textarea#tool-output{width:100%;height:300px;background:#081425;color:#e6eef8;border:none;padding:8px;border-radius:6px;resize:none;font-family:monospace}
+textarea#tool-output{width:100%;height:300px;background:#081425;color:#e6eef8;border:1px solid rgba(255,255,255,0.1);padding:8px;border-radius:6px;resize:none;font-family:monospace}
 button.action{padding:6px 10px;margin-right:6px;border:none;border-radius:6px;background:#152040;color:#e6eef8;cursor:pointer;margin-top:4px}
 input,textarea{background:#081425;color:#e6eef8;border:1px solid rgba(255,255,255,0.05);border-radius:6px;padding:6px;width:100%;margin-bottom:6px}
 .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:999}
@@ -37,18 +37,18 @@ a:hover{text-decoration:underline}
 </header>
 
 <div class="container">
-  <div class="sidebar" id="tool-list">
-    <!-- Tools dynamically generated -->
-  </div>
+  <div class="sidebar" id="tool-list"></div>
   <div class="main">
     <div class="tool-header">
       <h2 id="tool-title">कृपया बाएँ से एक tool चुनें।</h2>
       <div>
         <button class="action" onclick="runTool()">Run</button>
         <button class="action" onclick="downloadOutput()">Download</button>
+        <button class="action" onclick="copyOutput()">Copy</button>
+        <button class="action" onclick="cloneTool()">Clone Tool</button>
       </div>
     </div>
-    <textarea id="tool-output" readonly placeholder="Output will appear here..."></textarea>
+    <textarea id="tool-output" placeholder="Output will appear here..."></textarea>
     <div id="tips-links"></div>
   </div>
 </div>
@@ -64,7 +64,10 @@ a:hover{text-decoration:underline}
     <input type="text" id="owner-name" placeholder="आपका नाम">
     <label>Pay / Donate Links (comma separated)</label>
     <textarea id="owner-links" placeholder="upi:abc@paytm, https://paypal.me/you"></textarea>
-    <button class="action" onclick="saveOwnerSettings()">Save</button>
+    <label>OpenAI API Key (optional)</label>
+    <input type="text" id="omniverse-openai-key" placeholder="sk-xxxx">
+    <button class="action" onclick="saveOpenAIKey()">Save API Key</button>
+    <button class="action" onclick="saveOwnerSettings()">Save Settings</button>
     <button class="action" onclick="exportOwnerSettings()">Export</button>
     <button class="action" onclick="importOwnerSettings()">Import</button>
     <hr>
@@ -74,30 +77,30 @@ a:hover{text-decoration:underline}
 </div>
 
 <script>
-// UI Functions
+// Owner Settings
 function openSettings(){ document.getElementById('owner-modal').style.display='flex'; loadOwnerSettings(); }
 function closeSettings(){ document.getElementById('owner-modal').style.display='none'; }
 function loadOwnerSettings(){
   document.getElementById('owner-name').value=localStorage.getItem('omniverse_owner_name')||'';
   document.getElementById('owner-links').value=localStorage.getItem('omniverse_owner_links_raw')||'';
+  document.getElementById('omniverse-openai-key').value=localStorage.getItem('omniverse_openai_key')||'';
 }
 function saveOwnerSettings(){
-  const name=document.getElementById('owner-name').value.trim();
-  const links=document.getElementById('owner-links').value.split(',').map(s=>s.trim()).filter(s=>s);
-  localStorage.setItem('omniverse_owner_name',name);
+  localStorage.setItem('omniverse_owner_name',document.getElementById('owner-name').value.trim());
+  const links = document.getElementById('owner-links').value.split(',').map(s=>s.trim()).filter(s=>s);
   localStorage.setItem('omniverse_owner_links',JSON.stringify(links));
   localStorage.setItem('omniverse_owner_links_raw',document.getElementById('owner-links').value);
   alert('Owner settings saved.');
   renderTips();
 }
+function saveOpenAIKey(){
+  localStorage.setItem('omniverse_openai_key', document.getElementById('omniverse-openai-key').value.trim());
+  alert('OpenAI API key saved locally.');
+}
 function exportOwnerSettings(){
-  const data = {
-    name: document.getElementById('owner-name').value,
-    links: document.getElementById('owner-links').value,
-    tools: tools
-  };
-  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const url = URL.createObjectURL(blob);
+  const data={name:document.getElementById('owner-name').value, links:document.getElementById('owner-links').value, tools};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
   const a=document.createElement('a'); a.href=url; a.download='omniverse_settings.json'; a.click(); URL.revokeObjectURL(url);
 }
 function importOwnerSettings(){
@@ -114,38 +117,95 @@ function importOwnerSettings(){
       resetTools();
       if(data.tools) data.tools.forEach(t=>addTool(t.name));
       alert('Settings imported successfully.');
-    }catch(e){ alert('Invalid JSON file'); }
-  };
-  input.click();
+    }catch(e){ alert('Invalid JSON'); }
+  }; input.click();
 }
-function addTool(){
-  const name = prompt('Enter new tool name:');
-  if(!name) return;
-  tools.push({name:name, generator:()=> `This is the output of ${name}`});
+
+// Tools
+const LS_KEY='omniverse_tools_v1';
+let tools=JSON.parse(localStorage.getItem(LS_KEY)||'[]');
+if(tools.length===0){ tools=[]; for(let i=1;i<=100;i++){ tools.push({name:`Tool ${i}`, generatorPrompt:`Generate content for Tool ${i}`}); } localStorage.setItem(LS_KEY,JSON.stringify(tools)); }
+function saveTools(){ localStorage.setItem(LS_KEY,JSON.stringify(tools)) }
+let selectedIndex=null;
+
+function runTool(){
+  if(selectedIndex===null) return alert('Select a tool first.');
+  const tool=tools[selectedIndex];
+  const textarea=document.getElementById('tool-output');
+  textarea.value="Generating AI output...";
+  const prompt = tool.generatorPrompt || `Generate content for ${tool.name}`;
+  const apiKey = localStorage.getItem('omniverse_openai_key');
+  if(!apiKey) { textarea.value="Add OpenAI API key to run AI."; return; }
+  fetch("https://api.openai.com/v1/completions",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":`Bearer ${apiKey}`
+    },
+    body:JSON.stringify({model:"text-davinci-003", prompt, max_tokens:200})
+  })
+  .then(res=>res.json())
+  .then(data=>{textarea.value=data.choices[0].text.trim();})
+  .catch(err=>{textarea.value="Error generating AI output: "+err.message;});
+}
+
+function downloadOutput(){
+  const val=document.getElementById('tool-output').value;
+  if(!val) return alert('No output'); 
+  const blob=new Blob([val],{type:'text/plain'}); 
+  const url=URL.createObjectURL(blob); 
+  const a=document.createElement('a'); a.href=url; a.download=(selectedIndex!==null?tools[selectedIndex].name:'output')+'.txt'; a.click(); URL.revokeObjectURL(url);
+}
+
+function copyOutput(){
+  const val=document.getElementById('tool-output').value;
+  if(!val) return alert('No output to copy');
+  navigator.clipboard.writeText(val).then(()=>alert('Copied to clipboard!'));
+}
+
+function cloneTool(){
+  if(selectedIndex===null) return alert('Select a tool to clone');
+  const original=tools[selectedIndex];
+  const cloneName=prompt('Enter name for cloned tool:',original.name+' Copy');
+  if(!cloneName) return;
+  tools.push({name:cloneName, generatorPrompt:original.generatorPrompt});
   saveTools();
   renderToolList();
 }
-function resetTools(){ if(confirm('Reset all tools?')){ tools=[]; saveTools(); renderToolList(); document.getElementById('tool-output').value=''; }}
 
-// 100 Tools setup
-const LS_KEY='omniverse_tools_v1';
-let tools = JSON.parse(localStorage.getItem(LS_KEY)||'[]');
-if(tools.length===0){
-  tools=[];
-  for(let i=1;i<=100;i++){
-    tools.push({name:`Tool ${i}`, generator:()=> `This is the output of Tool ${i}`});
-  }
-  localStorage.setItem(LS_KEY,JSON.stringify(tools));
+function addTool(){
+  const name=prompt('Enter new tool name:'); if(!name) return;
+  tools.push({name, generatorPrompt:`Generate content for ${name}`});
+  saveTools();
+  renderToolList();
 }
 
-// Functions
-function saveTools(){ localStorage.setItem(LS_KEY,JSON.stringify(tools)) }
-let selectedIndex=null;
-function runTool(){ if(selectedIndex!==null){ const output=tools[selectedIndex].generator(); document.getElementById('tool-output').value=output; renderTips(); } else alert('Select a tool first.'); }
-function downloadOutput(){ const val=document.getElementById('tool-output').value; if(!val) return alert('No output'); const blob=new Blob([val],{type:'text/plain'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=(selectedIndex!==null?tools[selectedIndex].name:'output')+'.txt'; a.click(); URL.revokeObjectURL(url); }
-function selectTool(i){ selectedIndex=i; document.querySelectorAll('.sidebar button').forEach(b=>b.classList.remove('active')); document.getElementById('tool-btn-'+i).classList.add('active'); document.getElementById('tool-title').textContent=tools[i].name; document.getElementById('tool-output').value=''; renderTips(); }
-function renderToolList(){ const container=document.getElementById('tool-list'); container.innerHTML=''; tools.forEach((t,i)=>{ const btn=document.createElement('button'); btn.textContent=t.name; btn.id='tool-btn-'+i; btn.onclick=()=>selectTool(i); container.appendChild(btn); }); }
-function renderTips(){ const div=document.getElementById('tips-links'); const links=JSON.parse(localStorage.getItem('omniverse_owner_links')||'[]'); div.innerHTML=''; if(links.length>0){ div.innerHTML='<strong>Support Owner:</strong> '; links.forEach(l=>{ const a=document.createElement('a'); a.href=l; a.target='_blank'; a.style.marginRight='10px'; a.textContent='💰 Tip'; div.appendChild(a); }); } }
+function resetTools(){ if(confirm('Reset all tools?')){ tools=[]; saveTools(); renderToolList(); document.getElementById('tool-output').value=''; }}
+
+function selectTool(i){
+  selectedIndex=i;
+  document.querySelectorAll('.sidebar button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tool-btn-'+i).classList.add('active');
+  document.getElementById('tool-title').textContent=tools[i].name;
+  document.getElementById('tool-output').value='';
+  renderTips();
+}
+
+function renderToolList(){
+  const container=document.getElementById('tool-list');
+  container.innerHTML='';
+  tools.forEach((t,i)=>{
+    const btn=document.createElement('button'); btn.textContent=t.name; btn.id='tool-btn-'+i; btn.onclick=()=>selectTool(i);
+    container.appendChild(btn);
+  });
+}
+
+function renderTips(){
+  const div=document.getElementById('tips-links');
+  const links=JSON.parse(localStorage.getItem('omniverse_owner_links')||'[]');
+  div.innerHTML='';
+  if(links.length>0){ div.innerHTML='<strong>Support Owner:</strong> '; links.forEach(l=>{ const a=document.createElement('a'); a.href=l; a.target='_blank'; a.style.marginRight='10px'; a.textContent='💰 Tip'; div.appendChild(a); }); }
+}
 
 // Initial render
 renderToolList();
