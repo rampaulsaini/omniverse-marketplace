@@ -50,3 +50,7 @@ export default async function handler(req, res) {
     res.status(500).json({ error: err.message || 'server error' });
   }
 }
+curl -X POST https://<your-site>.netlify.app/.netlify/functions/ai-proxy \
+  -H "Content-Type: application/json" \
+  -d '{"prompt":"Write a 2-line bio for a data scientist named Asha.","max_tokens":80}'
+        
