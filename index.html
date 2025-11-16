@@ -392,4 +392,212 @@ ${data.summary || 'Experienced professional skilled in ' + (data.field || 'your 
     }
 
     // ==== Actions ====
-    generateBtn.addEventListener('c
+generateBtn.addEventListener('click', ()=>{
+  // parse JSON input
+  let parsed = {};
+  try{
+    parsed = JSON.parse(jsonInput.value || '{}');
+  }catch(e){
+    aiOutput.textContent = 'Invalid JSON input — कृपया सही JSON दें।';
+    return;
+  }
+
+  // check premium
+  const cfg = getOwnerConfig();
+  // determine if tool is premium by owner config or default
+  const ownerPremium = (cfg.premium && cfg.premium[currentTool.id] !== undefined) ? cfg.premium[currentTool.id] : currentTool.premium;
+  if(ownerPremium && !isToolUnlocked(currentTool.id)){
+    aiOutput.textContent = 'यह टूल Premium है — कृपया Owner से unlock key प्राप्त करें या Unlock Premium बटन से key डालें।';
+    return;
+  }
+
+  // generate
+  const out = generateForTool(currentTool.id, parsed);
+  aiOutput.textContent = out;
+  incStat(currentTool.id, 'uses');
+});
+
+downloadBtn.addEventListener('click', ()=>{
+  const format = formatSelect.value || 'txt';
+  const content = aiOutput.textContent || '';
+  if(!content || content.trim().length < 2){ alert('No output to download'); return; }
+  const blob = new Blob([content], { type: format === 'html' ? 'text/html' : 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const nameSafe = (currentTool.id + '_' + (new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')) + (format==='html'?'.html':'.txt')).toLowerCase();
+  a.download = nameSafe;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  incStat(currentTool.id, 'downloads');
+});
+
+// Unlock flow
+unlockBtn.addEventListener('click', ()=>{
+  const userKey = prompt('Enter unlock key (owner-provided):');
+  if(!userKey) return;
+  const cfg = getOwnerConfig();
+  if(cfg.key && cfg.key === userKey){
+    // mark this tool unlocked
+    const unlocked = getPremiumUnlocked(); unlocked[currentTool.id] = true; setPremiumUnlocked(unlocked);
+    alert('Premium unlocked for this tool in this browser.');
+    renderSelectedTool();
+  } else {
+    alert('Invalid key.');
+  }
+});
+
+// Owner settings modal
+ownerBtn.addEventListener('click', ()=>{ openOwnerModal(); });
+closeOwner.addEventListener('click', ()=>{ closeOwnerModal(); });
+
+function openOwnerModal(){
+  const cfg = getOwnerConfig();
+  newKey.value = cfg.key || '';
+  paytmInput.value = cfg.paytm || '';
+  paypalInput.value = cfg.paypal || '';
+  ownerModal.style.display = 'flex';
+}
+function closeOwnerModal(){ ownerModal.style.display = 'none'; renderOwnerLinks(); renderTools(); renderSelectedTool(); }
+
+saveKey.addEventListener('click', ()=>{
+  const cfg = getOwnerConfig();
+  cfg.key = newKey.value || '';
+  saveOwnerConfig(cfg);
+  alert('Key saved locally.');
+  renderOwnerLinks();
+});
+clearKey.addEventListener('click', ()=>{
+  const cfg = getOwnerConfig(); cfg.key = ''; saveOwnerConfig(cfg);
+  alert('Key cleared.');
+  newKey.value = '';
+  renderOwnerLinks();
+});
+
+savePayments.addEventListener('click', ()=>{
+  const cfg = getOwnerConfig();
+  cfg.paytm = paytmInput.value || '';
+  cfg.paypal = paypalInput.value || '';
+  saveOwnerConfig(cfg);
+  alert('Payment links saved locally.');
+  renderOwnerLinks();
+});
+
+resetDefaults.addEventListener('click', ()=>{
+  if(!confirm('Reset owner settings to defaults?')) return;
+  localStorage.removeItem(LS.ownerConfig);
+  alert('Owner settings reset.');
+  openOwnerModal();
+});
+
+// Toggle premium flag for selected tool (owner can mark a tool as premium or free)
+togglePremium.addEventListener('click', ()=>{
+  const toolId = toolToggleSelect.value;
+  const cfg = getOwnerConfig();
+  if(!cfg.premium) cfg.premium = {};
+  const current = !!cfg.premium[toolId];
+  cfg.premium[toolId] = !current;
+  saveOwnerConfig(cfg);
+  alert(`${toolId} premium flag set to ${!current}`);
+  renderTools(); renderSelectedTool();
+});
+
+exportConfig.addEventListener('click', ()=>{
+  const cfg = getOwnerConfig();
+  navigator.clipboard.writeText(JSON.stringify(cfg, null, 2)).then(()=>alert('Config copied to clipboard.'));
+});
+
+importConfig.addEventListener('click', ()=>{
+  try{
+    const obj = JSON.parse(importArea.value);
+    saveOwnerConfig(obj);
+    alert('Config imported.');
+  }catch(e){ alert('Invalid JSON'); }
+});
+
+openDonate.addEventListener('click', ()=> {
+  // open owner links in new tab
+  const cfg = getOwnerConfig();
+  if(cfg.paytm) window.open(cfg.paytm, '_blank');
+  if(cfg.paypal) window.open(cfg.paypal, '_blank');
+  if(!cfg.paytm && !cfg.paypal) alert('Owner has not set any payment links yet.');
+});
+
+// stats dashboard
+openDashboard.addEventListener('click', ()=> { showDashboardModal(); });
+openStats.addEventListener('click', ()=> { showDashboardModal(); });
+closeDash.addEventListener('click', ()=> { dashModal.style.display = 'none'; });
+
+function showDashboardModal(){
+  const s = getStats();
+  let html = '<div class="grid">';
+  TOOLS.forEach(t=>{
+    const st = s[t.id] || { uses:0, downloads:0 };
+    html += `<div style="padding:10px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);margin:8px">
+      <strong>${t.title}</strong><div class="meta">${t.desc}</div>
+      <div style="margin-top:8px">Uses: <strong>${st.uses}</strong> • Downloads: <strong>${st.downloads}</strong></div>
+    </div>`;
+  });
+  html += '</div>';
+  statsArea.innerHTML = html;
+  dashModal.style.display = 'flex';
+}
+
+resetStats.addEventListener('click', ()=>{
+  if(!confirm('Reset all local stats?')) return;
+  localStorage.removeItem(LS.toolStats);
+  alert('Stats cleared.');
+  renderSelectedTool();
+});
+
+clearOwner.addEventListener('click', ()=>{
+  if(!confirm('Clear owner config and premium unlock flags?')) return;
+  localStorage.removeItem(LS.ownerConfig); localStorage.removeItem(LS.premiumUnlocked);
+  alert('Owner config cleared.');
+  renderOwnerLinks(); renderTools(); renderSelectedTool();
+});
+
+// render owner links
+function renderOwnerLinks(){
+  const cfg = getOwnerConfig();
+  paytmText.textContent = cfg.paytm || 'Not set';
+  paypalText.textContent = cfg.paypal || 'Not set';
+  paytmLink.href = cfg.paytm || '#';
+  paypalLink.href = cfg.paypal || '#';
+}
+
+// render stats area & selection initially
+function renderStats(){
+  const s = getStats(); const st = s[currentTool.id] || { uses:0, downloads:0 };
+  usesCount.textContent = st.uses || 0; downloadsCount.textContent = st.downloads || 0;
+}
+
+// initial render
+renderTools(); renderSelectedTool(); renderOwnerLinks(); renderStats();
+
+// Clear output
+$('clearOutput').addEventListener('click', ()=>{ aiOutput.textContent = 'AI output will appear here...'; });
+
+// Allow quick sample JSON fill
+jsonInput.addEventListener('focus', ()=>{
+  if(!jsonInput.value.trim()){
+    jsonInput.value = JSON.stringify({ "name":"Your Name", "field":"AI", "email":"you@example.com", "skills":["AI","JS"], "experience":[{"role":"Developer","company":"Acme","years":"2021-2024","summary":"Built features"}] }, null, 2);
+  }
+});
+
+// helper: sync owner premium default overrides into tool visibility
+(function syncOwnerPremiumOverrides(){
+  const cfg = getOwnerConfig();
+  if(cfg && cfg.premium){
+    // update TOOLS premium flags accordingly (owner can mark free/premium)
+    TOOLS.forEach(t=>{
+      if(cfg.premium[t.id] !== undefined) t.premium = !!cfg.premium[t.id];
+    });
+  }
+})();
+
+// Expose a small debug API on window if developer wants to test
+window.Omniverse = {
+  getOwnerConfig, saveOwnerConfig, getStats, saveStats, TOOLS
+};
+    
