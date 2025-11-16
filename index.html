@@ -359,4 +359,117 @@
     }
 
     function genIdea(d){
-      const field = d.field || 'a f
+  // Input expected example:
+  // { field: "education", audience: "college students", nameSuggestion: "Tutorly", region: "India", scale: "local" }
+
+  const field = (d.field || 'a field').toString().trim();
+  const audience = (d.audience || 'general users').toString().trim();
+  const region = (d.region || 'global').toString().trim();
+  const scale = (d.scale || 'online').toString().trim(); // e.g., local, online, enterprise
+  const extra = (d.extra || '').toString().trim();
+
+  // Generate a readable brand-like name if user didn't provide one
+  const makeName = (f) => {
+    const clean = f.replace(/[^a-zA-Z0-9\s]/g,'').split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('');
+    if(!clean) return 'IdeaHub';
+    // add suffix for variety
+    const suffixes = ['ly','Hub','Works','Zone','Labs','Grid'];
+    const s = suffixes[Math.floor(Math.random()*suffixes.length)];
+    return clean + s;
+  };
+
+  const name = d.nameSuggestion && d.nameSuggestion.toString().trim() ? d.nameSuggestion.toString().trim() : makeName(field);
+
+  // One-liner
+  const oneLiner = `${name}: A platform for ${audience} in ${field} that simplifies ${field} tasks using automation and intelligent templates.`;
+
+  // Concept
+  const concept = `Concept:\nBuild an easy-to-use ${scale} platform for ${audience} that automates core ${field} workflows, provides ready-made templates/tools, and connects users to premium services. The platform focuses on speed, low-friction onboarding, and measurable ROI for users in ${region}. ${extra ? ('Notes: ' + extra) : ''}`;
+
+  // Key features (customize based on field)
+  const features = [
+    `Automated templates & generators tailored to ${field} (e.g., proposals, plans, documents).`,
+    `One-click exports and shareable outputs (PDF / HTML / text).`,
+    `A lightweight marketplace for premium templates / micro-services.`,
+    `User dashboard with usage analytics and versioned outputs.`,
+    `Simple integrations (email, Google Drive, basic APIs) for saving/sharing.`,
+  ];
+
+  // If field-specific tweaks
+  if(/education|learning|study/i.test(field)){
+    features.unshift(`Study-plan generator and automated summary notes for any topic.`);
+    features.push(`Quiz & practice generator to convert notes into exercises.`);
+  } else if(/finance|billing|invoice|account/i.test(field)){
+    features.unshift(`Invoice & expense automation with downloadable templates.`);
+    features.push(`Basic reconciliation helpers and CSV import/export.`);
+  } else if(/marketing|social|content/i.test(field)){
+    features.unshift(`Social content & caption batch generator with scheduling suggestions.`);
+    features.push(`Campaign brief generator and performance checklist.`);
+  } else if(/legal|contract/i.test(field)){
+    features.unshift(`Safe, templated legal letters and contract outlines.`);
+    features.push(`Clause builder and simple sign-off checklist.`);
+  }
+
+  // Target customers
+  const customers = [
+    `Individuals (freelancers, students, solopreneurs) who need fast, low-cost outputs.`,
+    `Small teams and startups that want repeatable templates and automation.`,
+    `Agencies that can white-label templates or buy in bulk (B2B).`
+  ];
+
+  // Monetization options
+  const monetization = [
+    `Freemium: core tools free, premium templates/tools behind paywall.`,
+    `Per-output micro-payments (e.g., ₹30-₹300 per download) for premium outputs.`,
+    `Subscriptions for power users / teams (monthly/annual).`,
+    `Marketplace commissions for third-party template authors.`,
+    `Enterprise/custom integrations billed as projects.`
+  ];
+
+  // MVP steps
+  const mvp = [
+    `Day 1-7: Build a single-tool prototype (one high-value generator) and host on GitHub Pages.`,
+    `Week 2: Add 4–6 more complementary tools and a simple dashboard (localStorage stats).`,
+    `Week 3-4: Add download/pay buttons (PayPal/UPI/Ko-fi) and simple marketing landing page.`,
+    `Month 2: Launch marketplace for selling/uploading premium templates (manual review).`,
+    `Month 3: Add automation hooks (email export, Google Drive save) and simple analytics.`
+  ];
+
+  // Suggested tech-stack (zero-cost friendly)
+  const tech = [
+    `Frontend: HTML/CSS/Vanilla JS (host on GitHub Pages) — zero hosting cost.`,
+    `Templating: Client-side templates + JSON-driven generators (like this one).`,
+    `Payments: Ko-fi / PayPal Donate / UPI links embedded — free to integrate.`,
+    `Optional: Serverless endpoints later (Vercel / Netlify functions) for heavier tasks.`,
+    `Analytics: localStorage initially; later integrate Google Analytics or simple serverless logging.`
+  ];
+
+  // Rough pricing guidance (adjust by region and value)
+  const pricing = [
+    `Free tier: basic templates/tools.`,
+    `Micro-payments: ₹30–₹300 per premium output.`,
+    `Subscription: ₹299–₹1999/month for power users (depending on features).`,
+    `Enterprise/project: ₹50,000+ one-time or custom SLA-based pricing.`
+  ];
+
+  // Compose final text output
+  let out = `Business Idea: ${name}\n\n`;
+  out += `One-liner:\n${oneLiner}\n\n`;
+  out += `${concept}\n\n`;
+  out += `Key Features:\n`;
+  features.forEach((f,i) => out += `${i+1}. ${f}\n`);
+  out += `\nTarget Customers:\n`;
+  customers.forEach((c,i) => out += `${i+1}. ${c}\n`);
+  out += `\nMonetization:\n`;
+  monetization.forEach((m,i) => out += `${i+1}. ${m}\n`);
+  out += `\nMVP Roadmap (practical):\n`;
+  mvp.forEach((s,i) => out += `${i+1}. ${s}\n`);
+  out += `\nSuggested Tech Stack (zero-cost first):\n`;
+  tech.forEach((t,i) => out += `${i+1}. ${t}\n`);
+  out += `\nPricing Guidance:\n`;
+  pricing.forEach((p,i) => out += `${i+1}. ${p}\n`);
+  out += `\nQuick Next Actions (first 7 days):\n1. Choose ONE high-value tool and create a GitHub Pages demo.\n2. Add a Donate / Pay button for instant revenue.\n3. Share on relevant communities and collect feedback.\n4. Iterate into a multi-tool marketplace within 2–3 weeks.\n`;
+
+  return out;
+    }
+    
