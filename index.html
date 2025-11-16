@@ -496,8 +496,215 @@ function downloadOutput(){
   renderTotals();
 }
 
-// lock/unlock premium (owner view)
-function toggleUnlockPrompt(){
-  const k = prompt('Unlock key दर्ज करें (owner से मिला key):');
-  if(!k) return;
-  const s
+/* =========================
+   Lock / Unlock Premium Module
+   =========================
+   Usage:
+   - paste this after your existing "// lock/unlock premium (owner view)" comment
+   - relies on: `owner` object (owner.key), `unlocked` boolean, `TOOLS`, renderTools()
+   - stores unlock state in sessionStorage (temporary) or localStorage (persistent opt-in)
+*/
+
+/**
+ * Storage keys
+ */
+const UNLOCK_SESSION_KEY = 'omniverse_unlocked_session_v1'; // session-only
+const UNLOCK_PERSIST_KEY = 'omniverse_unlocked_persist_v1'; // persistent flag (localStorage)
+
+/**
+ * Check if there's any persisted unlock flag (from previous saved owner unlock)
+ * If owner.key is empty we treat premium as locked until owner sets it.
+ */
+function loadPersistedUnlockState() {
+  try {
+    // If persisted flag set AND owner.key exists -> keep unlocked
+    const persistFlag = JSON.parse(localStorage.getItem(UNLOCK_PERSIST_KEY) || 'false');
+    const sessionFlag = JSON.parse(sessionStorage.getItem(UNLOCK_SESSION_KEY) || 'false');
+    if (sessionFlag) return true;
+    if (persistFlag && owner && owner.key) return true;
+    return false;
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Apply unlocked state globally in this page.
+ * - unlockedVar: boolean
+ * - persist: if true, save to localStorage (persistent across sessions)
+ * - sessionOnly: if true, save only in sessionStorage (cleared on browser close)
+ */
+function applyUnlockedState(unlockedVar, { persist=false, sessionOnly=false } = {}) {
+  unlocked = !!unlockedVar;
+  // set storage based on options
+  if (persist) {
+    localStorage.setItem(UNLOCK_PERSIST_KEY, JSON.stringify(true));
+    sessionStorage.removeItem(UNLOCK_SESSION_KEY);
+  } else if (sessionOnly) {
+    sessionStorage.setItem(UNLOCK_SESSION_KEY, JSON.stringify(true));
+    localStorage.removeItem(UNLOCK_PERSIST_KEY);
+  } else {
+    // neither persist nor session -> clear stored flags
+    sessionStorage.removeItem(UNLOCK_SESSION_KEY);
+    localStorage.removeItem(UNLOCK_PERSIST_KEY);
+  }
+  // Update UI text / buttons
+  updateLockUI();
+  // Re-render tool list so locked classes update
+  if (typeof renderTools === 'function') renderTools();
+}
+
+/**
+ * Update UI elements related to lock state (button text, badges)
+ */
+function updateLockUI() {
+  try {
+    if (unlocked) {
+      lockToggleBtn.textContent = '🔓 Premium unlocked';
+      lockToggleBtn.classList.remove('btn');
+      lockToggleBtn.classList.add('btn-primary');
+    } else {
+      lockToggleBtn.textContent = '🔒 Unlock Premium';
+      lockToggleBtn.classList.remove('btn-primary');
+      lockToggleBtn.classList.add('btn');
+    }
+    // set toolTag for selected tool
+    if (selectedTool && toolTag) {
+      toolTag.textContent = selectedTool.premium ? (selectedTool.premium && !unlocked ? 'Premium' : 'Premium (Unlocked)') : 'Free';
+    }
+  } catch (e) {
+    // ignore UI errors
+    console.warn('updateLockUI error', e);
+  }
+}
+
+/**
+ * Verify provided key against owner.key
+ * Returns true/false
+ */
+function verifyUnlockKey(candidateKey) {
+  if (!owner || !owner.key) return false;
+  try {
+    const saved = String(owner.key || '').trim();
+    return saved.length > 0 && candidateKey === saved;
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Prompt user for unlock key and handle flow.
+ * Options presented:
+ *  - Enter key to unlock for this session
+ *  - If verification passes, offer to persist (remember) unlock in this browser
+ */
+function promptAndUnlock() {
+  const inputKey = prompt('Unlock key दर्ज करें (owner से प्राप्त key):');
+  if (inputKey === null) return; // user cancelled
+  if (verifyUnlockKey(inputKey)) {
+    // ask user whether to persist
+    const persist = confirm('Key सही है। क्या आप इसे इस ब्राउज़र में स्थायी रूप से save करना चाहते हैं? (OK = Yes, Cancel = Session-only)');
+    applyUnlockedState(true, { persist: persist, sessionOnly: !persist });
+    alert('Premium features unlocked' + (persist ? ' (persisted)' : ' (session)') + '.');
+  } else {
+    alert('Unlock key गलत है। कृपया सही key डालें या owner से संपर्क करें।');
+  }
+}
+
+/**
+ * Owner-only quick unlock: If current user is the owner (we assume owner modal access),
+ * allow directly toggling unlocked state without prompt.
+ * This method is useful in Owner Settings save flow to instantly enable premium for dev.
+ */
+function ownerDirectUnlock(option = { persist: false }) {
+  // Only allow if owner.key exists (owner is configured in this browser)
+  if (!owner || !owner.key) {
+    alert('Owner key configured नहीं है — पहले Owner Settings में key सेट करें।');
+    return;
+  }
+  applyUnlockedState(true, { persist: !!option.persist, sessionOnly: !option.persist });
+  alert('Premium unlocked by owner' + (option.persist ? ' (persisted)' : ' (session)') + '.');
+}
+
+/**
+ * Owner direct lock (revoke)
+ */
+function ownerDirectLock() {
+  applyUnlockedState(false, { persist: false });
+  alert('Premium lock वापस लगा दिया गया (unlocked state cleared).');
+}
+
+/**
+ * Helper: enforce premium on action (e.g., Generate/Download)
+ * If tool is premium and not unlocked -> show message and optionally open owner settings prompt.
+ * Returns true if allowed, false if blocked.
+ */
+function requirePremiumOrShowNotice(tool) {
+  if (!tool) return true;
+  if (tool.premium && !unlocked) {
+    const goOwner = confirm('यह टूल Premium है और अभी अनलॉक नहीं है। Owner से अनलॉक key लें या Owner settings खोलें।\n\nOK = Open Owner Settings, Cancel = Cancel');
+    if (goOwner) {
+      ownerSettingsBtn.click();
+    }
+    return false;
+  }
+  return true;
+}
+
+/* ====== Integrate with existing UI actions ====== */
+
+// Override generate action wrapper to ensure premium check (if your code calls generateOutput directly keep it)
+const originalGenerate = window.generateOutput || function(){};
+window.generateOutput = function() {
+  if (!requirePremiumOrShowNotice(selectedTool)) return;
+  // call existing generateOutput implementation (if present)
+  if (typeof originalGenerate === 'function' && originalGenerate !== window.generateOutput) {
+    // originalGenerate might be our older function; call it
+    originalGenerate();
+    return;
+  }
+  // fallback: if your code defines generateOutput below this block, remove fallback.
+  console.warn('generateOutput wrapper: original generate function not found; ensure your generateOutput function exists.');
+};
+
+/* Hook download similarly */
+const originalDownload = window.downloadOutput || function(){};
+window.downloadOutput = function() {
+  if (!requirePremiumOrShowNotice(selectedTool)) return;
+  if (typeof originalDownload === 'function' && originalDownload !== window.downloadOutput) {
+    originalDownload();
+    return;
+  }
+  console.warn('downloadOutput wrapper: original download function not found; ensure your downloadOutput function exists.');
+};
+
+/* Event binding for lockToggleBtn */
+if (typeof lockToggleBtn !== 'undefined' && lockToggleBtn) {
+  lockToggleBtn.addEventListener('click', () => {
+    // If unlocked -> ask to lock? else prompt to unlock
+    if (unlocked) {
+      if (confirm('Premium को lock करना है? (इस ब्राउज़र से अनलॉक हट जाएगा)')) {
+        ownerDirectLock();
+      }
+    } else {
+      promptAndUnlock();
+    }
+  });
+}
+
+/* When Owner saves settings: if they set a key and also want immediate unlock, you can call ownerDirectUnlock(true)
+   Ensure you call this in saveOwnerBtn handler if you want auto-unlock after saving key.
+   Example (in your saveOwnerBtn listener):
+     saveOwner(owner);
+     ownerDirectUnlock({ persist: true }); // optional
+*/
+
+/* Initialize state on load */
+(function bootLockModule(){
+  // load persisted/session flags
+  const hadUnlocked = loadPersistedUnlockState();
+  applyUnlockedState(hadUnlocked, { persist: !!JSON.parse(localStorage.getItem(UNLOCK_PERSIST_KEY) || 'false'), sessionOnly: !!JSON.parse(sessionStorage.getItem(UNLOCK_SESSION_KEY) || 'false') });
+  // ensure UI updated
+  updateLockUI();
+})();
+  
