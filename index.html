@@ -423,6 +423,33 @@
       persistAll(); renderOwner(); alert('Owner saved locally.');
     }
     function exportOwner(){
-      const s = JSON.stringify(owner,null,2);
-      const blob = new Blob([s], {type:'application/json'});
-      const a = document.createElement('a'); a.href = URL.createObjectURL
+  try {
+    const s = JSON.stringify(owner, null, 2);
+    const blob = new Blob([s], { type: 'application/json' });
+
+    // IE / old Edge fallback
+    if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+      window.navigator.msSaveOrOpenBlob(blob, 'omniverse-owner.json');
+      return;
+    }
+
+    // Standard modern browsers
+    const a = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = 'omniverse-owner.json';
+    // For some browsers the anchor must be in the document
+    document.body.appendChild(a);
+    a.click();
+    // cleanup
+    a.remove();
+    // release memory
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    // optional user feedback
+    // alert('Owner exported as omniverse-owner.json');
+  } catch (err) {
+    console.error('Export failed', err);
+    alert('Export failed: ' + (err.message || err));
+  }
+    }
+    
