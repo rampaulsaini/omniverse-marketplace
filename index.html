@@ -4,96 +4,111 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Omniverse AI Tools Marketplace</title>
-  <link rel="icon" href="assets/favicon.ico" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">
-      <img src="assets/logo.svg" alt="Omniverse" class="logo">
-      <div>
-        <h1>Omniverse AI Tools Marketplace</h1>
-        <div class="tag">Free tools · Zero hosting cost · Donation-ready · Unlock Premium outputs</div>
+    <div class="topbar-inner">
+      <div class="brand">
+        <img src="assets/logo.svg" alt="Omniverse" class="logo">
+        <div>
+          <h1>Omniverse AI Tools Marketplace</h1>
+          <div class="tag">Free tools · Zero hosting cost · Donation-ready · Unlock Premium outputs</div>
+        </div>
+      </div>
+
+      <div class="owner-settings">
+        <button id="openSettingsBtn" class="btn small">Owner Settings</button>
       </div>
     </div>
-    <div class="owner-link" id="ownerToggle">Owner Settings</div>
   </header>
 
   <main class="container">
-    <section class="owner-panel" id="ownerPanel" aria-hidden="true">
-      <h2>Owner Settings</h2>
+    <section class="left-col">
+      <div class="panel">
+        <h2>AI Tools</h2>
+        <div class="tool-toolbar">
+          <label for="toolSelect">Select a Tool</label>
+          <select id="toolSelect"></select>
+        </div>
+
+        <div class="input-area">
+          <label for="userInput">Enter your details...</label>
+          <textarea id="userInput" placeholder='{"name":"Your Name","field":"AI"}'></textarea>
+          <div class="controls-row">
+            <button id="generateBtn" class="btn primary">Generate</button>
+            <button id="downloadBtn" class="btn" disabled>Download</button>
+            <button id="clearBtn" class="btn">Clear</button>
+          </div>
+          <div class="premium-row">
+            <label><input type="checkbox" id="usePremiumToggle"> Request Premium Output (locked)</label>
+            <button id="unlockBtn" class="btn tiny">Unlock Premium Output</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel small">
+        <h3>Owner / Payment</h3>
+        <div class="muted">Donation / Payment Link (save locally)</div>
+        <input id="paymentLink" placeholder="https://your-payment-link.com">
+        <div style="margin-top:8px">
+          <small class="muted">Note: settings are stored locally in your browser (no server).</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="right-col">
+      <div class="panel">
+        <h2>AI Output</h2>
+        <textarea id="aiOutput" readonly placeholder="Your output will appear here..."></textarea>
+        <div class="output-meta">
+          <span id="downloadCount">Downloads: 0</span>
+          <span id="usageCount">Uses: 0</span>
+        </div>
+      </div>
+
+      <div class="panel small">
+        <h3>Quick Actions</h3>
+        <button id="openDonate" class="btn">Donate / Pay</button>
+        <button id="openDashboard" class="btn">Open Dashboard (local stats)</button>
+      </div>
+
+      <footer class="panel tiny">
+        <div>© 2025 Omniverse Marketplace. Built for zero-cost global launch.</div>
+      </footer>
+    </section>
+  </main>
+
+  <!-- Settings modal (simple, localStorage-based) -->
+  <div id="settingsModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <h3>Owner Settings</h3>
       <div class="form-row">
         <label>Set Premium Unlock Key:</label>
-        <input id="ownerKey" placeholder="Enter new unlock key">
-        <button id="saveKeyBtn" class="btn">Save Key</button>
+        <input id="premiumKeyInput" placeholder="Enter new unlock key">
+        <button id="savePremiumKey" class="btn tiny">Save Key</button>
       </div>
       <div class="form-row">
         <label>Donation / Payment Link:</label>
-        <input id="donationLink" placeholder="https://your-payment-link.com">
-        <button id="savePayBtn" class="btn">Save Payment Link</button>
+        <input id="modalPaymentLink" placeholder="https://your-payment-link.com">
+        <button id="savePaymentLink" class="btn tiny">Save Payment Link</button>
       </div>
-      <div class="muted">These settings only save locally (browser storage). No server needed.</div>
-    </section>
-
-    <section class="market">
-      <div class="left-col">
-        <div class="panel">
-          <h3>Unlock Premium Output</h3>
-          <div class="form-row">
-            <input id="unlockKey" placeholder="Enter unlock key">
-            <button id="unlockBtn" class="btn primary">Unlock / Pay</button>
-          </div>
-          <div id="unlockStatus" class="muted">Premium locked</div>
-        </div>
-
-        <div class="panel">
-          <h3>AI Tools</h3>
-          <label for="toolSelect">Select a Tool</label>
-          <select id="toolSelect"></select>
-          <label for="toolInput">Enter your details (JSON)</label>
-          <textarea id="toolInput" placeholder='{"name":"Your Name","skills":"..."}'></textarea>
-          <div class="row">
-            <button id="generateBtn" class="btn primary">Generate</button>
-            <button id="clearInput" class="btn">Clear</button>
-          </div>
-        </div>
-
-        <div class="panel small">
-          <h4>Owner / Donation</h4>
-          <div class="muted">Donation Link saved locally. Share to receive payments:</div>
-          <div id="donationDisplay" class="donation-link">Not set</div>
-          <div class="muted">Tip: use UPI, PayPal, Ko-fi or Razorpay link.</div>
-        </div>
+      <div class="muted">These settings save in your browser (localStorage). No server required.</div>
+      <div style="margin-top:12px;text-align:right">
+        <button id="closeSettings" class="btn">Close</button>
       </div>
-
-      <div class="right-col">
-        <div class="panel">
-          <h3>AI Output</h3>
-          <div id="outputToolbar" class="output-toolbar">
-            <button id="downloadBtn" class="btn">Download</button>
-            <button id="copyBtn" class="btn">Copy</button>
-            <button id="clearOutput" class="btn">Clear</button>
-          </div>
-          <textarea id="toolOutput" readonly placeholder="Your output will appear here..."></textarea>
-          <div class="muted" id="usageInfo">Uses: 0</div>
-        </div>
-
-        <div class="panel small">
-          <h4>Marketplace Info</h4>
-          <div class="muted">© 2025 Omniverse Marketplace. Built for zero-cost global launch.</div>
-        </div>
-      </div>
-    </section>
-  </main>
+    </div>
+  </div>
 
   <script src="scripts/ai-core.js"></script>
   <script src="scripts/tools.js"></script>
   <script src="scripts/marketplace.js"></script>
   <script src="scripts/ui.js"></script>
   <script>
-    // initialize UI
-    OmniMarket.init();
+    // init (ui.js will call OmniMarketplace.init)
+    document.addEventListener('DOMContentLoaded', () => OmniMarketplace.init());
   </script>
 </body>
-    </html>
-    
+  </html>
+          
