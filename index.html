@@ -1,189 +1,78 @@
-<!doctype html>
-<html lang="hi">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Omniverse Marketplace — AI & Tips</title>
+<link rel="icon" href="assets/favicon.ico">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <style>
-:root{--bg:#071026;--card:#07182a;--muted:#9fb0d9;--accent:#60a5fa;--glass:rgba(255,255,255,0.03);}
-html,body{margin:0;height:100%;font-family:Inter,sans-serif;background:var(--bg);color:#e6eef8;}
-.container{max-width:1100px;margin:12px auto;padding:12px;}
-h1{margin:0;font-size:22px;}
-.sub{color:var(--muted);font-size:13px;}
-.grid{display:grid;grid-template-columns:320px 1fr;gap:12px;margin-top:12px;}
-.card{background:linear-gradient(180deg,var(--card),#021426);border:1px solid var(--glass);padding:12px;border-radius:10px;}
-button{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;color:#e6eef8;cursor:pointer;}
-input,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#e6eef8;box-sizing:border-box;}
-label{display:block;font-size:13px;margin-top:8px;color:var(--muted);}
-.muted{color:var(--muted);font-size:13px;}
-.tools-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
-.tool-item{display:flex;justify-content:space-between;align-items:center;padding:6px;border-radius:6px;background:rgba(255,255,255,0.01);border:1px solid rgba(255,255,255,0.02);}
-.panel{padding:12px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.02);}
-pre{background:#021a2a;padding:12px;border-radius:8px;overflow:auto;color:#dff0ff;white-space:pre-wrap;word-break:break-word;}
-.accent{background:linear-gradient(90deg,#1e3a8a,#60a5fa);border:none;color:#021426;}
-.danger{border:1px solid rgba(255,80,80,0.25);color:#ffb4b4;}
-.badge{background:rgba(255,255,255,0.02);padding:4px 6px;border-radius:6px;font-size:13px;color:var(--muted);}
-@media(max-width:900px){.grid{grid-template-columns:1fr}}
+body{margin:0;font-family:Arial,sans-serif;background:#0b1220;color:#e6eef8}
+header{padding:12px;background:#081425;display:flex;align-items:center;justify-content:space-between}
+header h1{margin:0;font-size:1.3rem}
+.container{display:flex;height:calc(100vh - 50px)}
+.sidebar{width:220px;background:#0a1020;border-right:1px solid rgba(255,255,255,0.05);overflow-y:auto;padding:12px}
+.sidebar button{width:100%;margin-bottom:6px;padding:8px;border:none;border-radius:6px;background:#081425;color:#e6eef8;cursor:pointer;text-align:left}
+.sidebar button.active{background:#152040}
+.main{flex:1;padding:12px;overflow-y:auto}
+.tool-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+textarea#tool-output{width:100%;height:220px;background:#081425;color:#e6eef8;border:none;padding:8px;border-radius:6px;resize:none;font-family:monospace}
+button.action{padding:6px 10px;margin-right:6px;border:none;border-radius:6px;background:#152040;color:#e6eef8;cursor:pointer}
+input,textarea{background:#081425;color:#e6eef8;border:1px solid rgba(255,255,255,0.05);border-radius:6px;padding:6px;width:100%;margin-bottom:6px}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:999}
+.modal-content{background:#0b1220;padding:18px;border-radius:10px;width:90%;max-width:480px;max-height:90%;overflow:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.modal-header h3{margin:0}
+.close-btn{cursor:pointer;color:#e6eef8}
 </style>
 </head>
 <body>
-<div class="container">
+
+<header>
 <h1>Omniverse Marketplace — AI & Tips</h1>
-<div class="sub">Client-side + AI integration · Paytm / PayPal tips</div>
+<button onclick="openSettings()">Owner Settings <i class="fa fa-cog"></i></button>
+</header>
 
-<div class="grid">
-<div>
-  <div class="card">
-    <strong>Owner Settings</strong>
-    <label>Owner name</label>
-    <input id="ownerName" placeholder="आपका नाम">
-    <label>Pay / Donate Links (comma separated)</label>
-    <input id="ownerLinks" placeholder="upi:abc@paytm, https://paypal.me/you">
-    <div style="display:flex;gap:6px;margin-top:6px">
-      <button id="saveOwner" class="accent">Save</button>
-      <button id="exportOwner">Export</button>
-      <button id="importOwnerBtn">Import</button>
-    </div>
-    <hr>
-    <strong>Tools</strong>
-    <div class="tools-list" id="toolsList"></div>
-    <div style="display:flex;gap:6px;margin-top:6px">
-      <button id="addToolBtn" class="accent">+ Add Tool</button>
-      <button id="resetTools" class="danger">Reset All Tools</button>
-    </div>
-    <hr>
-    <strong>Owner Links</strong>
-    <div id="ownerLinksRender"></div>
+<div class="container">
+  <div class="sidebar" id="tool-list">
+    <!-- Tools buttons dynamically generated -->
   </div>
-</div>
-
-<div>
-  <div class="card panel">
-    <div id="toolArea">
-      <div id="noToolMsg">कृपया बाएँ से एक tool चुनें।</div>
-      <div id="toolMain" style="display:none">
-        <h3 id="toolTitle"></h3>
-        <div class="muted" id="toolDesc"></div>
-        <label>Input JSON:</label>
-        <textarea id="toolInput" rows="4"></textarea>
-        <div style="display:flex;gap:6px;margin-top:6px">
-          <button id="generateBtn" class="accent">Generate AI</button>
-          <button id="clearOutput">Clear</button>
-          <button id="copyOutput">Copy</button>
-          <button id="downloadOutput">⬇️ Download</button>
-          <button id="resetToolStats" class="danger">Reset Stats</button>
-        </div>
-        <label style="margin-top:6px;">Output (live)</label>
-        <pre id="toolOutput"></pre>
-        <hr>
-        <div>
-          <label>Tool Editor</label>
-          <input id="editorName" placeholder="Tool name">
-          <input id="editorDesc" placeholder="Short description" style="margin-top:4px">
-          <textarea id="editorTemplate" rows="6" placeholder="Hello {{name}}, welcome to {{field}}" style="margin-top:4px"></textarea>
-          <textarea id="editorExample" rows="3" placeholder='{"name":"Aman","field":"AI"}' style="margin-top:4px"></textarea>
-          <div style="display:flex;gap:6px;margin-top:4px">
-            <button id="saveToolBtn" class="accent">Save Tool</button>
-            <button id="delToolBtn" class="danger">Delete Tool</button>
-            <button id="cloneToolBtn">Clone Tool</button>
-          </div>
-        </div>
-        <hr>
-        <div class="muted">Tips Received: <span id="toolTips">0</span></div>
-        <div style="display:flex;gap:6px;margin-top:4px">
-          <button id="tipPaytm">💰 Paytm Tip</button>
-          <button id="tipPaypal">💳 PayPal Tip</button>
-        </div>
+  <div class="main">
+    <div class="tool-header">
+      <h2 id="tool-title">कृपया बाएँ से एक tool चुनें।</h2>
+      <div>
+        <button class="action" onclick="runTool()">Run</button>
+        <button class="action" onclick="downloadOutput()">Download</button>
       </div>
     </div>
+    <textarea id="tool-output" readonly placeholder="Output will appear here..."></textarea>
+    <div id="tips-links"></div>
   </div>
 </div>
+
+<!-- Owner Settings Modal -->
+<div class="modal" id="owner-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Owner Settings</h3>
+      <span class="close-btn" onclick="closeSettings()">&times;</span>
+    </div>
+    <label>Owner name</label>
+    <input type="text" id="owner-name" placeholder="आपका नाम">
+    <label>Pay / Donate Links (comma separated)</label>
+    <textarea id="owner-links" placeholder="upi:abc@paytm, https://paypal.me/you"></textarea>
+    <button class="action" onclick="saveOwnerSettings()">Save</button>
+    <button class="action" onclick="exportOwnerSettings()">Export</button>
+    <button class="action" onclick="importOwnerSettings()">Import</button>
+    <hr>
+    <button class="action" onclick="addTool()">+ Add Tool</button>
+    <button class="action" onclick="resetTools()">Reset All Tools</button>
+  </div>
 </div>
 
-<script>
-// STORAGE
-const LS_TOOLS='omniverse_tools_ai',LS_STATS='omniverse_stats_ai',LS_OWNER='omniverse_owner_ai';
-let state={tools:{},stats:{},owner:{},selected:null};
-const AI_API_KEY=""; // Optional: Set your OpenAI API key for live AI output
+<script src="scripts/tools.js"></script>
+<script src="scripts/ui.js"></script>
 
-// UTIL
-function uid(name){ return (name||'tool').toLowerCase().replace(/[^a-z0-9]+/g,'-')+Math.random().toString(36).slice(2,6);}
-function downloadText(filename,text){ const blob=new Blob([text],{type:'text/plain;charset=utf-8'}); const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();}
-
-// LOAD/SAVE
-function loadTools(){ try{return JSON.parse(localStorage.getItem(LS_TOOLS)||'{}')}catch(e){return{}} }
-function saveTools(t){ localStorage.setItem(LS_TOOLS,JSON.stringify(t)); }
-function loadStats(){ try{return JSON.parse(localStorage.getItem(LS_STATS)||'{}')}catch(e){return{} } }
-function saveStats(s){ localStorage.setItem(LS_STATS,JSON.stringify(s)); }
-function loadOwner(){ try{return JSON.parse(localStorage.getItem(LS_OWNER)||'{}')}catch(e){return{} } }
-function saveOwner(o){ localStorage.setItem(LS_OWNER,JSON.stringify(o)); }
-
-// STATE INIT
-state.tools=loadTools(); state.stats=loadStats(); state.owner=loadOwner();
-
-// OWNER LINKS
-function renderOwnerLinks(){ const links=(state.owner.links||[]); ownerLinksRender.innerHTML=links.map(l=>{ let href=l.trim(),label=href,icon=''; if(href.startsWith('upi:')){ href=`https://paytm.me/${href.slice(4)}`; label='Paytm'; icon='💰';} else if(href.includes('paypal.me')){ label='PayPal'; icon='💳'; } return `<div><a href="${href}" target="_blank" style="color:var(--accent)">${icon} ${label}</a></div>` }).join(''); }
-
-// RENDER TOOLS
-function renderToolsList(){ toolsList.innerHTML=''; Object.keys(state.tools).forEach(k=>{ const t=state.tools[k]; const el=document.createElement('div'); el.className='tool-item'; el.innerHTML=`<div>${t.name}</div><div><button data-s="${k}" class="openBtn">Open</button></div>`; toolsList.appendChild(el); el.querySelector('.openBtn').addEventListener('click',()=>selectTool(k));});}
-
-function selectTool(slug){ const t=state.tools[slug]; if(!t) return; state.selected=slug; toolMain.style.display='block'; noToolMsg.style.display='none'; toolTitle.textContent=t.name; toolDesc.textContent=t.desc||''; toolInput.value=t.example||''; editorName.value=t.name; editorDesc.value=t.desc||''; editorTemplate.value=t.template||''; editorExample.value=t.example||''; toolTips.textContent=(state.stats[slug]?.tips||0); }
-
-// GENERATE OUTPUT
-async function generateOutput(){ 
-  const slug=state.selected; if(!slug) return; 
-  const t=state.tools[slug]; 
-  let inp={}; try{inp=JSON.parse(toolInput.value||'{}')}catch(e){toolOutput.textContent='Invalid JSON'; return;} 
-
-  if(AI_API_KEY){ 
-    // AI API call (fetch OpenAI)
-    try{
-      toolOutput.textContent='Generating AI output...';
-      const res = await fetch("https://api.openai.com/v1/completions",{
-        method:"POST",
-        headers:{"Content-Type":"application/json","Authorization":"Bearer "+AI_API_KEY},
-        body: JSON.stringify({model:"text-davinci-003",prompt:`Generate output for template: ${t.template} with input: ${JSON.stringify(inp)}`,max_tokens:200})
-      });
-      const data=await res.json();
-      const text=data.choices?.[0]?.text||'No output';
-      toolOutput.textContent=text.trim();
-    }catch(e){toolOutput.textContent='AI Error: '+e.message;}
-  } else {
-    // fallback: template replace
-    let out=t.template; Object.keys(inp).forEach(k=>{ const re=new RegExp('{{'+k+'}}','g'); out=out.replace(re,inp[k]); }); 
-    toolOutput.textContent=out;
-  }
-
-  state.stats[slug].uses=(state.stats[slug].uses||0)+1; 
-  saveStats(state.stats);
-}
-
-// TOOL MANAGEMENT
-function addTool(){ const slug=uid('New Tool'); state.tools[slug]={name:'New Tool',desc:'Demo desc',template:'Hello {{name}}','example':'{"name":"Aman"}'}; state.stats[slug]={uses:0,downloads:0,tips:0}; saveTools(state.tools); renderToolsList(); selectTool(slug); }
-function saveTool(){ const slug=state.selected; if(!slug) return; state.tools[slug]={name:editorName.value,desc:editorDesc.value,template:editorTemplate.value,example:editorExample.value}; saveTools(state.tools); renderToolsList(); selectTool(slug); }
-function deleteTool(){ const slug=state.selected; if(!slug) return; delete state.tools[slug]; delete state.stats[slug]; saveTools(state.tools); saveStats(state.stats); renderToolsList(); toolMain.style.display='none'; noToolMsg.style.display='block'; state.selected=null; }
-function cloneTool(){ const slug=state.selected; if(!slug) return; const newSlug=uid(state.tools[slug].name+'-copy'); state.tools[newSlug]={...state.tools[slug]}; state.stats[newSlug]={uses:0,downloads:0,tips:0}; saveTools(state.tools); saveStats(state.stats); renderToolsList(); selectTool(newSlug); }
-
-// TIPS
-function tipPaytm(){ const slug=state.selected; if(!slug) return; const link=state.owner.links?.find(l=>l.startsWith('upi:')); if(!link){alert('Owner Paytm link not set');return;} window.open(`https://paytm.me/${link.slice(4)}`,'_blank'); state.stats[slug].tips=(state.stats[slug].tips||0)+1; toolTips.textContent=state.stats[slug].tips; saveStats(state.stats);}
-function tipPaypal(){ const slug=state.selected; if(!slug) return; const link=state.owner.links?.find(l=>l.includes('paypal.me')); if(!link){alert('Owner PayPal link not set');return;} window.open(link,'_blank'); state.stats[slug].tips=(state.stats[slug].tips||0)+1; toolTips.textContent=state.stats[slug].tips; saveStats(state.stats);}
-
-// EVENTS
-saveOwner.addEventListener('click',()=>{ state.owner.name=ownerName.value; state.owner.links=(ownerLinks.value||'').split(',').map(s=>s.trim()).filter(Boolean); saveOwner(state.owner); renderOwnerLinks();});
-addToolBtn.addEventListener('click',addTool);
-saveToolBtn.addEventListener('click',saveTool);
-delToolBtn.addEventListener('click',deleteTool);
-cloneToolBtn.addEventListener('click',cloneTool);
-generateBtn.addEventListener('click',generateOutput);
-clearOutput.addEventListener('click',()=>{ toolOutput.textContent='';});
-copyOutput.addEventListener('click',()=>{ navigator.clipboard.writeText(toolOutput.textContent||''); alert('Copied!');});
-downloadOutput.addEventListener('click',()=>{ downloadText(state.tools[state.selected]?.name+'.txt',toolOutput.textContent||''); state.stats[state.selected].downloads=(state.stats[state.selected].downloads||0)+1; saveStats(state.stats);});
-resetToolStats.addEventListener('click',()=>{ const s=state.selected; if(!s) return; state.stats[s]={uses:0,downloads:0,tips:0}; toolTips.textContent='0'; saveStats(state.stats);});
-tipPaytm.addEventListener('click',tipPaytm);
-tipPaypal.addEventListener('click',tipPaypal);
-
-// INITIAL RENDER
-renderOwnerLinks(); renderToolsList();
-</script>
 </body>
-</html>
+      </html>
+      
