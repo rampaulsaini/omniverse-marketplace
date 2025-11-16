@@ -3,110 +3,393 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Omniverse AI Tools Marketplace</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Omniverse AI Tools Marketplace — Zero-cost · Donation-ready</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    :root{
+      --bg:#071025; --card:#07172a; --muted:#9fb0d9; --accent:#60a5fa;
+      --glass: rgba(255,255,255,0.03);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#071025 0%, #021029 100%); color:#e6eef8}
+    header{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.03)}
+    .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,#0f1724,#102238);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent)}
+    h1{margin:0;font-size:16px}
+    .sub{color:var(--muted);font-size:13px}
+    .wrap{display:grid;grid-template-columns:320px 1fr;gap:16px;padding:18px;max-width:1200px;margin:18px auto}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border:1px solid rgba(255,255,255,0.03);padding:12px;border-radius:10px}
+    nav{display:flex;flex-direction:column;gap:8px}
+    .tool-btn{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);cursor:pointer;color:#e6eef8}
+    .tool-btn.active{outline:2px solid rgba(96,165,250,0.12);background:linear-gradient(180deg,rgba(96,165,250,0.03),transparent)}
+    .meta{font-size:13px;color:var(--muted);margin-top:6px}
+    .controls{display:flex;gap:8px;margin-top:12px}
+    textarea,input,select{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#e6eef8}
+    .row{display:flex;gap:8px}
+    .btn{padding:8px 10px;border-radius:8px;border:0;cursor:pointer;background:var(--accent);color:#04203a}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:#e6eef8}
+    .small{padding:6px 8px;font-size:13px}
+    .output{min-height:220px;padding:12px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.03);white-space:pre-wrap}
+    footer{max-width:1200px;margin:18px auto;padding:12px;color:var(--muted);font-size:13px}
+    .donate-links{display:flex;flex-direction:column;gap:6px}
+    .owner-link{font-size:13px;color:var(--muted)}
+    .locked{opacity:0.7}
+    .badge{background:rgba(255,255,255,0.03);padding:4px 8px;border-radius:999px;font-size:12px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    @media (max-width:880px){.wrap{grid-template-columns:1fr;}}
+  </style>
 </head>
 <body>
-
-<header class="top-header">
-  <div class="logo-area">
-    <img src="assets/logo.svg" class="logo" alt="Omniverse logo">
+  <header>
+    <div class="logo">O</div>
     <div>
-      <h1>Omniverse</h1>
-      <div class="tagline">Omniverse AI Tools Marketplace — Zero-cost · Donation-ready</div>
+      <h1>Omniverse AI Tools Marketplace</h1>
+      <div class="sub">Zero-cost · Donation-ready — Built for immediate launch</div>
     </div>
-  </div>
-
-  <div class="top-actions">
-    <button id="openDashboard">📊 Open Dashboard</button>
-    <button id="openSettings">⚙️ Owner Settings</button>
-  </div>
-</header>
-
-<main class="main-grid">
-  <!-- Tools column -->
-  <section class="card tools-col">
-    <h2>AI Tools</h2>
-
-    <div class="tool-row">
-      <div class="tool-title">Resume Generator</div>
-      <div class="tool-badge">🔒 Premium</div>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <button id="openDashboard" class="btn small">📊 Open Dashboard</button>
+      <button id="ownerSettingsBtn" class="btn ghost small">⚙️ Owner Settings</button>
     </div>
+  </header>
 
-    <label class="lbl">Enter JSON input for the selected tool</label>
-    <textarea id="toolInput" class="input" spellcheck="false">{ "name":"Your Name","field":"AI" }</textarea>
+  <div class="wrap">
+    <!-- Left: tools list -->
+    <div>
+      <div class="card">
+        <strong>AI Tools</strong>
+        <div class="meta">किसी भी टूल को चुनें, JSON input भरें और Generate दबाएँ। कुछ टूल Premium हैं — unlock key लगाकर control करें।</div>
 
-    <div class="controls">
-      <button id="generateBtn" class="btn primary">Generate</button>
-      <button id="clearBtn" class="btn">Clear</button>
-      <button id="unlockBtn" class="btn">Unlock Premium</button>
-    </div>
+        <nav id="toolsList" style="margin-top:12px">
+          <!-- buttons populated by JS -->
+        </nav>
 
-    <h3>Donate / Pay</h3>
-    <div class="pay-row">
-      <a id="paytm" class="pay-btn" target="_blank" rel="noopener">Paytm</a>
-      <a id="paypal" class="pay-btn" target="_blank" rel="noopener">PayPal</a>
-    </div>
+        <div style="margin-top:12px" class="controls">
+          <button id="generateBtn" class="btn">Generate</button>
+          <button id="unlockBtn" class="btn ghost">🔒 Unlock Premium</button>
+          <button id="downloadBtn" class="btn ghost">⬇️ Download</button>
+        </div>
 
-    <div class="note">Donate / Payment link is stored locally in owner settings.</div>
-  </section>
+        <div class="meta" style="margin-top:12px">Uses: <span id="usesCount">0</span> • Downloads: <span id="downloadsCount">0</span></div>
+      </div>
 
-  <!-- Output column -->
-  <section class="card output-col">
-    <div class="output-head">
-      <h2>AI Output</h2>
-      <div class="quick-actions">
-        <button id="downloadBtn" class="btn">⬇️ Download</button>
-        <button id="openLocalStats" class="btn">Open Dashboard (local stats)</button>
+      <div class="card" style="margin-top:12px">
+        <strong>Donate / Pay</strong>
+        <div class="meta">Donation links owner settings में सेट होंगी — यहां click करें या copy करें।</div>
+        <div class="donate-links" style="margin-top:8px">
+          <a id="paytmLink" class="owner-link" href="#" target="_blank">Paytm: <span id="paytmText">Not set</span></a>
+          <a id="paypalLink" class="owner-link" href="#" target="_blank">PayPal: <span id="paypalText">Not set</span></a>
+        </div>
+        <div style="margin-top:8px">
+          <button id="openDonate" class="btn small">Donate / Payment</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <strong>Quick Actions</strong>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button id="resetStats" class="btn ghost small">Reset Stats</button>
+          <button id="clearOwner" class="btn ghost small">Clear Owner Settings</button>
+        </div>
+        <div class="meta" style="margin-top:8px">Owner settings localStorage में सेव होते हैं — GitHub पर किसी भी remote secret की जरूरत नहीं।</div>
       </div>
     </div>
 
-    <div class="stats-row">
-      <div>Uses: <span id="usesCount">0</span></div>
-      <div>Downloads: <span id="downloadCount">0</span></div>
-    </div>
+    <!-- Right: main panel -->
+    <div>
+      <div class="card">
+        <div style="display:flex;gap:12px;align-items:center">
+          <div>
+            <h2 id="toolTitle" style="margin:0">Resume Generator <span id="premiumBadge" class="badge" style="margin-left:8px">🔒 Premium</span></h2>
+            <div class="meta" id="toolDesc">Simple resume generator using provided JSON. Premium features: enhanced formatting & template variants.</div>
+          </div>
+          <div style="margin-left:auto">
+            <select id="formatSelect" style="width:180px"><option value="txt">.txt</option><option value="html">.html</option></select>
+          </div>
+        </div>
 
-    <textarea id="outputArea" class="output-area" readonly placeholder="AI output will appear here..."></textarea>
-  </section>
-</main>
+        <div style="margin-top:12px">
+          <label class="meta">Enter JSON input for the selected tool</label>
+          <textarea id="jsonInput" rows="8" placeholder='{ "name":"Your Name","field":"AI" }'></textarea>
+          <div class="meta" style="margin-top:8px">Tip: Provide as much structured data (name, email, skills, experience) — generator fills template.</div>
+        </div>
 
-<footer class="footer">
-  © 2025 Omniverse Marketplace. Built for zero-cost global launch.
-</footer>
+        <div style="margin-top:12px">
+          <div class="output" id="aiOutput">AI output will appear here...</div>
+        </div>
 
-<!-- Owner Settings Modal -->
-<div id="settingsModal" class="modal" aria-hidden="true">
-  <div class="modal-content card">
-    <h2>Owner Settings</h2>
+        <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+          <button id="clearOutput" class="btn ghost small">Clear</button>
+          <button id="openStats" class="btn ghost small">Open Dashboard (local stats)</button>
+          <div style="margin-left:auto;color:var(--muted);font-size:13px">© 2025 Omniverse Marketplace</div>
+        </div>
+      </div>
 
-    <label class="lbl">Set Premium Unlock Key:</label>
-    <input id="premiumKeyInput" class="input" placeholder="Enter new unlock key">
+      <!-- Owner Settings Modal (hidden by default) -->
+      <div id="ownerModal" style="display:none;position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.6),rgba(0,0,0,0.6));align-items:center;justify-content:center;padding:24px;z-index:9999">
+        <div style="max-width:720px;width:100%">
+          <div class="card">
+            <div style="display:flex;align-items:center">
+              <h3 style="margin:0">Owner Settings</h3>
+              <button id="closeOwner" class="btn ghost small" style="margin-left:auto">Close</button>
+            </div>
 
-    <div style="display:flex;gap:8px;margin-top:6px">
-      <button id="saveKey" class="btn primary">Save Key</button>
-      <button id="clearKey" class="btn">Clear Key</button>
-    </div>
+            <div style="margin-top:12px">
+              <label class="meta">Set Premium Unlock Key:</label>
+              <div class="row" style="margin-top:6px">
+                <input id="newKey" placeholder="Enter new unlock key">
+                <button id="saveKey" class="btn small">Save Key</button>
+                <button id="clearKey" class="btn ghost small">Clear Key</button>
+              </div>
+              <div class="meta" style="margin-top:6px">Unlock key localStorage में encrypted नहीं — यह owner environment के लिए है।</div>
+            </div>
 
-    <hr>
+            <div style="margin-top:12px">
+              <label class="meta">Paytm (phone / paytm.me link)</label>
+              <input id="paytmInput" placeholder="https://paytm.me/yourID or phone">
+              <label class="meta" style="margin-top:8px">PayPal (paypal.me link)</label>
+              <input id="paypalInput" placeholder="https://paypal.me/YourName">
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <button id="savePayments" class="btn">Save Payment Links</button>
+                <button id="resetDefaults" class="btn ghost">Reset to defaults</button>
+              </div>
+            </div>
 
-    <label class="lbl">Paytm (phone / paytm link)</label>
-    <input id="paytmLink" class="input" placeholder="https://paytm.me/yourID or phone">
+            <div style="margin-top:12px">
+              <label class="meta">Tools premium toggle (Select tool then toggle)</label>
+              <div class="row" style="margin-top:6px">
+                <select id="toolToggleSelect"></select>
+                <button id="togglePremium" class="btn small">Toggle Premium</button>
+              </div>
+            </div>
 
-    <label class="lbl">PayPal (paypal.me link)</label>
-    <input id="paypalLink" class="input" placeholder="https://paypal.me/YourName">
+            <div style="margin-top:12px">
+              <label class="meta">Export / Import owner config</label>
+              <div class="row" style="margin-top:6px">
+                <button id="exportConfig" class="btn small">Export (copy JSON)</button>
+                <button id="importConfig" class="btn ghost small">Import (paste JSON)</button>
+              </div>
+              <textarea id="importArea" rows="4" placeholder='Paste config JSON here' style="margin-top:6px"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <button id="savePayLinks" class="btn primary">Save Payment Links</button>
-      <button id="resetPayLinks" class="btn">Reset to defaults</button>
-    </div>
+      <!-- Dashboard modal -->
+      <div id="dashModal" style="display:none;position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.6),rgba(0,0,0,0.6));align-items:center;justify-content:center;padding:24px;z-index:9998">
+        <div style="max-width:900px;width:100%">
+          <div class="card">
+            <div style="display:flex;align-items:center">
+              <h3 style="margin:0">Local Dashboard — Usage Stats</h3>
+              <button id="closeDash" class="btn ghost small" style="margin-left:auto">Close</button>
+            </div>
+            <div style="margin-top:12px">
+              <div id="statsArea"></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <div style="margin-top:12px;text-align:right">
-      <button id="closeSettings" class="btn">Close</button>
     </div>
   </div>
-</div>
 
-<script src="app.js"></script>
-</body>
-                   </html>
-                   
+  <footer>
+    ये सारे settings और stats आपके ब्राउज़र के localStorage में सेव रहते हैं — ताकि आप zero-cost में शुरुआत कर सकें। बाद में हम इन्हें server/DB में migrate कर सकते हैं।
+  </footer>
+
+  <script>
+  /**
+   * Omniverse Marketplace — single-file app (zero-cost)
+   * - Template-based "AI" generators (no external API)
+   * - Owner settings saved to localStorage
+   * - Premium lock using owner-set key (local-only)
+   * - Download output + local usage stats
+   */
+
+  (function(){
+    // ==== Config & default tools ====
+    const TOOLS = [
+      { id: 'resume', title: 'Resume Generator', desc: 'Generate a clean resume from JSON (name, email, skills, experiences).', premium: true },
+      { id: 'bio', title: 'Bio Generator', desc: 'Short professional/personal bios for social profiles.', premium: false },
+      { id: 'script', title: 'Script Writer', desc: 'Simple code/script scaffolding (JS/Python) based on intent.', premium: false },
+      { id: 'notes', title: 'Notes Generator', desc: 'Meeting / study notes from bullet points.', premium: false },
+      { id: 'bizidea', title: 'Business Idea Generator', desc: 'Generate business ideas & one-page plan.', premium: true }
+    ];
+
+    // LocalStorage keys
+    const LS = {
+      ownerConfig: 'omniverse_owner_config_v1',
+      toolStats: 'omniverse_tool_stats_v1',
+      premiumUnlocked: 'omniverse_premium_unlocked_v1' // stores boolean or unlocked tool ids
+    };
+
+    // ==== Helpers ====
+    function $(id){ return document.getElementById(id); }
+    function loadJSON(str, fallback={}) {
+      try { return JSON.parse(str); } catch { return fallback; }
+    }
+
+    // Owner config: { key: 'abc', paytm: '...', paypal: '...', premium: { toolId: true } }
+    function getOwnerConfig() {
+      const s = localStorage.getItem(LS.ownerConfig);
+      if(!s) return { key: '', paytm: '', paypal: '', premium: {} };
+      return loadJSON(s, { key:'', paytm:'', paypal:'', premium:{} });
+    }
+    function saveOwnerConfig(cfg) { localStorage.setItem(LS.ownerConfig, JSON.stringify(cfg)); }
+
+    // Stats: { toolId: { uses: n, downloads: m } }
+    function getStats(){ return loadJSON(localStorage.getItem(LS.toolStats), {}); }
+    function saveStats(s){ localStorage.setItem(LS.toolStats, JSON.stringify(s)); }
+
+    function incStat(toolId, field){
+      const s = getStats(); if(!s[toolId]) s[toolId] = { uses:0, downloads:0 };
+      s[toolId][field] = (s[toolId][field]||0) + 1; saveStats(s); renderStats();
+    }
+
+    function setPremiumUnlocked(value){
+      localStorage.setItem(LS.premiumUnlocked, JSON.stringify(value));
+    }
+    function getPremiumUnlocked(){
+      return loadJSON(localStorage.getItem(LS.premiumUnlocked), {});
+    }
+
+    // ==== UI binding ====
+    const toolsList = $('toolsList'), toolTitle = $('toolTitle'), toolDesc = $('toolDesc');
+    const jsonInput = $('jsonInput'), aiOutput = $('aiOutput'), generateBtn = $('generateBtn');
+    const downloadBtn = $('downloadBtn'), usesCount = $('usesCount'), downloadsCount = $('downloadsCount');
+    const ownerBtn = $('ownerSettingsBtn'), ownerModal = $('ownerModal'), closeOwner = $('closeOwner');
+    const newKey = $('newKey'), saveKey = $('saveKey'), clearKey = $('clearKey');
+    const paytmInput = $('paytmInput'), paypalInput = $('paypalInput'), savePayments = $('savePayments'), resetDefaults = $('resetDefaults');
+    const toolToggleSelect = $('toolToggleSelect'), togglePremium = $('togglePremium');
+    const exportConfig = $('exportConfig'), importConfig = $('importConfig'), importArea = $('importArea');
+    const openDonate = $('openDonate'), paytmLink = $('paytmLink'), paypalLink = $('paypalLink'), paytmText = $('paytmText'), paypalText = $('paypalText');
+    const unlockBtn = $('unlockBtn'), openDashboard = $('openDashboard'), dashModal = $('dashModal'), openStats = $('openStats');
+    const statsArea = $('statsArea'), closeDash = $('closeDash'), resetStats = $('resetStats'), clearOwner = $('clearOwner');
+    const formatSelect = $('formatSelect'), premiumBadge = $('premiumBadge');
+    const toolTitleText = () => toolTitle.querySelector('span');
+
+    let currentTool = TOOLS[0];
+
+    // Populate tools list & owner tool toggle select
+    function renderTools(){
+      toolsList.innerHTML = '';
+      toolToggleSelect.innerHTML = '';
+      TOOLS.forEach((t, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'tool-btn' + (t.id === currentTool.id ? ' active' : '');
+        btn.innerHTML = `<div style="font-weight:600">${t.title}</div><div style="font-size:12px;color:var(--muted)">${t.premium? '🔒 Premium' : 'Free'}</div>`;
+        btn.addEventListener('click', ()=>{ currentTool = t; renderSelectedTool(); renderTools(); });
+        toolsList.appendChild(btn);
+
+        // owner select
+        const opt = document.createElement('option');
+        opt.value = t.id; opt.text = t.title;
+        toolToggleSelect.appendChild(opt);
+      });
+    }
+
+    function renderSelectedTool(){
+      toolTitle.childNodes[0].nodeValue = currentTool.title + ' ';
+      toolDesc.textContent = currentTool.desc;
+      premiumBadge.style.display = currentTool.premium ? 'inline-block' : 'none';
+      // show locked state styling
+      const unlocked = isToolUnlocked(currentTool.id);
+      unlockBtn.textContent = unlocked ? '🔓 Premium Unlocked' : '🔒 Unlock Premium';
+      if(currentTool.premium && !unlocked){
+        aiOutput.classList.add('locked');
+      } else {
+        aiOutput.classList.remove('locked');
+      }
+      // update counts
+      const s = getStats()[currentTool.id] || { uses:0, downloads:0 };
+      usesCount.textContent = s.uses || 0; downloadsCount.textContent = s.downloads || 0;
+    }
+
+    function isToolUnlocked(toolId){
+      const cfg = getOwnerConfig();
+      // owner can mark tool premium off in config; also unlocked flag may exist
+      if(!cfg) return false;
+      if(!cfg.premium) cfg.premium = {};
+      // if owner has set premium flags, that overrides tool default
+      const ownerPremiumFlag = cfg.premium[toolId];
+      const effectivePremium = (ownerPremiumFlag === undefined) ? TOOLS.find(t=>t.id===toolId).premium : !!ownerPremiumFlag;
+      if(!effectivePremium) return true; // not premium
+      // else check unlocked
+      const unlocked = getPremiumUnlocked();
+      return !!unlocked[toolId];
+    }
+
+    // ==== Generators (template-based, zero-cost) ====
+    // Input is JS object parsed from JSON textarea
+    function generate_resume(data, opts={}){
+      // minimal resume template
+      const name = data.name || data.fullName || 'NAME';
+      const title = data.title || data.field || '';
+      const contact = (data.email ? `Email: ${data.email}` : '') + (data.phone ? ` • Phone: ${data.phone}` : '');
+      const skills = (data.skills && data.skills.length) ? data.skills.join(', ') : (data.skills || '');
+      const exp = Array.isArray(data.experience) ? data.experience.map(e=>`- ${e.role} @ ${e.company} (${e.years || ''})\n  ${e.summary||''}`).join('\n') : (data.experience || '');
+      const template = `Name: ${name}
+${title ? ('Title: ' + title) : ''}${contact ? ('\n' + contact) : ''}
+
+Skills:
+${skills || '-'}
+
+Experience:
+${exp || '-'}
+
+Education:
+${data.education || '-'}
+
+Summary:
+${data.summary || 'Experienced professional skilled in ' + (data.field || 'your domain') + '.'}
+`;
+      return template.trim();
+    }
+
+    function generate_bio(data){
+      const name = data.name || 'Someone';
+      const role = data.role || data.field || 'professional';
+      const tone = data.tone || 'professional';
+      const one = `${name} is a ${role} who excels at ${ (data.skills && data.skills.length) ? data.skills.slice(0,3).join(', ') : 'problem solving' }.`;
+      const two = data.social ? ` Connect: ${data.social}` : '';
+      return `${one} ${data.goal ? data.goal + '.' : ''} ${two}`.trim();
+    }
+
+    function generate_script(data){
+      const lang = (data.lang || 'js').toLowerCase();
+      const purpose = data.purpose || 'utility script';
+      if(lang === 'python' || lang === 'py'){
+        return `# ${purpose}\n\ndef main():\n    print("Hello from Omniverse script for ${purpose}")\n\nif __name__ == "__main__":\n    main()\n`;
+      } else {
+        // JS
+        return `// ${purpose}\nfunction main(){\n  console.log("Hello from Omniverse script for ${purpose}");\n}\nmain();\n`;
+      }
+    }
+
+    function generate_notes(data){
+      const title = data.title || 'Notes';
+      const bullets = data.bullets || (data.points || []);
+      const b = Array.isArray(bullets) ? bullets.map((p,i)=>`${i+1}. ${p}`).join('\n') : bullets;
+      return `${title}\n\n${b || '- No points provided -'}`;
+    }
+
+    function generate_bizidea(data){
+      const sector = data.sector || 'tech';
+      const user = data.target || 'small businesses';
+      const idea = `Business Idea: A ${sector}-focused platform that helps ${user} by automating repetitive tasks and providing analytics.`;
+      const monetization = `Monetization: Subscription + Marketplace commissions + Premium integrations.`;
+      const steps = `Next steps:\n1) MVP landing page\n2) Acquire 50 beta users\n3) Build core automation\n4) Monetize`;
+      return `${idea}\n\n${monetization}\n\n${steps}\n\nNotes: ${data.notes || '—'}`;
+    }
+
+    function generateForTool(toolId, data){
+      switch(toolId){
+        case 'resume': return generate_resume(data);
+        case 'bio': return generate_bio(data);
+        case 'script': return generate_script(data);
+        case 'notes': return generate_notes(data);
+        case 'bizidea': return generate_bizidea(data);
+        default: return 'Tool not implemented.';
+      }
+    }
+
+    // ==== Actions ====
+    generateBtn.addEventListener('c
