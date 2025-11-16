@@ -54,3 +54,7 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 };
+curl -X POST 'https://omniverse-api.vercel.app/api/generate' \
+ -H "Content-Type: application/json" \
+ -d '{"prompt":"Write a 2-line bio for Alice, software engineer","max_tokens":150}'
+  
