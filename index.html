@@ -1,105 +1,112 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="hi">
 <head>
-<meta charset="UTF-8">
-<title>Omniverse AI Tools Marketplace</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Omniverse AI Tools Marketplace</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <header class="top-header">
   <div class="logo-area">
-      <img src="assets/logo.svg" class="logo">
-      <h1>Omniverse AI Tools Marketplace</h1>
-      <p class="tagline">Zero-cost · Donation-ready · Instant AI Tools</p>
+    <img src="assets/logo.svg" class="logo" alt="Omniverse logo">
+    <div>
+      <h1>Omniverse</h1>
+      <div class="tagline">Omniverse AI Tools Marketplace — Zero-cost · Donation-ready</div>
+    </div>
   </div>
 
-  <div class="top-buttons">
-      <button id="openDashboard">📊 Open Dashboard</button>
-      <button id="openSettings">⚙️ Owner Settings</button>
+  <div class="top-actions">
+    <button id="openDashboard">📊 Open Dashboard</button>
+    <button id="openSettings">⚙️ Owner Settings</button>
   </div>
 </header>
 
+<main class="main-grid">
+  <!-- Tools column -->
+  <section class="card tools-col">
+    <h2>AI Tools</h2>
 
-<section class="tool-container">
+    <div class="tool-row">
+      <div class="tool-title">Resume Generator</div>
+      <div class="tool-badge">🔒 Premium</div>
+    </div>
 
-  <div class="tool-box">
+    <label class="lbl">Enter JSON input for the selected tool</label>
+    <textarea id="toolInput" class="input" spellcheck="false">{ "name":"Your Name","field":"AI" }</textarea>
 
-      <h2>AI Tools</h2>
+    <div class="controls">
+      <button id="generateBtn" class="btn primary">Generate</button>
+      <button id="clearBtn" class="btn">Clear</button>
+      <button id="unlockBtn" class="btn">Unlock Premium</button>
+    </div>
 
-      <div class="tool-item">
-        <span>Resume Generator</span>
-        <span class="lock-icon">🔒</span>
-      </div>
+    <h3>Donate / Pay</h3>
+    <div class="pay-row">
+      <a id="paytm" class="pay-btn" target="_blank" rel="noopener">Paytm</a>
+      <a id="paypal" class="pay-btn" target="_blank" rel="noopener">PayPal</a>
+    </div>
 
-      <hr>
+    <div class="note">Donate / Payment link is stored locally in owner settings.</div>
+  </section>
 
-      <h3>Input</h3>
-      <textarea id="toolInput">{ "name":"Your Name", "field":"AI" }</textarea>
-
-      <div class="action-buttons">
-          <button id="generateBtn">⚡ Generate</button>
-          <button id="clearBtn">🧹 Clear</button>
-          <button id="unlockBtn">🔑 Unlock Premium</button>
-      </div>
-
-      <h3>Donate / Pay</h3>
-
-      <div class="pay-buttons">
-          <a id="paytm" class="pay-btn" target="_blank">💙 Paytm</a>
-          <a id="paypal" class="pay-btn" target="_blank">💛 PayPal</a>
-      </div>
-
-  </div>
-
-
-  <div class="output-box">
-
+  <!-- Output column -->
+  <section class="card output-col">
+    <div class="output-head">
       <h2>AI Output</h2>
-
-      <div class="stats">
-          <p>Uses: <span id="usesCount">0</span></p>
-          <p>Downloads: <span id="downloadCount">0</span></p>
+      <div class="quick-actions">
+        <button id="downloadBtn" class="btn">⬇️ Download</button>
+        <button id="openLocalStats" class="btn">Open Dashboard (local stats)</button>
       </div>
+    </div>
 
-      <textarea id="outputArea" readonly placeholder="Your AI output will appear here..."></textarea>
+    <div class="stats-row">
+      <div>Uses: <span id="usesCount">0</span></div>
+      <div>Downloads: <span id="downloadCount">0</span></div>
+    </div>
 
-      <button id="downloadBtn" class="download-btn">⬇️ Download</button>
-  </div>
-
-</section>
-
+    <textarea id="outputArea" class="output-area" readonly placeholder="AI output will appear here..."></textarea>
+  </section>
+</main>
 
 <footer class="footer">
   © 2025 Omniverse Marketplace. Built for zero-cost global launch.
 </footer>
 
-
 <!-- Owner Settings Modal -->
-<div id="settingsModal" class="modal">
-  <div class="modal-content">
+<div id="settingsModal" class="modal" aria-hidden="true">
+  <div class="modal-content card">
+    <h2>Owner Settings</h2>
 
-      <h2>Owner Settings</h2>
+    <label class="lbl">Set Premium Unlock Key:</label>
+    <input id="premiumKeyInput" class="input" placeholder="Enter new unlock key">
 
-      <label>Set Premium Unlock Key:</label>
-      <input id="premiumKeyInput" type="text" placeholder="Enter new unlock key">
-      <button id="saveKey">Save Key</button>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button id="saveKey" class="btn primary">Save Key</button>
+      <button id="clearKey" class="btn">Clear Key</button>
+    </div>
 
-      <label>Paytm Payment Link:</label>
-      <input id="paytmLink" type="text" placeholder="https://paytm.me/yourID">
-      <button id="savePaytm">Save Paytm Link</button>
+    <hr>
 
-      <label>PayPal Payment Link:</label>
-      <input id="paypalLink" type="text" placeholder="https://paypal.me/yourID">
-      <button id="savePaypal">Save PayPal Link</button>
+    <label class="lbl">Paytm (phone / paytm link)</label>
+    <input id="paytmLink" class="input" placeholder="https://paytm.me/yourID or phone">
 
-      <button id="closeSettings" class="close-btn">Close</button>
+    <label class="lbl">PayPal (paypal.me link)</label>
+    <input id="paypalLink" class="input" placeholder="https://paypal.me/YourName">
 
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button id="savePayLinks" class="btn primary">Save Payment Links</button>
+      <button id="resetPayLinks" class="btn">Reset to defaults</button>
+    </div>
+
+    <div style="margin-top:12px;text-align:right">
+      <button id="closeSettings" class="btn">Close</button>
+    </div>
   </div>
 </div>
 
 <script src="app.js"></script>
 </body>
-</html>
+                   </html>
+                   
