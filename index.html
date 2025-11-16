@@ -486,4 +486,15 @@ function incrementDownload(toolId){
   if(!t) return;
   t.downloads = (t.downloads||0) + 1;
   state.stats.downloads = (state.stats.downloads||0) + 1;
-  sav
+  saveData(state);
+  renderStats();
+  // update visible per-tool counter if this tool is currently selected
+  try{
+    if(selectToolEl.value === toolId){
+      tDownloadsEl.textContent = t.downloads;
+    }
+  }catch(e){
+    // ignore if elements not available in current scope
+  }
+  }
+  
