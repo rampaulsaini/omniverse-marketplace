@@ -48,5 +48,129 @@ document.getElementById("downloadBtn").onclick = () => {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "ai-output.txt";
-    a.click();
+    a.click(// app.js - Omniverse Marketplace (basic behavior + local owner settings)
+
+// --- Defaults from you (pre-filled) ---
+const DEFAULT_PAYPAL = "https://paypal.me/sainirampaul60"; // paypal.me uses username; alternative: paypal link via email if needed
+const DEFAULT_PAYPAL_ALT = "https://www.paypal.com/paypalme/sainirampaul60";
+const DEFAULT_PAYPAL_EMAIL = "sainirampaul60@gmail.com";
+
+const DEFAULT_PAYTM_PHONE = "8082935186";
+// Attempt a simple user-friendly Paytm link (paytm.me style). If you use official deep link, change in settings.
+const DEFAULT_PAYTM_LINK = `https://paytm.me/${DEFAULT_PAYTM_PHONE}`;
+
+// Utility to get from localStorage or default
+function getPaytmLink(){ return localStorage.getItem('paytmLink') || DEFAULT_PAYTM_LINK; }
+function getPaypalLink(){ return localStorage.getItem('paypalLink') || ("https://paypal.me/" + (localStorage.getItem('paypalUser') || 'sainirampaul60')); }
+
+function initPaymentButtons(){
+  const paytmEl = document.getElementById('paytm');
+  const paypalEl = document.getElementById('paypal');
+  paytmEl.href = getPaytmLink();
+  paypalEl.href = getPaypalLink();
+
+  // show phone/email in title for user's awareness
+  paytmEl.title = "Paytm: " + DEFAULT_PAYTM_PHONE;
+  paypalEl.title = "PayPal: " + DEFAULT_PAYPAL_EMAIL;
+}
+
+// Owner settings modal controls
+const settingsModal = document.getElementById('settingsModal');
+document.getElementById('openSettings').onclick = () => {
+  // prefill inputs from localStorage or defaults
+  document.getElementById('premiumKeyInput').value = localStorage.getItem('premiumKey') || '';
+  document.getElementById('paytmLink').value = localStorage.getItem('paytmLink') || DEFAULT_PAYTM_LINK;
+  document.getElementById('paypalLink').value = localStorage.getItem('paypalLink') || DEFAULT_PAYPAL;
+  settingsModal.style.display = 'flex';
+};
+document.getElementById('closeSettings').onclick = () => settingsModal.style.display = 'none';
+
+// Save premium key
+document.getElementById('saveKey').onclick = () => {
+  const v = document.getElementById('premiumKeyInput').value.trim();
+  if(v.length === 0){ alert('Premium key cleared.'); localStorage.removeItem('premiumKey'); return; }
+  localStorage.setItem('premiumKey', v);
+  alert('Premium key saved locally.');
+};
+document.getElementById('clearKey').onclick = () => {
+  localStorage.removeItem('premiumKey');
+  document.getElementById('premiumKeyInput').value = '';
+  alert('Premium key removed.');
+};
+
+// Save payment links
+document.getElementById('savePayLinks').onclick = () => {
+  const p = document.getElementById('paytmLink').value.trim();
+  const q = document.getElementById('paypalLink').value.trim();
+  if(p) localStorage.setItem('paytmLink', p);
+  if(q) localStorage.setItem('paypalLink', q);
+  initPaymentButtons();
+  alert('Payment links saved locally.');
+};
+document.getElementById('resetPayLinks').onclick = () => {
+  localStorage.removeItem('paytmLink');
+  localStorage.removeItem('paypalLink');
+  initPaymentButtons();
+  alert('Payment links reset to defaults.');
+};
+
+// Generate (demo) - replace with real AI call later
+document.getElementById('generateBtn').onclick = () => {
+  const input = document.getElementById('toolInput').value.trim();
+  // Basic JSON parse attempt for structured tools
+  let parsed = null;
+  try{ parsed = JSON.parse(input); } catch(e){ /* ignore */ }
+  const name = parsed && parsed.name ? parsed.name : 'User';
+  const field = parsed && parsed.field ? parsed.field : 'Field';
+  const out = `Resume — ${name}\nField: ${field}\n\nProfessional Summary:\nA motivated ${field} professional named ${name}... (demo output)\n\n[This is demo content. Connect a real AI endpoint to generate real content.]`;
+  document.getElementById('outputArea').value = out;
+
+  // increment uses count
+  const uses = Number(localStorage.getItem('usesCount') || 0) + 1;
+  localStorage.setItem('usesCount', uses);
+  document.getElementById('usesCount').textContent = uses;
+};
+
+// Clear
+document.getElementById('clearBtn').onclick = () => {
+  document.getElementById('toolInput').value = '';
+  document.getElementById('outputArea').value = '';
+};
+
+// Download
+document.getElementById('downloadBtn').onclick = () => {
+  const txt = document.getElementById('outputArea').value;
+  if(!txt){ alert('No output to download'); return; }
+  const blob = new Blob([txt], {type: 'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'omniverse-output.txt';
+  a.click();
+  // increment downloads
+  const d = Number(localStorage.getItem('downloadCount') || 0) + 1;
+  localStorage.setItem('downloadCount', d);
+  document.getElementById('downloadCount').textContent = d;
+};
+
+// On load: init counters & links
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('usesCount').textContent = localStorage.getItem('usesCount') || 0;
+  document.getElementById('downloadCount').textContent = localStorage.getItem('downloadCount') || 0;
+  initPaymentButtons();
+});
+
+// Open local dashboard (just an example showing local stats)
+document.getElementById('openDashboard').onclick = () => {
+  alert('Local stats:\\nUses: ' + (localStorage.getItem('usesCount')||0) + '\\nDownloads: ' + (localStorage.getItem('downloadCount')||0));
+};
+document.getElementById('openLocalStats').onclick = () => document.getElementById('openDashboard').click();
+
+// Premium unlock: check saved key
+document.getElementById('unlockBtn').onclick = () => {
+  const saved = localStorage.getItem('premiumKey') || '';
+  const provided = prompt('Enter premium key to unlock:') || '';
+  if(!saved){ alert('No premium key set. Go to Owner Settings to set one.'); return; }
+  if(provided === saved){ alert('Premium unlocked! (demo) — now you would get premium output.'); } else { alert('Invalid key.'); }
+};
+);
 };
