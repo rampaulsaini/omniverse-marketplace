@@ -12,16 +12,16 @@ header{padding:12px;background:#081425;display:flex;align-items:center;justify-c
 header h1{margin:0;font-size:1.3rem}
 header button{padding:6px 10px;border:none;border-radius:6px;background:#152040;color:#e6eef8;cursor:pointer}
 .container{display:flex;height:calc(100vh - 50px)}
-.sidebar{width:220px;background:#0a1020;border-right:1px solid rgba(255,255,255,0.05);overflow-y:auto;padding:12px}
-.sidebar button{width:100%;margin-bottom:6px;padding:8px;border:none;border-radius:6px;background:#081425;color:#e6eef8;cursor:pointer;text-align:left}
+.sidebar{width:250px;background:#0a1020;border-right:1px solid rgba(255,255,255,0.05);overflow-y:auto;padding:12px}
+.sidebar button{width:100%;margin-bottom:4px;padding:6px;border:none;border-radius:6px;background:#081425;color:#e6eef8;cursor:pointer;text-align:left;font-size:0.85rem}
 .sidebar button.active{background:#152040}
 .main{flex:1;padding:12px;overflow-y:auto}
-.tool-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-textarea#tool-output{width:100%;height:220px;background:#081425;color:#e6eef8;border:none;padding:8px;border-radius:6px;resize:none;font-family:monospace}
-button.action{padding:6px 10px;margin-right:6px;border:none;border-radius:6px;background:#152040;color:#e6eef8;cursor:pointer}
+.tool-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+textarea#tool-output{width:100%;height:300px;background:#081425;color:#e6eef8;border:none;padding:8px;border-radius:6px;resize:none;font-family:monospace}
+button.action{padding:6px 10px;margin-right:6px;border:none;border-radius:6px;background:#152040;color:#e6eef8;cursor:pointer;margin-top:4px}
 input,textarea{background:#081425;color:#e6eef8;border:1px solid rgba(255,255,255,0.05);border-radius:6px;padding:6px;width:100%;margin-bottom:6px}
 .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:999}
-.modal-content{background:#0b1220;padding:18px;border-radius:10px;width:90%;max-width:480px;max-height:90%;overflow:auto}
+.modal-content{background:#0b1220;padding:18px;border-radius:10px;width:90%;max-width:600px;max-height:90%;overflow:auto}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .modal-header h3{margin:0}
 .close-btn{cursor:pointer;color:#e6eef8}
@@ -121,40 +121,30 @@ function importOwnerSettings(){
 function addTool(){
   const name = prompt('Enter new tool name:');
   if(!name) return;
-  tools.push({name:name, generator:()=> "Output placeholder"});
+  tools.push({name:name, generator:()=> `This is the output of ${name}`});
   saveTools();
   renderToolList();
 }
 function resetTools(){ if(confirm('Reset all tools?')){ tools=[]; saveTools(); renderToolList(); document.getElementById('tool-output').value=''; }}
 
-// AI Tools
+// 100 Tools setup
 const LS_KEY='omniverse_tools_v1';
 let tools = JSON.parse(localStorage.getItem(LS_KEY)||'[]');
 if(tools.length===0){
-  // Predefined 10 tools
-  tools=[
-    {name:'Resume Generator', generator:()=> "Name: John Doe\nSkills: AI, JS, Python\nExperience: 2 years"},
-    {name:'Bio Generator', generator:()=> "John Doe is an AI developer and content creator."},
-    {name:'Script Writer', generator:()=> "// JS script example\nconsole.log('Hello Omniverse');"},
-    {name:'Notes Generator', generator:()=> "Meeting notes: Tasks and next steps."},
-    {name:'Website Template', generator:()=> "<!DOCTYPE html><html><body><h1>Hello Omniverse!</h1></body></html>"},
-    {name:'Business Idea Generator', generator:()=> "AI Marketplace for zero-cost automation."},
-    {name:'Legal Letter Generator', generator:()=> "To whom it may concern, this letter confirms services."},
-    {name:'Social Media Caption Generator', generator:()=> "Boost your Omniverse project with AI! #Automation"},
-    {name:'Logo & Slogan Generator', generator:()=> "Omniverse: Build, Automate, Earn"},
-    {name:'AI Prompt Generator', generator:()=> "Generate a JS snippet to automate content updates."}
-  ];
+  tools=[];
+  for(let i=1;i<=100;i++){
+    tools.push({name:`Tool ${i}`, generator:()=> `This is the output of Tool ${i}`});
+  }
   localStorage.setItem(LS_KEY,JSON.stringify(tools));
 }
 
 // Functions
 function saveTools(){ localStorage.setItem(LS_KEY,JSON.stringify(tools)) }
-function runTool(){ if(selectedIndex!==null){ const output = tools[selectedIndex].generator(); document.getElementById('tool-output').value=output; renderTips(); } else alert('Select a tool first.'); }
-function downloadOutput(){ const val=document.getElementById('tool-output').value; if(!val) return alert('No output'); const blob=new Blob([val],{type:'text/plain'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=(selectedIndex!==null?tools[selectedIndex].name:'output')+'.txt'; a.click(); URL.revokeObjectURL(url); }
-
 let selectedIndex=null;
+function runTool(){ if(selectedIndex!==null){ const output=tools[selectedIndex].generator(); document.getElementById('tool-output').value=output; renderTips(); } else alert('Select a tool first.'); }
+function downloadOutput(){ const val=document.getElementById('tool-output').value; if(!val) return alert('No output'); const blob=new Blob([val],{type:'text/plain'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=(selectedIndex!==null?tools[selectedIndex].name:'output')+'.txt'; a.click(); URL.revokeObjectURL(url); }
 function selectTool(i){ selectedIndex=i; document.querySelectorAll('.sidebar button').forEach(b=>b.classList.remove('active')); document.getElementById('tool-btn-'+i).classList.add('active'); document.getElementById('tool-title').textContent=tools[i].name; document.getElementById('tool-output').value=''; renderTips(); }
-function renderToolList(){ const container=document.getElementById('tool-list'); container.innerHTML=''; tools.forEach((t,i)=>{ const btn=document.createElement('button'); btn.textContent=t.name; btn.onclick=()=>selectTool(i); btn.id='tool-btn-'+i; container.appendChild(btn); }); }
+function renderToolList(){ const container=document.getElementById('tool-list'); container.innerHTML=''; tools.forEach((t,i)=>{ const btn=document.createElement('button'); btn.textContent=t.name; btn.id='tool-btn-'+i; btn.onclick=()=>selectTool(i); container.appendChild(btn); }); }
 function renderTips(){ const div=document.getElementById('tips-links'); const links=JSON.parse(localStorage.getItem('omniverse_owner_links')||'[]'); div.innerHTML=''; if(links.length>0){ div.innerHTML='<strong>Support Owner:</strong> '; links.forEach(l=>{ const a=document.createElement('a'); a.href=l; a.target='_blank'; a.style.marginRight='10px'; a.textContent='💰 Tip'; div.appendChild(a); }); } }
 
 // Initial render
@@ -163,4 +153,5 @@ renderTips();
 </script>
 
 </body>
-</html>
+  </html>
+  
