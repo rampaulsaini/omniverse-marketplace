@@ -1,3 +1,8 @@
+function saveOpenAIKey(){
+  const key = document.getElementById('omniverse-openai-key').value.trim();
+  localStorage.setItem('omniverse_openai_key', key);
+  alert('OpenAI API key saved locally.');
+}
 // netlify/functions/ai-proxy.js
 const fetch = require('// top of netlify function file
 const RATE = {// top of netlify function file
