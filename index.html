@@ -465,3 +465,18 @@ document.getElementById('importOwner').addEventListener('click', ()=>{
     const obj = JSON.parse(txt);
     saveOwner(obj);
     al
+    document.getElementById('importOwner').addEventListener('click', ()=>{
+  try{
+    const txt = prompt('Paste owner JSON here:');
+    if(!txt) return;              // user cancelled
+    const obj = JSON.parse(txt);
+    // basic validation (optional fields)
+    const valid = typeof obj === 'object' && obj !== null;
+    if(!valid) throw new Error('Imported JSON must be an object');
+    saveOwner(obj);
+    alert('Owner imported');
+  }catch(e){
+    alert('Invalid JSON: ' + (e && e.message ? e.message : e));
+  }
+});
+  
