@@ -1,3 +1,37 @@
+// AI Run function using OpenAI (example)
+async function runTool(){
+  if(selectedIndex===null) return alert('Select a tool first.');
+  const tool = tools[selectedIndex];
+  const textarea = document.getElementById('tool-output');
+  textarea.value = "Generating AI output...";
+  
+  const prompt = tool.generatorPrompt || `Generate content for ${tool.name}`;
+  
+  try{
+    // Example: OpenAI API call
+    const apiKey = localStorage.getItem('omniverse_openai_key'); // user must add key in settings
+    if(!apiKey) return textarea.value="Add OpenAI API key in Owner Settings to run AI.";
+    
+    const response = await fetch("https://api.openai.com/v1/completions",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":`Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "text-davinci-003",
+        prompt: prompt,
+        max_tokens: 200
+      })
+    });
+    
+    const data = await response.json();
+    textarea.value = data.choices[0].text.trim();
+    
+  }catch(e){
+    textarea.value = "Error generating AI output: " + e.message;
+  }
+}
 // Load saved settings
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("paytm").href = localStorage.getItem("paytmLink") || "#";
