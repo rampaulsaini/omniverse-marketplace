@@ -516,4 +516,24 @@ window.OmniUI = (function(){
 
   function init(){
     populateTools();
-  
+  # write files
+for path, content in files.items():
+    full_path = os.path.join(base, path)
+    dirpath = os.path.dirname(full_path)
+    os.makedirs(dirpath, exist_ok=True)
+    with open(full_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+# create zip
+zip_path = '/mnt/data/omniverse-marketplace.zip'
+with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as z:
+    for root, _, filenames in os.walk(base):
+        for fn in filenames:
+            fp = os.path.join(root, fn)
+            arcname = os.path.relpath(fp, '/mnt/data')
+            z.write(fp, arcname)
+
+zip_path
+
+Result
+'/mnt/data/omniverse-marketplace.zip
