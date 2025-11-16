@@ -1,32 +1,113 @@
-:root{ --bg:#071324; --panel:#0b1220; --muted:#9fb0d9; --accent:#60a5fa; --glass:rgba(255,255,255,0.03); }
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;color:#e6eef8;background:linear-gradient(180deg,var(--bg),#021229);min-height:100vh}
-.topbar{background:linear-gradient(90deg,#051025,#081425);padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.03)}
-.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1200px;margin:0 auto}
-.brand{display:flex;gap:12px;align-items:center}
-.logo{width:52px;height:52px;background:linear-gradient(45deg,#123,#456);border-radius:8px}
-.brand h1{margin:0;font-size:18px;color:var(--accent)}
-.tag{font-size:12px;color:var(--muted)}
-.container{max-width:1200px;margin:18px auto;display:flex;gap:18px;padding:0 12px}
-.left-col{flex:1;min-width:320px}
-.right-col{width:420px}
-.panel{background:var(--panel);border-radius:10px;padding:14px;border:1px solid var(--glass);margin-bottom:12px}
-.panel.small{padding:12px}
-.panel.tiny{font-size:13px;padding:10px;opacity:0.95}
-.tool-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-select,input,textarea{background:#021225;border:1px solid rgba(255,255,255,0.03);color:#e6eef8;padding:8px;border-radius:8px;width:100%;font-family:inherit}
-textarea{min-height:160px;resize:vertical}
-.controls-row{display:flex;gap:8px;margin-top:10px}
-.btn{background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;cursor:pointer}
-.btn.primary{background:var(--accent);color:#021225;border:none}
-.btn.small{padding:6px 8px;font-size:13px}
-.btn.tiny{padding:6px 8px;font-size:12px}
-.muted{color:var(--muted);font-size:13px}
-.premium-row{margin-top:8px;display:flex;gap:8px;align-items:center}
-.output-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:8px}
-.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:999}
-.modal[aria-hidden="false"]{display:flex}
-.modal-content{background:#061425;border-radius:10px;padding:16px;border:1px solid rgba(255,255,255,0.04);width:520px;max-width:94%}
-.form-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-.small{font-size:13px}
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f0f17;
+  color: #e6e6f0;
+}
 
+.top-header {
+  padding: 20px;
+  background: linear-gradient(135deg, #142053, #280a86, #4700a1);
+  color: white;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+.logo {
+  width: 65px;
+  margin-bottom: 5px;
+}
+
+.tagline {
+  font-size: 14px;
+  margin-top: -8px;
+  opacity: 0.8;
+}
+
+.top-buttons button {
+  margin: 8px;
+  padding: 10px 14px;
+  border: none;
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.top-buttons button:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+.tool-container {
+  display: flex;
+  padding: 20px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.tool-box, .output-box {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  padding: 20px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  min-width: 320px;
+}
+
+textarea {
+  width: 100%;
+  height: 160px;
+  padding: 10px;
+  background: #1a1a28;
+  color: #e6e6f0;
+  border: 1px solid #303040;
+  border-radius: 10px;
+  margin: 8px 0;
+}
+
+.action-buttons button,
+.download-btn {
+  padding: 10px 12px;
+  margin: 5px;
+  background: #3b0cff;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+.pay-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.pay-btn {
+  padding: 10px;
+  border-radius: 8px;
+  background: #222236;
+  color: white;
+  text-decoration: none;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+}
+
+.modal-content {
+  background: #1a1a28;
+  width: 90%;
+  max-width: 420px;
+  margin: 80px auto;
+  padding: 20px;
+  border-radius: 15px;
+}
+
+.modal input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
