@@ -1,3 +1,33 @@
+// Initialize 100 tools if not already in localStorage
+const LS_KEY = 'omniverse_tools_v1';
+let tools = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+
+if (tools.length === 0) {
+    tools = [];
+    for (let i = 1; i <= 100; i++) {
+        tools.push({
+            name: `Tool ${i}`,                // नाम sidebar में दिखेगा
+            generatorPrompt: `Generate content for Tool ${i}` // AI prompt
+        });
+    }
+    localStorage.setItem(LS_KEY, JSON.stringify(tools));
+}
+
+// Render sidebar
+function renderToolList() {
+    const container = document.getElementById('tool-list');
+    container.innerHTML = '';
+    tools.forEach((t, i) => {
+        const btn = document.createElement('button');
+        btn.textContent = t.name;        // यहाँ text set किया
+        btn.id = 'tool-btn-' + i;
+        btn.onclick = () => selectTool(i);
+        container.appendChild(btn);
+    });
+}
+
+// Call render on page load
+renderToolList();
 // Generate 100 tools dynamically
 let tools = [];
 for(let i=1; i<=100; i++){
