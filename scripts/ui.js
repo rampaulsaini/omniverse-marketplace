@@ -1,8 +1,6 @@
 // scripts/ui.js
 // Handles DOM, events, settings modal and generation flow.
-
 window.OmniUI = (function(){
-
   function $(id){ return document.getElementById(id); }
 
   function populateTools(){
@@ -15,7 +13,7 @@ window.OmniUI = (function(){
       opt.textContent = t.name + (t.premium ? ' 🔒' : '');
       sel.appendChild(opt);
     });
-    // build initial panel
+    showCounts(sel.value);
   }
 
   function showCounts(toolId){
@@ -26,7 +24,6 @@ window.OmniUI = (function(){
   function openSettings(){
     const modal = $('settingsModal');
     modal.setAttribute('aria-hidden','false');
-    // populate fields
     $('premiumKeyInput').value = OmniMarketplace.getPremiumKey() || '';
     $('modalPaymentLink').value = OmniMarketplace.getPaymentLink() || '';
   }
@@ -41,13 +38,7 @@ window.OmniUI = (function(){
     if(!tool) return alert('Tool not found');
     let input = {};
     try { input = JSON.parse($('userInput').value || '{}'); } catch(e) { alert('Invalid JSON in input'); return; }
-    const premiumRequested = $('usePremiumToggle').checked;
-    // premium check
-    if (premiumRequested && tool.premium) {
-      const unlocked = sessionStorage.getItem('omniverse_premium_unlocked') === '1';
-      if(!unlocked){ alert('Premium output locked — unlock via Owner Settings or enter correct key.'); return; }
-    }
-
+    const premiumRequested = false; // session-based / UI toggle can be added
     $('aiOutput').value = 'Generating...';
     const out = await OmniAI.generate(tool, input, {premium: premiumRequested});
     $('aiOutput').value = out;
@@ -64,7 +55,9 @@ window.OmniUI = (function(){
     a.href = URL.createObjectURL(blob);
     const tool = $('toolSelect').value || 'output';
     a.download = tool + '-omniverse.txt';
-    document.body.appendChild(a); a.click(); a.remove();
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
     OmniMarketplace.incDownload();
     showCounts($('toolSelect').value);
   }
@@ -91,21 +84,17 @@ window.OmniUI = (function(){
     OmniMarketplace.setPremiumKey(k);
     alert('Premium key saved locally.');
   }
-
   function savePaymentLink(){
     const u = $('modalPaymentLink').value.trim();
     OmniMarketplace.setPaymentLink(u);
     alert('Payment link saved locally.');
   }
-
   function openDonate(){
     const url = OmniMarketplace.getPaymentLink();
     if(!url) return alert('No payment link saved in settings.');
     window.open(url, '_blank');
   }
-
   function openDashboard(){
-    // quick local dashboard (simple alert)
     const usages = JSON.parse(localStorage.getItem('omniverse_usage')||'{}');
     const downloads = localStorage.getItem('omniverse_downloads')||'0';
     const lines = ['Local Omniverse Stats:','Downloads: '+downloads,'Tool uses:'];
@@ -122,19 +111,20 @@ window.OmniUI = (function(){
     $('downloadBtn').addEventListener('click', downloadOutput);
     $('clearBtn').addEventListener('click', clearAll);
     $('unlockBtn').addEventListener('click', unlockPremiumFlow);
-    $('openDonate').addEventListener('click', openDonate);
-    $('openDashboard').addEventListener('click', openDashboard);
+    const donateBtns = document.querySelectorAll('#openDonate');
+    donateBtns.forEach(b=>b.addEventListener('click', openDonate));
+    const dashboardBtns = document.querySelectorAll('#openDashboard');
+    dashboardBtns.forEach(b=>b.addEventListener('click', openDashboard));
     $('toolSelect').addEventListener('change', ()=> showCounts($('toolSelect').value));
   }
 
   function init(){
     populateTools();
     bind();
-    // set defaults
-    if(!$('userInput').value) $('userInput').value = '{"name":"John Doe"}';
-    showCounts($('toolSelect').value);
+    // initial UI state
+    $('downloadBtn').disabled = true;
   }
 
   return { init };
 })();
-                 
+      
