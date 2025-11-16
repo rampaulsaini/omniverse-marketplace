@@ -1,32 +1,21 @@
-# Omniverse AI Tools Marketplace
+# Omniverse Marketplace
 
-Zero-cost AI Tools Marketplace — fully client-side, GitHub Pages ready.
+Zero-cost AI Tools Marketplace — client-side only, runs on GitHub Pages.
 
-## What this repo contains
-- index.html — main marketplace UI
-- style.css — styling
-- assets/logo.svg — brand logo (also used as favicon)
-- scripts/* — core JS (tools, ai-core, marketplace logic, UI)
-- .github/workflows/pages.yml — GitHub Pages deploy action
+## Features
+- Multiple AI tools (resume, bio, scripts, notes, ideas)
+- Tools run offline/template-based by default (no paid APIs)
+- Premium unlock via local key (owner sets locally)
+- Payments/donations via saved payment link (owner provides)
+- Downloads and usage tracked locally (localStorage)
 
-## How it works
-- Tools use local template-based generation (no paid API required).
-- Owner can set a local "Premium Unlock Key" and a donation/payment link (stored in browser localStorage).
-- Users can generate outputs, download results, and optionally donate via saved payment link.
-
-## Deploy
-1. Create repository `omniverse-marketplace` in your GitHub account.
-2. Copy files into repo (preserve structure).
-3. Push to `main`.
-4. Go to Settings → Pages → Set branch `main` and folder `/ (root)` → Save.
-5. Visit `https://<your-username>.github.io/omniverse-marketplace/`.
-
-## Monetization ideas (zero-cost start)
-- Add a visible Donate/Pay button (use PayPal / UPI / Ko-fi link).
-- Offer premium outputs unlocked via a key or manual receipt (for now, manual local key).
-- Sell premium templates via external marketplace / email delivery.
+## How to deploy
+1. Create a repo named `omniverse-marketplace` (or any name).
+2. Copy these files into the repo root and commit.
+3. Enable GitHub Pages: Settings → Pages → Branch: `main` → Folder: `(root)`.
+4. Visit `https://<your-username>.github.io/<repo-name>/`.
 
 ## Notes
-- All settings are saved locally on the browser. There is no server component in this starter kit.
-- If you want real LLM outputs (OpenAI), you can add an API key in settings and enable the optional OpenAI branch (costs may apply).
+- This is intentionally zero-cost: no server, no external paid API calls by default.
+- If you add an OpenAI API key in Owner Settings (locally), OpenAI calls may be made and will incur costs on that account.
 - 
