@@ -445,4 +445,24 @@ function deleteTool(){
 }
 function cloneTool(src){
   const t = state.tools[src];
-  if(!t) 
+  if(!t) return; // tool नहीं मिला तो exit
+  // generate new slug: original name + random suffix
+  const newSlug = uid(t.name + '-copy-' + Math.random().toString(36).slice(2,6));
+  // clone tool data
+  state.tools[newSlug] = {
+    name: t.name + ' (copy)',
+    desc: t.desc,
+    template: t.template,
+    example: t.example
+  };
+  // initialize stats
+  state.stats[newSlug] = { uses: 0, downloads: 0 };
+  // save updated data
+  saveTools(state.tools);
+  saveStats(state.stats);
+  // re-render UI list
+  renderAll();
+  // select the cloned tool automatically
+  selectTool(newSlug, true);
+  }
+  
