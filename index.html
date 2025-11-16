@@ -1,98 +1,99 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Omniverse Marketplace — AI Tools</title>
-
-    <link rel="stylesheet" href="style.css" />
-    <link rel="icon" href="assets/favicon.ico" />
-
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Omniverse AI Tools Marketplace</title>
+  <link rel="icon" href="assets/favicon.ico" />
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-
-    <!-- HEADER -->
-    <header class="header">
-        <img src="assets/logo.svg" class="logo" alt="Omniverse Logo">
+  <header class="topbar">
+    <div class="brand">
+      <img src="assets/logo.svg" alt="Omniverse" class="logo">
+      <div>
         <h1>Omniverse AI Tools Marketplace</h1>
-        <p class="subtitle">Free tools · Zero hosting cost · Donation-ready · Unlock Premium outputs</p>
-    </header>
+        <div class="tag">Free tools · Zero hosting cost · Donation-ready · Unlock Premium outputs</div>
+      </div>
+    </div>
+    <div class="owner-link" id="ownerToggle">Owner Settings</div>
+  </header>
 
-    <!-- OWNER SETTINGS -->
-    <section class="settings-box">
-        <h3>Owner Settings</h3>
-
+  <main class="container">
+    <section class="owner-panel" id="ownerPanel" aria-hidden="true">
+      <h2>Owner Settings</h2>
+      <div class="form-row">
         <label>Set Premium Unlock Key:</label>
-        <input id="ownerKey" type="password" placeholder="Enter new unlock key">
-        <button onclick="setUnlockKey()">Save Key</button>
-
+        <input id="ownerKey" placeholder="Enter new unlock key">
+        <button id="saveKeyBtn" class="btn">Save Key</button>
+      </div>
+      <div class="form-row">
         <label>Donation / Payment Link:</label>
-        <input id="donateLink" type="text" placeholder="https://your-payment-link.com">
-        <button onclick="saveDonationLink()">Save Payment Link</button>
-
-        <p class="note">These settings only save locally (browser storage). No server needed.</p>
+        <input id="donationLink" placeholder="https://your-payment-link.com">
+        <button id="savePayBtn" class="btn">Save Payment Link</button>
+      </div>
+      <div class="muted">These settings only save locally (browser storage). No server needed.</div>
     </section>
 
-    <!-- UNLOCK PREMIUM SECTION -->
-    <section class="unlock-box">
-        <h3>Unlock Premium Output</h3>
-        <input id="userUnlock" type="password" placeholder="Enter unlock key">
-        <button onclick="verifyKey()">Unlock</button>
+    <section class="market">
+      <div class="left-col">
+        <div class="panel">
+          <h3>Unlock Premium Output</h3>
+          <div class="form-row">
+            <input id="unlockKey" placeholder="Enter unlock key">
+            <button id="unlockBtn" class="btn primary">Unlock / Pay</button>
+          </div>
+          <div id="unlockStatus" class="muted">Premium locked</div>
+        </div>
 
-        <a id="donateBtn" href="#" target="_blank" class="donate-btn">Donate / Pay</a>
+        <div class="panel">
+          <h3>AI Tools</h3>
+          <label for="toolSelect">Select a Tool</label>
+          <select id="toolSelect"></select>
+          <label for="toolInput">Enter your details (JSON)</label>
+          <textarea id="toolInput" placeholder='{"name":"Your Name","skills":"..."}'></textarea>
+          <div class="row">
+            <button id="generateBtn" class="btn primary">Generate</button>
+            <button id="clearInput" class="btn">Clear</button>
+          </div>
+        </div>
 
-        <p id="unlockStatus" class="status"></p>
+        <div class="panel small">
+          <h4>Owner / Donation</h4>
+          <div class="muted">Donation Link saved locally. Share to receive payments:</div>
+          <div id="donationDisplay" class="donation-link">Not set</div>
+          <div class="muted">Tip: use UPI, PayPal, Ko-fi or Razorpay link.</div>
+        </div>
+      </div>
+
+      <div class="right-col">
+        <div class="panel">
+          <h3>AI Output</h3>
+          <div id="outputToolbar" class="output-toolbar">
+            <button id="downloadBtn" class="btn">Download</button>
+            <button id="copyBtn" class="btn">Copy</button>
+            <button id="clearOutput" class="btn">Clear</button>
+          </div>
+          <textarea id="toolOutput" readonly placeholder="Your output will appear here..."></textarea>
+          <div class="muted" id="usageInfo">Uses: 0</div>
+        </div>
+
+        <div class="panel small">
+          <h4>Marketplace Info</h4>
+          <div class="muted">© 2025 Omniverse Marketplace. Built for zero-cost global launch.</div>
+        </div>
+      </div>
     </section>
+  </main>
 
-    <!-- TOOL SELECTOR -->
-    <div class="tool-selector">
-        <h2>AI Tools</h2>
-        <select id="toolMenu" onchange="selectTool()">
-            <option value="" disabled selected>Select a Tool</option>
-            <option value="resume">Resume Generator</option>
-            <option value="bio">Bio Generator</option>
-            <option value="script">Script Writer</option>
-            <option value="notes">Notes Maker</option>
-            <option value="business">Business Idea Generator</option>
-            <option value="caption">Social Caption Maker</option>
-            <option value="slogan">Brand Slogan Generator</option>
-            <option value="legal">Legal Letter Generator</option>
-            <option value="template">Website Template Generator</option>
-            <option value="automation">Task Automation Prompter</option>
-        </select>
-    </div>
-
-    <!-- TOOL INPUT AREA -->
-    <div class="tool-box">
-        <h3 id="toolTitle">Select a tool above</h3>
-        <textarea id="toolInput" placeholder="Enter your details..."></textarea>
-        <button class="run-btn" onclick="runTool()">Generate</button>
-    </div>
-
-    <!-- OUTPUT -->
-    <div class="output-box">
-        <h3>AI Output</h3>
-        <pre id="toolOutput">Your output will appear here...</pre>
-
-        <button onclick="downloadOutput()">Download</button>
-        <button onclick="clearOutput()">Clear</button>
-    </div>
-
-    <!-- FOOTER -->
-    <footer class="footer">
-        © 2025 Omniverse Marketplace. Built for zero-cost global launch.
-    </footer>
-
-    <!-- SCRIPTS -->
-    <script src="scripts/ai-core.js"></script>
-    <script src="scripts/tools.js"></script>
-    <script src="scripts/ui.js"></script>
-    <script src="scripts/marketplace.js"></script>
-
+  <script src="scripts/ai-core.js"></script>
+  <script src="scripts/tools.js"></script>
+  <script src="scripts/marketplace.js"></script>
+  <script src="scripts/ui.js"></script>
+  <script>
+    // initialize UI
+    OmniMarket.init();
+  </script>
 </body>
-              </html>
-  
+    </html>
+    
