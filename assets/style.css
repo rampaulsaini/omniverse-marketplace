@@ -1,34 +1,37 @@
+/* style.css - clean minimal theme */
 :root{
-  --bg:#071025; --card:#081425; --muted:#98a0b3; --accent:#60a5fa; --glass: rgba(255,255,255,0.03);
-  --radius:10px;
-  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Segoe UI Mono";
+  --bg:#071324; --panel:#0b1220; --muted:#9fb0d9; --accent:#60a5fa; --glass:rgba(255,255,255,0.03);
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:linear-gradient(180deg,#071025 0%, #02101a 100%);font-family:Inter, system-ui, Arial, sans-serif;color:#e6eef8}
-.container{max-width:1100px;margin:20px auto;padding:12px}
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:var(--card);border-bottom:1px solid rgba(255,255,255,0.02)}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;color:#e6eef8;background:linear-gradient(180deg,var(--bg),#021229);min-height:100vh}
+.topbar{background:linear-gradient(90deg,#051025,#081425);padding:12px 18px;border-bottom:1px solid rgba(255,255,255,0.03)}
+.topbar-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:1200px;margin:0 auto}
 .brand{display:flex;gap:12px;align-items:center}
 .logo{width:52px;height:52px}
+.brand h1{margin:0;font-size:18px;color:var(--accent)}
 .tag{font-size:12px;color:var(--muted)}
-.owner-link{cursor:pointer;color:var(--accent);font-weight:600}
-.market{display:grid;grid-template-columns:360px 1fr;gap:16px;margin-top:18px}
-.panel{background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border:1px solid rgba(255,255,255,0.03);padding:14px;border-radius:var(--radius)}
-.small{padding:10px}
-.left-col{display:flex;flex-direction:column;gap:12px}
-.right-col{display:flex;flex-direction:column;gap:12px}
-label{display:block;font-size:13px;margin:8px 0;color:var(--muted)}
-textarea{width:100%;min-height:120px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:rgba(0,0,0,0.18);color:inherit;font-family:inherit}
-select,input{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
-.row{display:flex;gap:8px;margin-top:10px}
-.btn{padding:8px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--muted);cursor:pointer}
-.btn.primary{background:var(--accent);color:#02101a;border:0;font-weight:700}
-.muted{font-size:13px;color:var(--muted);margin-top:8px}
+.container{max-width:1200px;margin:18px auto;display:flex;gap:18px;padding:0 12px}
+.left-col{flex:1;min-width:320px}
+.right-col{width:420px}
+.panel{background:var(--panel);border-radius:10px;padding:14px;border:1px solid var(--glass);margin-bottom:12px}
+.panel.small{padding:12px}
+.panel.tiny{font-size:13px;padding:10px;opacity:0.95}
+.tool-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+select,input,textarea{background:#021225;border:1px solid rgba(255,255,255,0.03);color:#e6eef8;padding:8px;border-radius:8px;width:100%;font-family:inherit}
+textarea{min-height:160px;resize:vertical}
+.controls-row{display:flex;gap:8px;margin-top:10px}
+.btn{background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;cursor:pointer}
+.btn.primary{background:var(--accent);color:#021225;border:none}
+.btn.small{padding:6px 8px;font-size:13px}
+.btn.tiny{padding:6px 8px;font-size:12px}
+.muted{color:var(--muted);font-size:13px}
+.premium-row{margin-top:8px;display:flex;gap:8px;align-items:center}
+.output-meta{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:8px}
+
+/* modal */
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:999}
+.modal[aria-hidden="false"]{display:flex}
+.modal-content{background:#061425;border-radius:10px;padding:16px;border:1px solid rgba(255,255,255,0.04);width:520px;max-width:94%}
 .form-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-.donation-link{word-break:break-all;color:var(--accent);margin-top:8px}
-.output-toolbar{display:flex;gap:8px;justify-content:flex-end;margin-bottom:8px}
-#ownerPanel{display:none;margin-bottom:12px}
-.owner-panel.show{display:block}
-@media (max-width:880px){
-  .market{grid-template-columns:1fr;padding:8px}
-  .left-col,.right-col{width:100%}
-           }
+.small{font-size:13px}
+     
