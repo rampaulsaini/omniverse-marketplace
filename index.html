@@ -486,6 +486,47 @@ document.getElementById('applyImport').addEventListener('click', () => {
     if (obj.tools || obj.owner || obj.stats) {
       // basic validation
       state = Object.assign({}, defaultState, obj);
-      // ensure tools have ids and stats
+            // ensure tools have ids and stats
       state.tools = (state.tools || []).map(t => {
-      
+        if (!t.id) t.id = uid('tool');
+        t.stats = t.stats || { uses:0, downloads:0 };
+        return t;
+      });
+      saveState();
+      showToast('Imported full data');
+      return;
+    }
+    // else if has tool key only
+    if (obj.tool) {
+      const t = obj.tool;
+      if (!t.id) t.id = uid('tool');
+      t.stats = t.stats || { uses:0, downloads:0 };
+      state.tools.push(t);
+      saveState();
+      showToast('Imported single tool');
+      return;
+    }
+    showToast('Unknown import format');
+  } catch (e) {
+    console.error(e);
+    showToast('Import error: invalid JSON');
+  }
+});
+
+// open dashboard - here just scroll to top or focus
+document.getElementById('openDashboard').addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  showToast('Dashboard focused');
+});
+
+// helper escape
+function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]); }
+
+// simple export/import owner done above
+
+// save state on unload (redundant)
+window.addEventListener('beforeunload', () => saveState());
+
+// initial test: if no tools, add placeholder - commented out to respect user
+// if (state.tools.length === 0) { /* optional auto-add */ }
+  
