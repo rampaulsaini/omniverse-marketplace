@@ -53,23 +53,22 @@ a:hover{text-decoration:underline}
   </div>
 </div>
 
-<!-- Owner Settings Modal -->
 <div class="modal" id="owner-modal">
   <div class="modal-content">
     <div class="modal-header">
       <h3>Owner Settings</h3>
       <span class="close-btn" onclick="closeSettings()">&times;</span>
     </div>
-    <label>Owner name</label>
+    <label>Owner Name</label>
     <input type="text" id="owner-name" placeholder="आपका नाम">
     <label>Pay / Donate Links (comma separated)</label>
     <textarea id="owner-links" placeholder="upi:abc@paytm, https://paypal.me/you"></textarea>
     <label>OpenAI API Key (optional)</label>
     <input type="text" id="omniverse-openai-key" placeholder="sk-xxxx">
     <button class="action" onclick="saveOpenAIKey()">Save API Key</button>
-    <button class="action" onclick="saveOwnerSettings()">Save Settings</button>
-    <button class="action" onclick="exportOwnerSettings()">Export</button>
-    <button class="action" onclick="importOwnerSettings()">Import</button>
+    <button class="action" onclick="saveOwnerSettings()">Save Owner Settings</button>
+    <button class="action" onclick="exportOwnerSettings()">Export Settings</button>
+    <button class="action" onclick="importOwnerSettings()">Import Settings</button>
     <hr>
     <button class="action" onclick="addTool()">+ Add Tool</button>
     <button class="action" onclick="resetTools()">Reset All Tools</button>
@@ -77,31 +76,72 @@ a:hover{text-decoration:underline}
 </div>
 
 <script>
+// =========================
+// LocalStorage + Tools Init
+// =========================
+const LS_KEY = 'omniverse_tools_v1';
+let tools = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+
+if (tools.length === 0) {
+  tools = [];
+  for (let i = 1; i <= 100; i++) {
+    tools.push({
+      name: `Tool ${i}`,
+      generatorPrompt: `Generate content for Tool ${i}`
+    });
+  }
+  localStorage.setItem(LS_KEY, JSON.stringify(tools));
+}
+
+// =========================
+// Render Sidebar
+// =========================
+function renderToolList() {
+  const container = document.getElementById('tool-list');
+  container.innerHTML = '';
+  tools.forEach((t, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = t.name;      // Proper name display
+    btn.id = 'tool-btn-' + i;
+    btn.onclick = () => selectTool(i);
+    container.appendChild(btn);
+  });
+}
+
+// =========================
 // Owner Settings
+// =========================
 function openSettings(){ document.getElementById('owner-modal').style.display='flex'; loadOwnerSettings(); }
 function closeSettings(){ document.getElementById('owner-modal').style.display='none'; }
 function loadOwnerSettings(){
-  document.getElementById('owner-name').value=localStorage.getItem('omniverse_owner_name')||'';
-  document.getElementById('owner-links').value=localStorage.getItem('omniverse_owner_links_raw')||'';
-  document.getElementById('omniverse-openai-key').value=localStorage.getItem('omniverse_openai_key')||'';
+  document.getElementById('owner-name').value = localStorage.getItem('omniverse_owner_name') || '';
+  document.getElementById('owner-links').value = localStorage.getItem('omniverse_owner_links_raw') || '';
+  document.getElementById('omniverse-openai-key').value = localStorage.getItem('omniverse_openai_key') || '';
 }
 function saveOwnerSettings(){
-  localStorage.setItem('omniverse_owner_name',document.getElementById('owner-name').value.trim());
+  const name = document.getElementById('owner-name').value.trim();
   const links = document.getElementById('owner-links').value.split(',').map(s=>s.trim()).filter(s=>s);
-  localStorage.setItem('omniverse_owner_links',JSON.stringify(links));
-  localStorage.setItem('omniverse_owner_links_raw',document.getElementById('owner-links').value);
+  localStorage.setItem('omniverse_owner_name', name);
+  localStorage.setItem('omniverse_owner_links', JSON.stringify(links));
+  localStorage.setItem('omniverse_owner_links_raw', document.getElementById('owner-links').value);
   alert('Owner settings saved.');
   renderTips();
 }
 function saveOpenAIKey(){
-  localStorage.setItem('omniverse_openai_key', document.getElementById('omniverse-openai-key').value.trim());
-  alert('OpenAI API key saved locally.');
+  const key = document.getElementById('omniverse-openai-key').value.trim();
+  localStorage.setItem('omniverse_openai_key', key);
+  alert('OpenAI API key saved.');
 }
 function exportOwnerSettings(){
-  const data={name:document.getElementById('owner-name').value, links:document.getElementById('owner-links').value, tools};
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='omniverse_settings.json'; a.click(); URL.revokeObjectURL(url);
+  const data = {
+    name: document.getElementById('owner-name').value,
+    links: document.getElementById('owner-links').value,
+    openai_key: document.getElementById('omniverse-openai-key').value,
+    tools: tools
+  };
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='omniverse_settings.json'; a.click(); URL.revokeObjectURL(url);
 }
 function importOwnerSettings(){
   const input=document.createElement('input'); input.type='file'; input.accept='.json';
@@ -110,78 +150,34 @@ function importOwnerSettings(){
     const text=await file.text();
     try{
       const data=JSON.parse(text);
-      document.getElementById('owner-name').value=data.name||'';
-      document.getElementById('owner-links').value=data.links||'';
-      localStorage.setItem('omniverse_owner_links',JSON.stringify(data.links.split(',').map(s=>s.trim()).filter(s=>s)));
-      localStorage.setItem('omniverse_owner_links_raw',data.links);
+      document.getElementById('owner-name').value = data.name || '';
+      document.getElementById('owner-links').value = data.links || '';
+      document.getElementById('omniverse-openai-key').value = data.openai_key || '';
+      localStorage.setItem('omniverse_owner_links', JSON.stringify(data.links.split(',').map(s=>s.trim()).filter(s=>s)));
+      localStorage.setItem('omniverse_owner_links_raw', data.links);
+      localStorage.setItem('omniverse_openai_key', data.openai_key || '');
       resetTools();
       if(data.tools) data.tools.forEach(t=>addTool(t.name));
       alert('Settings imported successfully.');
-    }catch(e){ alert('Invalid JSON'); }
-  }; input.click();
+    }catch(e){ alert('Invalid JSON file'); }
+  };
+  input.click();
 }
 
-// Tools
-const LS_KEY='omniverse_tools_v1';
-let tools=JSON.parse(localStorage.getItem(LS_KEY)||'[]');
-if(tools.length===0){ tools=[]; for(let i=1;i<=100;i++){ tools.push({name:`Tool ${i}`, generatorPrompt:`Generate content for Tool ${i}`}); } localStorage.setItem(LS_KEY,JSON.stringify(tools)); }
-function saveTools(){ localStorage.setItem(LS_KEY,JSON.stringify(tools)) }
+// =========================
+// Tools Functions
+// =========================
+function saveTools(){ localStorage.setItem(LS_KEY, JSON.stringify(tools)) }
 let selectedIndex=null;
 
-function runTool(){
-  if(selectedIndex===null) return alert('Select a tool first.');
-  const tool=tools[selectedIndex];
-  const textarea=document.getElementById('tool-output');
-  textarea.value="Generating AI output...";
-  const prompt = tool.generatorPrompt || `Generate content for ${tool.name}`;
-  const apiKey = localStorage.getItem('omniverse_openai_key');
-  if(!apiKey) { textarea.value="Add OpenAI API key to run AI."; return; }
-  fetch("https://api.openai.com/v1/completions",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "Authorization":`Bearer ${apiKey}`
-    },
-    body:JSON.stringify({model:"text-davinci-003", prompt, max_tokens:200})
-  })
-  .then(res=>res.json())
-  .then(data=>{textarea.value=data.choices[0].text.trim();})
-  .catch(err=>{textarea.value="Error generating AI output: "+err.message;});
-}
-
-function downloadOutput(){
-  const val=document.getElementById('tool-output').value;
-  if(!val) return alert('No output'); 
-  const blob=new Blob([val],{type:'text/plain'}); 
-  const url=URL.createObjectURL(blob); 
-  const a=document.createElement('a'); a.href=url; a.download=(selectedIndex!==null?tools[selectedIndex].name:'output')+'.txt'; a.click(); URL.revokeObjectURL(url);
-}
-
-function copyOutput(){
-  const val=document.getElementById('tool-output').value;
-  if(!val) return alert('No output to copy');
-  navigator.clipboard.writeText(val).then(()=>alert('Copied to clipboard!'));
-}
-
-function cloneTool(){
-  if(selectedIndex===null) return alert('Select a tool to clone');
-  const original=tools[selectedIndex];
-  const cloneName=prompt('Enter name for cloned tool:',original.name+' Copy');
-  if(!cloneName) return;
-  tools.push({name:cloneName, generatorPrompt:original.generatorPrompt});
-  saveTools();
-  renderToolList();
-}
-
 function addTool(){
-  const name=prompt('Enter new tool name:'); if(!name) return;
-  tools.push({name, generatorPrompt:`Generate content for ${name}`});
+  const name = prompt('Enter new tool name:');
+  if(!name) return;
+  tools.push({name:name, generatorPrompt:`Generate content for ${name}`});
   saveTools();
   renderToolList();
 }
-
-function resetTools(){ if(confirm('Reset all tools?')){ tools=[]; saveTools(); renderToolList(); document.getElementById('tool-output').value=''; }}
-
+function resetTools(){ if(confirm('Reset all tools?')){ tools=[]; saveTools(); renderToolList(); document.getElementById('tool-output').value=''; } }
 function selectTool(i){
   selectedIndex=i;
   document.querySelectorAll('.sidebar button').forEach(b=>b.classList.remove('active'));
@@ -190,28 +186,87 @@ function selectTool(i){
   document.getElementById('tool-output').value='';
   renderTips();
 }
-
-function renderToolList(){
-  const container=document.getElementById('tool-list');
-  container.innerHTML='';
-  tools.forEach((t,i)=>{
-    const btn=document.createElement('button'); btn.textContent=t.name; btn.id='tool-btn-'+i; btn.onclick=()=>selectTool(i);
-    container.appendChild(btn);
-  });
+function cloneTool(){
+  if(selectedIndex===null) return alert('Select a tool to clone');
+  const original = tools[selectedIndex];
+  const cloneName = prompt('Enter name for cloned tool:', original.name + ' Copy');
+  if(!cloneName) return;
+  tools.push({name:cloneName, generatorPrompt:original.generatorPrompt});
+  saveTools();
+  renderToolList();
 }
 
+// =========================
+// Run / AI Output
+// =========================
+async function runTool(){
+  if(selectedIndex===null) return alert('Select a tool first.');
+  const tool = tools[selectedIndex];
+  const textarea = document.getElementById('tool-output');
+  textarea.value = "Generating AI output...";
+
+  const prompt = tool.generatorPrompt || `Generate content for ${tool.name}`;
+  const apiKey = localStorage.getItem('omniverse_openai_key');
+  if(!apiKey) return textarea.value="Add OpenAI API key in Owner Settings to run AI.";
+
+  try{
+    const response = await fetch("https://api.openai.com/v1/completions",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":`Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "text-davinci-003",
+        prompt: prompt,
+        max_tokens: 250
+      })
+    });
+    const data = await response.json();
+    textarea.value = data.choices[0].text.trim();
+  }catch(e){
+    textarea.value = "Error generating AI output: "+e.message;
+  }
+}
+
+// =========================
+// Copy / Download / Tips
+// =========================
+function downloadOutput(){ 
+  const val=document.getElementById('tool-output').value; 
+  if(!val) return alert('No output'); 
+  const blob=new Blob([val],{type:'text/plain'}); 
+  const url=URL.createObjectURL(blob); 
+  const a=document.createElement('a'); 
+  a.href=url; a.download=(selectedIndex!==null?tools[selectedIndex].name:'output')+'.txt'; 
+  a.click(); URL.revokeObjectURL(url); 
+}
+function copyOutput(){
+  const val=document.getElementById('tool-output').value;
+  if(!val) return alert('No output to copy');
+  navigator.clipboard.writeText(val).then(()=>alert('Output copied to clipboard!'));
+}
 function renderTips(){
   const div=document.getElementById('tips-links');
   const links=JSON.parse(localStorage.getItem('omniverse_owner_links')||'[]');
   div.innerHTML='';
-  if(links.length>0){ div.innerHTML='<strong>Support Owner:</strong> '; links.forEach(l=>{ const a=document.createElement('a'); a.href=l; a.target='_blank'; a.style.marginRight='10px'; a.textContent='💰 Tip'; div.appendChild(a); }); }
+  if(links.length>0){
+    div.innerHTML='<strong>Support Owner:</strong> ';
+    links.forEach(l=>{
+      const a=document.createElement('a'); a.href=l; a.target='_blank'; a.style.marginRight='10px';
+      a.textContent='💰 Tip';
+      div.appendChild(a);
+    });
+  }
 }
 
-// Initial render
+// =========================
+// Initial Render
+// =========================
 renderToolList();
 renderTips();
 </script>
 
 </body>
-  </html>
+                                                                   </html>
   
