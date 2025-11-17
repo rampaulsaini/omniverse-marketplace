@@ -288,5 +288,109 @@ function initApp(){
 }
 </script>
 </body>
-                                                    </html>
+    <!-- Insert once, before </body> -->
+<script>
+  // Replace tools in localStorage with 100 meaningful tools (per your request)
+  (function(){
+    const meaningful = [
+      "Resume Builder|Generate a professional resume for a software engineer with 2 years experience",
+      "Short Bio|Write a concise 2-line professional bio",
+      "Cover Letter|Write a cover letter for a role in product management",
+      "LinkedIn Headline|Create a LinkedIn headline for AI developer",
+      "Product Description|E-commerce product description of 50 words",
+      "Blog Outline|Outline a 5-section tech blog about AI automation",
+      "SEO Meta Description|Create a meta description for a web page about Omniverse",
+      "Social Caption|Instagram caption for product launch",
+      "Tweet Thread|5-tweet thread idea about developer tools",
+      "Email Cold Outreach|Short cold email to SaaS CTO",
+      "Meeting Notes|Summarize meeting notes with action items",
+      "Landing Page Headline|High-converting headline for landing page",
+      "Feature List|List 6 features for a SaaS app",
+      "Onboarding Steps|User onboarding checklist for new users",
+      "Customer Reply|Polite customer support reply template",
+      "FAQ Answer|Answer a common FAQ about refunds",
+      "Business Idea|Generate a business idea around AI micro-apps",
+      "Microcopy|Button microcopy options (‘Buy’, ‘Try free’)",
+      "Short Story|Write a 150-word sci-fi short scene",
+      "Poem|4-line inspirational poem",
+      "Code Snippet|JS snippet to fetch JSON and render list",
+      "SQL Query|Example SQL to get top users by revenue",
+      "API Doc|Short API usage example",
+      "Regex Helper|Regex to extract emails from text",
+      "Image Prompt|Text prompt for image-gen model for futuristic city",
+      "Video Script|30s script for product promo",
+      "Ad Headline|Google ad headline options",
+      "Keyword Ideas|10 SEO keywords for AI tools",
+      "Course Syllabus|5-week course on AI basics",
+      "Interview Qs|Top 10 interview questions for frontend dev",
+      "Test Cases|Unit test plan for addUser function",
+      "Privacy Policy Snippet|Short privacy policy clause",
+      "Terms Snippet|Short terms of service clause",
+      "Changelog Entry|Write a changelog entry for v1.1",
+      "Release Notes|Short release notes for bugfixes",
+      "Promo Email|Promotional email for discounts",
+      "Referral Message|Message to ask users to refer friends",
+      "Plugin Readme|README skeleton for a plugin",
+      "Error Message|Friendly UI error message for failed save",
+      "Accessibility Tip|Tip to improve page accessibility",
+      "Color Palette|Suggest a 4-color palette for SaaS",
+      "Name Generator|Generate 10 startup names",
+      "Slogan Generator|Create 5 slogans for Omniverse",
+      "FAQ Generator|Create 6 FAQ Q&A for product",
+      "Pricing Tier|Suggest 3 pricing tiers for SaaS",
+      "Oneliner|One-line elevator pitch",
+      "Persona|Short user persona for target audience",
+      "KPI List|Key KPIs for product growth",
+      "Weekly Goals|Set 5 weekly goals for dev team",
+      "Retweet Reply|Short reply to a helpful tweet",
+      "Meeting Agenda|Template meeting agenda",
+      "Press Release|Short press release template",
+      "Case Study|Case study outline for client success",
+      "Slide Bullet Points|Bullets for a 5-slide pitch deck",
+      "Investor Email|Starter email to reach investors",
+      "Cold Call Script|30s cold call script",
+      "Job Description|JD for frontend engineer",
+      "Performance Tip|Optimize page load by lazy-loading images",
+      "Refactor Plan|Steps to refactor legacy code",
+      "Migration Plan|DB migration high level steps",
+      "Automation Prompt|Prompt to automate social posts",
+      "Affiliate Message|Message to recruit affiliates",
+      "Sponsorship Pitch|Pitch template for sponsors",
+      "Community Post|Welcome post for new community members",
+      "Survey Question|3 customer satisfaction survey questions",
+      "Beta Invite|Beta tester invite message",
+      "Feature Request Reply|Acknowledgement to feature request",
+      "Refund Policy|Short refund policy template",
+      "Contract Clause|Simple payment clause",
+      "Invoice Template|Short invoice template",
+      "Expense Report|Template for expense report",
+      "Roadmap Item|Quarterly roadmap item example",
+      "Dev Ops Checklist|Pre-deploy checklist",
+      "Health Check|Script summary to check site health",
+      "Monitoring Tip|Add uptime monitoring using free tools",
+      "SEO Audit Step|Check meta tags and h1s",
+      "Optimization Tip|Compress images before deploy",
+      "Analytics Event|Track button click event snippet",
+      "Integration Idea|Integrate with free Zapier flows",
+      "Workflow Step|CI workflow step example",
+      "Backup Plan|Simple backup plan outline",
+      "Contact Template|Template to ask for feedback",
+      "Thank You Note|Customer thank you message",
+      "Upsell Script|Short upsell message after purchase",
+      "CrossSell Idea|Cross-sell related product idea",
+      "Churn Email|Win-back email for churning users",
+      "Legal Checklist|Basic items before launch",
+      "Security Tip|Use HTTPS and CSP headers"
+    ];
+
+    const newTools = meaningful.map(s => {
+      const parts = s.split('|');
+      return { name: parts[0], generatorPrompt: parts[1] || `Generate content for ${parts[0]}` };
+    });
+
+    localStorage.setItem('omniverse_tools_v1', JSON.stringify(newTools));
+    console.log('Omniverse: replaced tools with 100 meaningful items');
+  })();
+</script>
+</html>
   
