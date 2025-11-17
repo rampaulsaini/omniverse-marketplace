@@ -3,394 +3,424 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Omniverse Marketplace — AI & Tips (fixed sidebar)</title>
+<title>Omniverse Marketplace — AI & Tips</title>
 <link rel="icon" href="assets/favicon.ico">
 <style>
   :root{
-    --bg:#0b1220; --card:#081425; --muted:#9fb0d9; --accent:#4fa3ff;
+    --bg:#071227; --panel:#081425; --muted:#90a8c9; --accent:#4fa3ff; --card:#0b1726;
   }
-  html,body{height:100%;margin:0;padding:0;background:var(--bg);color:#e6eef8;font-family:Inter,Arial,system-ui}
-  header{height:56px;background:#081425;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.03)}
+  html,body{height:100%;margin:0;padding:0;background:var(--bg);color:#e6eef8;font-family:Inter, Roboto, Arial}
+  header{height:56px;background:var(--panel);display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.03)}
   header h1{margin:0;font-size:16px}
+  header .controls{display:flex;gap:8px;align-items:center}
+  button.btn{background:#0f2233;color:#e6eef8;border:0;padding:8px 12px;border-radius:8px;cursor:pointer}
+  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:6px 10px;border-radius:8px;color:#e6eef8}
   .container{display:flex;height:calc(100vh - 56px);overflow:hidden}
-  /* SIDEBAR */
-  .sidebar{width:300px;min-width:220px;background:linear-gradient(180deg,#061427,#081a30);padding:12px;border-right:1px solid rgba(255,255,255,0.03);box-sizing:border-box;overflow:auto}
-  .sidebar .search{margin-bottom:8px}
-  .sidebar input.searchbox{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.01);color:inherit}
-  .tool-btn{display:block;width:100%;text-align:left;padding:8px;border-radius:8px;border:0;background:transparent;color:inherit;margin-bottom:6px;cursor:pointer;font-size:13px;}
-  .tool-btn:hover{background:rgba(255,255,255,0.02)}
-  .tool-btn.active{background:rgba(79,163,255,0.12);box-shadow:inset 0 0 0 1px rgba(79,163,255,0.06)}
-  /* MAIN */
+  /* Sidebar */
+  .sidebar{width:300px;min-width:220px;background:linear-gradient(180deg,#051526,#07182b);padding:12px;border-right:1px solid rgba(255,255,255,0.02);box-sizing:border-box;overflow:auto}
+  .searchbox{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit;margin-bottom:10px}
+  .tool-btn{display:block;width:100%;text-align:left;padding:8px;border-radius:8px;border:0;background:transparent;color:inherit;margin-bottom:6px;cursor:pointer;font-size:13px}
+  .tool-btn:hover{background:rgba(79,163,255,0.04)}
+  .tool-btn.active{background:rgba(79,163,255,0.12);box-shadow:inset 0 0 0 1px rgba(79,163,255,0.04)}
+  .small-muted{color:var(--muted);font-size:13px}
+  /* Main */
   .main{flex:1;padding:16px;box-sizing:border-box;overflow:auto}
-  .controls{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
-  button.action{background:#10253a;color:#e6eef8;border:0;padding:8px 12px;border-radius:8px;cursor:pointer}
-  textarea#tool-output{width:100%;height:48vh;padding:12px;border-radius:8px;background:#071527;border:1px solid rgba(255,255,255,0.03);color:inherit;resize:vertical;font-family:monospace}
-  .tips{margin-top:10px;font-size:14px}
-  .muted{color:var(--muted);font-size:13px}
-  /* small screens */
+  .tool-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:12px;flex-wrap:wrap}
+  .controls-row{display:flex;gap:8px;align-items:center}
+  textarea#tool-output{width:100%;height:50vh;padding:12px;border-radius:8px;background:var(--card);border:1px solid rgba(255,255,255,0.03);color:inherit;resize:vertical;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace}
+  .tips{margin-top:12px}
+  /* Modal */
+  .modal-backdrop{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,5,10,0.6);z-index:999}
+  .modal{background:var(--panel);padding:16px;border-radius:10px;width:92%;max-width:520px;color:inherit;box-shadow:0 10px 40px rgba(0,0,0,0.6)}
+  .modal h3{margin:0 0 8px 0}
+  .modal .row{margin-bottom:10px}
+  .modal label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .modal input[type="text"], .modal input[type="password"], .modal textarea{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
+  .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+  /* Responsive */
   @media (max-width:800px){
-    .sidebar{width:46%;min-width:200px}
-    .main{padding:10px}
+    .sidebar{width:44%}
+    textarea#tool-output{height:40vh}
   }
 </style>
 </head>
 <body>
-  <header>
-    <h1>Omniverse Marketplace — AI & Tips</h1>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button class="action" onclick="openSettings()">Owner Settings</button>
-      <span class="muted" id="owner-name-badge"></span>
-    </div>
-  </header>
 
-  <div class="container">
-    <aside class="sidebar" id="sidebar">
-      <div class="search">
-        <input class="searchbox" id="tool-search" placeholder="Search tools (type name)..." />
-      </div>
-      <div id="tool-list" aria-live="polite"></div>
-    </aside>
-
-    <main class="main">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <h2 id="tool-title">कृपया बाएँ से एक tool चुनें।</h2>
-        <div class="muted">Tools: <span id="tool-count">0</span></div>
-      </div>
-
-      <div class="controls">
-        <button class="action" onclick="runTool()">Run</button>
-        <button class="action" onclick="downloadOutput()">Download</button>
-        <button class="action" onclick="copyOutput()">Copy</button>
-        <button class="action" onclick="cloneTool()">Clone Tool</button>
-      </div>
-
-      <textarea id="tool-output" placeholder="Output will appear here..."></textarea>
-      <div class="tips" id="tips-links"></div>
-      <div class="muted" style="margin-top:12px">Tip: अगर tools नहीं दिखते तो DevTools (F12) खोलकर Console में कोई error तो नहीं दिख रहा — वो screenshot भेजिए मैं तुरन्त देख लूँगा।</div>
-    </main>
+<header>
+  <h1>Omniverse Marketplace — AI & Tips</h1>
+  <div class="controls">
+    <span id="owner-badge" class="small-muted"></span>
+    <button class="btn" onclick="openOwnerModal()">Owner Settings</button>
   </div>
+</header>
 
-  <!-- Owner Settings modal (simple) -->
-  <div id="owner-modal" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:999">
-    <div style="background:#071827;padding:16px;border-radius:10px;max-width:480px;width:92%;box-shadow:0 10px 30px rgba(0,0,0,0.6)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <strong style="font-size:16px">Owner Settings</strong>
-        <button onclick="closeSettings()" style="background:transparent;border:0;color:#e6eef8;font-size:20px;cursor:pointer">&times;</button>
-      </div>
+<div class="container">
+  <aside class="sidebar" aria-label="Tools sidebar">
+    <input id="tool-search" class="searchbox" placeholder="Search tools (type name)..." />
+    <div id="tool-list" aria-live="polite"></div>
+    <div class="small-muted" style="margin-top:10px">Tools: <span id="tool-count">0</span></div>
+  </aside>
 
-      <div style="margin-bottom:8px"><label class="muted">Owner name</label><input id="owner-name" style="width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit" placeholder="आपका नाम"></div>
-      <div style="margin-bottom:8px"><label class="muted">Pay / Donate links (comma separated)</label><textarea id="owner-links" rows="2" style="width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit" placeholder="upi:abc@paytm, https://paypal.me/you"></textarea></div>
-      <div style="margin-bottom:8px"><label class="muted">OpenAI API key (optional)</label><input id="omniverse-openai-key" style="width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit" placeholder="sk-..."></div>
-
-      <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button class="action" onclick="saveOpenAIKey()">Save API Key</button>
-        <button class="action" onclick="saveOwnerSettings()">Save</button>
+  <main class="main">
+    <div class="tool-header">
+      <h2 id="tool-title">कृपया बाएँ से एक tool चुनें।</h2>
+      <div class="controls-row">
+        <button class="btn" onclick="runTool()">Run</button>
+        <button class="ghost" onclick="downloadOutput()">Download</button>
+        <button class="ghost" onclick="copyOutput()">Copy</button>
+        <button class="ghost" onclick="cloneTool()">Clone Tool</button>
       </div>
     </div>
+
+    <textarea id="tool-output" placeholder="Output will appear here..."></textarea>
+
+    <div class="tips" id="tips-links"></div>
+    <div class="small-muted" style="margin-top:12px">Note: Add an OpenAI API key in Owner Settings to generate AI output. Key is stored locally in your browser (not sent to any server by this page).</div>
+  </main>
+</div>
+
+<!-- Owner Settings Modal -->
+<div class="modal-backdrop" id="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal" role="document" aria-labelledby="modal-title">
+    <h3 id="modal-title">Owner Settings</h3>
+
+    <div class="row">
+      <label for="owner-name">Owner name</label>
+      <input id="owner-name" type="text" placeholder="Your name (e.g. Rampaulsaini)" />
+    </div>
+
+    <div class="row">
+      <label for="owner-links">Pay / Donate links (comma separated)</label>
+      <textarea id="owner-links" rows="2" placeholder="upi:abc@paytm, https://paypal.me/you"></textarea>
+    </div>
+
+    <div class="row">
+      <label for="openai-key">OpenAI API key (optional)</label>
+      <input id="openai-key" type="password" placeholder="sk-xxxx (keep secret, stored locally)" />
+    </div>
+
+    <div class="actions">
+      <button class="ghost" onclick="closeOwnerModal()">Close</button>
+      <button class="btn" onclick="saveOwnerSettings()">Save</button>
+    </div>
   </div>
+</div>
 
 <script>
-/* ===========
-   Robust script: render tools after DOM is ready, ensure buttons block-level,
-   provide search, debug logging.
-   =========== */
+/* ============
+   Omniverse Marketplace — final client-side app
+   - 100 meaningful tools support
+   - Owner settings (name, tips, OpenAI key stored locally)
+   - Run -> calls OpenAI completions if key present; fallback placeholder otherwise
+   - Copy / Download / Clone tools
+   - Search
+   ============ */
 
-document.addEventListener('DOMContentLoaded', () => {
-  try{
-    console.log('Omniverse: DOMContentLoaded — initializing tools UI');
-    initApp(); // main init
-  }catch(err){
-    console.error('Initialization error:', err);
-    alert('Error initializing page — open console (F12) and share the error.');
-  }
-});
+document.addEventListener('DOMContentLoaded', () => initOmniverse());
 
-function initApp(){
-  // STORAGE KEY
+function initOmniverse(){
   const LS_KEY = 'omniverse_tools_v1';
-  let tools = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+  // default meaningful tools (compact list). If you want full 100 custom entries, edit below array.
+  const defaultTools = [
+    "Resume Builder|Generate a professional resume for a software engineer with 2 years experience",
+    "Short Bio|Write a concise 2-line professional bio",
+    "Cover Letter|Write a cover letter for a product management role",
+    "LinkedIn Headline|Create a LinkedIn headline for an AI developer",
+    "Product Description|Write a 50-word e-commerce product description",
+    "Blog Outline|Outline a 5-section tech blog about AI automation",
+    "SEO Meta Description|Create a meta description for a page about Omniverse",
+    "Social Caption|Instagram caption for a product launch",
+    "Tweet Thread|5-tweet thread about developer tools",
+    "Cold Email|Short outreach email to a SaaS CTO",
+    "Meeting Notes|Summarize meeting notes with action items",
+    "Landing Headline|High-converting landing page headline",
+    "Feature List|List 6 features for a SaaS app",
+    "Onboarding Steps|User onboarding checklist for new users",
+    "Customer Reply|Polite customer support reply template",
+    "FAQ Answer|Answer: refund policy question",
+    "Business Idea|Generate a business idea around AI micro-apps",
+    "Microcopy|Button copy variations (Buy, Try free, Subscribe)",
+    "Short Story|150-word sci-fi scene",
+    "Poem|4-line inspirational poem",
+    "Code Snippet|JS fetch+render example snippet",
+    "SQL Query|Get top users by revenue",
+    "API Example|Short API usage example",
+    "Regex Helper|Regex to extract emails from text",
+    "Image Prompt|Prompt for image-gen: futuristic city at dusk",
+    "Video Script|30s product promo script",
+    "Ad Headline|Google ad headline options",
+    "Keyword Ideas|10 SEO keywords for AI tools",
+    "Course Syllabus|5-week AI basics syllabus",
+    "Interview Qs|10 frontend interview questions",
+    "Test Cases|Unit test plan for addUser function",
+    "Privacy Snippet|Short privacy policy clause",
+    "Terms Snippet|Short terms clause",
+    "Changelog|Write a changelog entry for v1.1",
+    "Release Notes|Short release notes for minor fixes",
+    "Promo Email|Promotional email for discounts",
+    "Referral Message|Message asking users to refer friends",
+    "Plugin README|README skeleton for a plugin",
+    "Error Message|Friendly error message for failed save",
+    "Accessibility Tip|Improve contrast & alt text",
+    "Color Palette|Suggest a 4-color palette for SaaS",
+    "Name Generator|Generate 10 startup names",
+    "Slogan Generator|Create 5 brand slogans",
+    "FAQ Generator|Create 6 FAQ Q&A",
+    "Pricing Tier|Suggest 3 pricing tiers",
+    "One-liner|Elevator pitch in one line",
+    "Persona|Short user persona",
+    "KPI List|Key growth KPIs",
+    "Weekly Goals|5 weekly dev goals",
+    "Retweet Reply|Short reply to helpful tweet",
+    "Meeting Agenda|Template agenda",
+    "Press Release|Short press release",
+    "Case Study|Case study outline",
+    "Pitch Bullets|Bullets for a 5-slide deck",
+    "Investor Email|Starter investor outreach email",
+    "Cold Call Script|30s cold call",
+    "Job Description|Frontend engineer JD",
+    "Perf Tip|Lazy-load images for speed",
+    "Refactor Plan|Steps to refactor module",
+    "Migration Plan|DB migration outline",
+    "Automation Prompt|Prompt to automate posts",
+    "Affiliate Msg|Recruit affiliates message",
+    "Sponsorship Pitch|Sponsor pitch template",
+    "Community Post|Welcome post for new members",
+    "Survey Qs|3 customer satisfaction Qs",
+    "Beta Invite|Beta tester invite message",
+    "Feature Req Reply|Acknowledge feature request",
+    "Refund Policy|Short refund policy template",
+    "Contract Clause|Simple payment clause",
+    "Invoice Template|Short invoice template",
+    "Expense Report|Expense report template",
+    "Roadmap Item|Quarterly roadmap example",
+    "DevOps Checklist|Pre-deploy checklist",
+    "Health Check|Site health curl script summary",
+    "Monitoring Tip|Add uptime monitoring",
+    "SEO Audit Step|Check meta tags & H1",
+    "Optimization Tip|Compress images & use CDN",
+    "Analytics Event|Track button click snippet",
+    "Integration Idea|Use free Zapier flows",
+    "Workflow Step|CI example step",
+    "Backup Plan|Simple backup outline",
+    "Contact Template|Ask for feedback template",
+    "Thank You Note|Customer thank you message",
+    "Upsell Script|Short upsell message",
+    "Cross-sell Idea|Related product cross-sell",
+    "Churn Email|Win-back email",
+    "Legal Checklist|Items before launch",
+    "Security Tip|Enable HTTPS & CSP",
+    "Privacy Notice|Short privacy notice",
+    "On-Page CTA|Call-to-action suggestions",
+    "Sample Terms|Terms snippet"
+  ];
 
-  // ensure at least 100 tools exist
-  if(!Array.isArray(tools) || tools.length < 100){
-    tools = [];
-    for(let i=1;i<=100;i++){
-      tools.push({ name: `Tool ${i}`, generatorPrompt: `Generate content for Tool ${i}` });
+  // ensure we have exactly 100 entries: extend by duplicates if needed
+  const expandTo100 = (arr) => {
+    const out = arr.slice();
+    let i = 0;
+    while (out.length < 100) {
+      const base = arr[i % arr.length];
+      out.push(base + ''); i++;
     }
-    localStorage.setItem(LS_KEY, JSON.stringify(tools));
-    console.log('Initialized default 100 tools');
+    return out.slice(0,100);
+  };
+
+  // Build tools array (name + generatorPrompt)
+  let stored = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+  if(!Array.isArray(stored) || stored.length < 100){
+    const filled = expandTo100(defaultTools);
+    stored = filled.map(s => {
+      const parts = s.split('|');
+      return { name: parts[0].trim(), generatorPrompt: parts[1] ? parts[1].trim() : `Generate content for ${parts[0].trim()}` };
+    });
+    localStorage.setItem(LS_KEY, JSON.stringify(stored));
   }
-
-  // expose tools to window for debugging
-  window._omniverse_tools = tools;
-
-  // state
-  let selectedIndex = null;
+  // Use tools from storage
+  let tools = JSON.parse(localStorage.getItem(LS_KEY));
 
   // DOM refs
   const toolListEl = document.getElementById('tool-list');
   const toolTitleEl = document.getElementById('tool-title');
   const toolOutputEl = document.getElementById('tool-output');
   const toolCountEl = document.getElementById('tool-count');
-  const ownerNameBadge = document.getElementById('owner-name-badge');
-  const searchBox = document.getElementById('tool-search');
+  const ownerBadge = document.getElementById('owner-badge');
+  const modalBackdrop = document.getElementById('modal-backdrop');
 
-  // render helpers
-  function renderToolList(filter){
+  // state
+  let selectedIndex = null;
+
+  // Render functions
+  function renderToolList(filter = ''){
     toolListEl.innerHTML = '';
-    const fragment = document.createDocumentFragment();
+    const frag = document.createDocumentFragment();
     tools.forEach((t,i) => {
       if(filter && !t.name.toLowerCase().includes(filter.toLowerCase())) return;
       const btn = document.createElement('button');
       btn.className = 'tool-btn';
-      btn.textContent = t.name;
       btn.type = 'button';
       btn.id = 'tool-btn-' + i;
-      btn.onclick = () => selectTool(i);
-      fragment.appendChild(btn);
+      btn.textContent = t.name;
+      btn.onclick = ()=> selectTool(i);
+      frag.appendChild(btn);
     });
-    toolListEl.appendChild(fragment);
+    toolListEl.appendChild(frag);
     toolCountEl.textContent = tools.length;
-    console.log('Rendered', tools.length, 'tools (filter=', filter||'none',')');
   }
 
   function updateOwnerBadge(){
     const name = localStorage.getItem('omniverse_owner_name') || '';
-    ownerNameBadge.textContent = name ? `Owner: ${name}` : '';
+    ownerBadge.textContent = name ? `Owner: ${name}` : '';
   }
 
-  // selection
-  function selectTool(i){
-    selectedIndex = i;
-    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-    const btn = document.getElementById('tool-btn-'+i);
-    if(btn) btn.classList.add('active');
-    const t = tools[i];
-    toolTitleEl.textContent = t.name;
-    toolOutputEl.value = ''; // clear previous
-    renderTips();
-  }
-
-  // search
-  searchBox.addEventListener('input', (e) => {
-    renderToolList(e.target.value.trim());
-  });
-
-  // render tips / links
   function renderTips(){
     const div = document.getElementById('tips-links');
     const links = JSON.parse(localStorage.getItem('omniverse_owner_links')||'[]');
     div.innerHTML = '';
-    if(links.length){
-      const label = document.createElement('div'); label.textContent='Support Owner:';
+    if(links && links.length){
+      const label = document.createElement('div'); label.textContent = 'Support Owner:';
       div.appendChild(label);
       links.forEach(l => {
         const a = document.createElement('a');
-        a.href = l; a.target = '_blank';
-        a.textContent = ' 💰 Tip ';
+        a.href = l; a.target = '_blank'; a.textContent = ' 💰 Tip ';
         a.style.marginRight = '8px';
         div.appendChild(a);
       });
     }
   }
 
-  // actions
-  async function runTool(){
-    if(selectedIndex===null){ alert('कृपया एक tool चुनें।'); return; }
-    const t = tools[selectedIndex];
-    toolOutputEl.value = 'Generating AI output...';
-    const prompt = t.generatorPrompt || `Generate content for ${t.name}`;
+  function selectTool(i){
+    selectedIndex = i;
+    document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('active'));
+    const b = document.getElementById('tool-btn-'+i);
+    if(b) b.classList.add('active');
+    toolTitleEl.textContent = tools[i].name;
+    toolOutputEl.value = '';
+    // show prompt in output as placeholder hint (editable)
+    toolOutputEl.placeholder = tools[i].generatorPrompt;
+    renderTips();
+  }
 
-    // try to call OpenAI if key present
+  // Search box
+  document.getElementById('tool-search').addEventListener('input', (e)=> {
+    renderToolList(e.target.value.trim());
+  });
+
+  // Owner modal actions
+  window.openOwnerModal = function(){ 
+    modalBackdrop.style.display = 'flex';
+    document.getElementById('owner-name').value = localStorage.getItem('omniverse_owner_name') || '';
+    document.getElementById('owner-links').value = localStorage.getItem('omniverse_owner_links_raw') || '';
+    document.getElementById('openai-key').value = localStorage.getItem('omniverse_openai_key') || '';
+  };
+  window.closeOwnerModal = function(){ modalBackdrop.style.display = 'none'; };
+
+  window.saveOwnerSettings = function(){
+    const name = document.getElementById('owner-name').value.trim();
+    const linksRaw = document.getElementById('owner-links').value.trim();
+    const links = linksRaw.split(',').map(s=>s.trim()).filter(Boolean);
+    const key = document.getElementById('openai-key').value.trim();
+    localStorage.setItem('omniverse_owner_name', name);
+    localStorage.setItem('omniverse_owner_links', JSON.stringify(links));
+    localStorage.setItem('omniverse_owner_links_raw', linksRaw);
+    if(key) localStorage.setItem('omniverse_openai_key', key);
+    else localStorage.removeItem('omniverse_openai_key');
+    updateOwnerBadge();
+    renderTips();
+    modalBackdrop.style.display = 'none';
+    alert('Owner settings saved locally.');
+  };
+
+  // Tool operations
+  window.addTool = function(name,prompt){
+    const nm = name || prompt('New tool name:');
+    if(!nm) return;
+    const pr = prompt || `Generate content for ${nm}`;
+    tools.push({ name: nm, generatorPrompt: pr });
+    localStorage.setItem(LS_KEY, JSON.stringify(tools));
+    renderToolList();
+  };
+
+  window.cloneTool = function(){
+    if(selectedIndex === null){ alert('Please select a tool first'); return; }
+    const orig = tools[selectedIndex];
+    const nm = prompt('Name for cloned tool', orig.name + ' Copy');
+    if(!nm) return;
+    tools.push({ name: nm, generatorPrompt: orig.generatorPrompt });
+    localStorage.setItem(LS_KEY, JSON.stringify(tools));
+    renderToolList();
+  };
+
+  window.runTool = async function(){
+    if(selectedIndex === null){ alert('कृपया बाएँ से एक tool चुनें।'); return; }
+    const t = tools[selectedIndex];
+    const outEl = toolOutputEl;
+    outEl.value = 'Generating AI output...';
+
+    // Determine prompt: if user edited textarea, use that as prompt fallback? We'll use generatorPrompt by default
+    const promptText = outEl.value.trim() && outEl.value !== 'Generating AI output...' ? outEl.value : (t.generatorPrompt || `Generate content for ${t.name}`);
+
+    // Try OpenAI
     const apiKey = localStorage.getItem('omniverse_openai_key');
     if(!apiKey){
-      // fallback: simple placeholder (non-AI)
-      toolOutputEl.value = `Placeholder output for ${t.name}\n\nPrompt: ${prompt}\n\n(Provide OpenAI API key in Owner Settings to get AI output)`;
+      // fallback placeholder (no external call)
+      outEl.value = `Placeholder for "${t.name}"\n\nPrompt:\n${promptText}\n\n(To get real AI output, add an OpenAI API key in Owner Settings.)`;
       return;
     }
 
     try{
-      const res = await fetch('https://api.openai.com/v1/completions', {
-        method: 'POST',
-        headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${apiKey}` },
-        body: JSON.stringify({ model:'text-davinci-003', prompt: prompt, max_tokens:250 })
+      // Minimal completion call (text-davinci-003). Keep small tokens to reduce cost.
+      const resp = await fetch('https://api.openai.com/v1/completions', {
+        method:'POST',
+        headers: {
+          'Content-Type':'application/json',
+          'Authorization': 'Bearer ' + apiKey
+        },
+        body: JSON.stringify({
+          model: 'text-davinci-003',
+          prompt: promptText,
+          max_tokens: 220,
+          temperature: 0.7
+        })
       });
-      if(!res.ok){
-        const txt = await res.text();
-        toolOutputEl.value = `API Error: ${res.status} ${res.statusText}\n${txt}`;
-        console.error('OpenAI error:', res.status, res.statusText, txt);
+      if(!resp.ok){
+        const txt = await resp.text();
+        outEl.value = `OpenAI error: ${resp.status} ${resp.statusText}\n${txt}`;
         return;
       }
-      const data = await res.json();
-      toolOutputEl.value = (data.choices && data.choices[0] && data.choices[0].text) ? data.choices[0].text.trim() : JSON.stringify(data,null,2);
+      const data = await resp.json();
+      const text = (data.choices && data.choices[0] && data.choices[0].text) ? data.choices[0].text.trim() : JSON.stringify(data,null,2);
+      outEl.value = text;
     }catch(err){
-      console.error('Run error', err);
-      toolOutputEl.value = 'Error generating AI output: ' + (err.message || err);
+      outEl.value = 'Error: '+ (err.message || err);
     }
-  }
+  };
 
-  function downloadOutput(){
+  window.downloadOutput = function(){
     const val = toolOutputEl.value;
     if(!val){ alert('No output to download'); return; }
-    const fileName = (selectedIndex!==null ? tools[selectedIndex].name : 'output') + '.txt';
+    const filename = (selectedIndex !== null ? tools[selectedIndex].name : 'output') + '.txt';
     const blob = new Blob([val], { type:'text/plain' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = fileName; a.click();
+    const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
     URL.revokeObjectURL(url);
-  }
+  };
 
-  function copyOutput(){
+  window.copyOutput = function(){
     const val = toolOutputEl.value;
     if(!val){ alert('No output to copy'); return; }
-    navigator.clipboard.writeText(val).then(()=> alert('Output copied to clipboard'));
-  }
+    navigator.clipboard.writeText(val).then(()=> alert('Copied to clipboard.'));
+  };
 
-  function cloneTool(){
-    if(selectedIndex===null){ alert('Select a tool to clone'); return; }
-    const orig = tools[selectedIndex];
-    const name = prompt('Name for cloned tool', orig.name + ' Copy');
-    if(!name) return;
-    tools.push({ name: name, generatorPrompt: orig.generatorPrompt });
-    saveTools();
-    renderToolList();
-  }
-
-  function saveTools(){
-    localStorage.setItem(LS_KEY, JSON.stringify(tools));
-  }
-
-  // owner settings methods (modal)
-  function openSettings(){ document.getElementById('owner-modal').style.display='flex'; document.getElementById('owner-name').value = localStorage.getItem('omniverse_owner_name')||''; document.getElementById('owner-links').value = localStorage.getItem('omniverse_owner_links_raw')||''; document.getElementById('omniverse-openai-key').value = localStorage.getItem('omniverse_openai_key')||''; }
-  function closeSettings(){ document.getElementById('owner-modal').style.display='none'; }
-  function saveOpenAIKey(){ const k = document.getElementById('omniverse-openai-key').value.trim(); localStorage.setItem('omniverse_openai_key', k); alert('API key saved locally'); }
-  function saveOwnerSettingsLocal(){ const name = document.getElementById('owner-name').value.trim(); const linksText = document.getElementById('owner-links').value; const links = linksText.split(',').map(s=>s.trim()).filter(Boolean); localStorage.setItem('omniverse_owner_name', name); localStorage.setItem('omniverse_owner_links', JSON.stringify(links)); localStorage.setItem('omniverse_owner_links_raw', linksText); alert('Owner settings saved'); updateOwnerBadge(); renderTips(); }
-
-  // wire up global helpers for buttons
-  window.openSettings = openSettings;
-  window.closeSettings = closeSettings;
-  window.saveOpenAIKey = saveOpenAIKey;
-  window.saveOwnerSettings = saveOwnerSettingsLocal;
-  window.runTool = runTool;
-  window.downloadOutput = downloadOutput;
-  window.copyOutput = copyOutput;
-  window.cloneTool = cloneTool;
-  window.addTool = function(){ const name = prompt('New tool name'); if(!name) return; tools.push({name:name, generatorPrompt:`Generate content for ${name}`}); saveTools(); renderToolList(); };
-  window.resetTools = function(){ if(confirm('Reset all tools?')){ tools = []; saveTools(); renderToolList(); toolOutputEl.value=''; }};
-
-  // initial render
+  // Initial render and owner info
   renderToolList();
   updateOwnerBadge();
   renderTips();
 
-  console.log('Omniverse UI initialized — tools available:', tools.length);
-
-  // expose for debugging
-  window._omniverse = { tools, renderToolList, runTool };
+  console.log('Omniverse Marketplace initialized. Tools:', tools.length);
 }
 </script>
+
 </body>
-    <!-- Insert once, before </body> -->
-<script>
-  // Replace tools in localStorage with 100 meaningful tools (per your request)
-  (function(){
-    const meaningful = [
-      "Resume Builder|Generate a professional resume for a software engineer with 2 years experience",
-      "Short Bio|Write a concise 2-line professional bio",
-      "Cover Letter|Write a cover letter for a role in product management",
-      "LinkedIn Headline|Create a LinkedIn headline for AI developer",
-      "Product Description|E-commerce product description of 50 words",
-      "Blog Outline|Outline a 5-section tech blog about AI automation",
-      "SEO Meta Description|Create a meta description for a web page about Omniverse",
-      "Social Caption|Instagram caption for product launch",
-      "Tweet Thread|5-tweet thread idea about developer tools",
-      "Email Cold Outreach|Short cold email to SaaS CTO",
-      "Meeting Notes|Summarize meeting notes with action items",
-      "Landing Page Headline|High-converting headline for landing page",
-      "Feature List|List 6 features for a SaaS app",
-      "Onboarding Steps|User onboarding checklist for new users",
-      "Customer Reply|Polite customer support reply template",
-      "FAQ Answer|Answer a common FAQ about refunds",
-      "Business Idea|Generate a business idea around AI micro-apps",
-      "Microcopy|Button microcopy options (‘Buy’, ‘Try free’)",
-      "Short Story|Write a 150-word sci-fi short scene",
-      "Poem|4-line inspirational poem",
-      "Code Snippet|JS snippet to fetch JSON and render list",
-      "SQL Query|Example SQL to get top users by revenue",
-      "API Doc|Short API usage example",
-      "Regex Helper|Regex to extract emails from text",
-      "Image Prompt|Text prompt for image-gen model for futuristic city",
-      "Video Script|30s script for product promo",
-      "Ad Headline|Google ad headline options",
-      "Keyword Ideas|10 SEO keywords for AI tools",
-      "Course Syllabus|5-week course on AI basics",
-      "Interview Qs|Top 10 interview questions for frontend dev",
-      "Test Cases|Unit test plan for addUser function",
-      "Privacy Policy Snippet|Short privacy policy clause",
-      "Terms Snippet|Short terms of service clause",
-      "Changelog Entry|Write a changelog entry for v1.1",
-      "Release Notes|Short release notes for bugfixes",
-      "Promo Email|Promotional email for discounts",
-      "Referral Message|Message to ask users to refer friends",
-      "Plugin Readme|README skeleton for a plugin",
-      "Error Message|Friendly UI error message for failed save",
-      "Accessibility Tip|Tip to improve page accessibility",
-      "Color Palette|Suggest a 4-color palette for SaaS",
-      "Name Generator|Generate 10 startup names",
-      "Slogan Generator|Create 5 slogans for Omniverse",
-      "FAQ Generator|Create 6 FAQ Q&A for product",
-      "Pricing Tier|Suggest 3 pricing tiers for SaaS",
-      "Oneliner|One-line elevator pitch",
-      "Persona|Short user persona for target audience",
-      "KPI List|Key KPIs for product growth",
-      "Weekly Goals|Set 5 weekly goals for dev team",
-      "Retweet Reply|Short reply to a helpful tweet",
-      "Meeting Agenda|Template meeting agenda",
-      "Press Release|Short press release template",
-      "Case Study|Case study outline for client success",
-      "Slide Bullet Points|Bullets for a 5-slide pitch deck",
-      "Investor Email|Starter email to reach investors",
-      "Cold Call Script|30s cold call script",
-      "Job Description|JD for frontend engineer",
-      "Performance Tip|Optimize page load by lazy-loading images",
-      "Refactor Plan|Steps to refactor legacy code",
-      "Migration Plan|DB migration high level steps",
-      "Automation Prompt|Prompt to automate social posts",
-      "Affiliate Message|Message to recruit affiliates",
-      "Sponsorship Pitch|Pitch template for sponsors",
-      "Community Post|Welcome post for new community members",
-      "Survey Question|3 customer satisfaction survey questions",
-      "Beta Invite|Beta tester invite message",
-      "Feature Request Reply|Acknowledgement to feature request",
-      "Refund Policy|Short refund policy template",
-      "Contract Clause|Simple payment clause",
-      "Invoice Template|Short invoice template",
-      "Expense Report|Template for expense report",
-      "Roadmap Item|Quarterly roadmap item example",
-      "Dev Ops Checklist|Pre-deploy checklist",
-      "Health Check|Script summary to check site health",
-      "Monitoring Tip|Add uptime monitoring using free tools",
-      "SEO Audit Step|Check meta tags and h1s",
-      "Optimization Tip|Compress images before deploy",
-      "Analytics Event|Track button click event snippet",
-      "Integration Idea|Integrate with free Zapier flows",
-      "Workflow Step|CI workflow step example",
-      "Backup Plan|Simple backup plan outline",
-      "Contact Template|Template to ask for feedback",
-      "Thank You Note|Customer thank you message",
-      "Upsell Script|Short upsell message after purchase",
-      "CrossSell Idea|Cross-sell related product idea",
-      "Churn Email|Win-back email for churning users",
-      "Legal Checklist|Basic items before launch",
-      "Security Tip|Use HTTPS and CSP headers"
-    ];
-
-    const newTools = meaningful.map(s => {
-      const parts = s.split('|');
-      return { name: parts[0], generatorPrompt: parts[1] || `Generate content for ${parts[0]}` };
-    });
-
-    localStorage.setItem('omniverse_tools_v1', JSON.stringify(newTools));
-    console.log('Omniverse: replaced tools with 100 meaningful items');
-  })();
-</script>
-</html>
-  
+          </html>
+    
