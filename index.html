@@ -1,272 +1,292 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="hi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Omniverse Marketplace — AI & Tips</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Omniverse Marketplace — AI & Tips (fixed sidebar)</title>
 <link rel="icon" href="assets/favicon.ico">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#0b1220;color:#e6eef8}
-header{padding:12px;background:#081425;display:flex;align-items:center;justify-content:space-between}
-header h1{margin:0;font-size:1.3rem}
-header button{padding:6px 10px;border:none;border-radius:6px;background:#152040;color:#e6eef8;cursor:pointer}
-.container{display:flex;height:calc(100vh - 50px)}
-.sidebar{width:260px;background:#0a1020;border-right:1px solid rgba(255,255,255,0.05);overflow-y:auto;padding:12px}
-.sidebar button{width:100%;margin-bottom:4px;padding:6px;border:none;border-radius:6px;background:#081425;color:#e6eef8;cursor:pointer;text-align:left;font-size:0.85rem}
-.sidebar button.active{background:#152040}
-.main{flex:1;padding:12px;overflow-y:auto}
-.tool-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap}
-textarea#tool-output{width:100%;height:300px;background:#081425;color:#e6eef8;border:1px solid rgba(255,255,255,0.1);padding:8px;border-radius:6px;resize:none;font-family:monospace}
-button.action{padding:6px 10px;margin-right:6px;border:none;border-radius:6px;background:#152040;color:#e6eef8;cursor:pointer;margin-top:4px}
-input,textarea{background:#081425;color:#e6eef8;border:1px solid rgba(255,255,255,0.05);border-radius:6px;padding:6px;width:100%;margin-bottom:6px}
-.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:999}
-.modal-content{background:#0b1220;padding:18px;border-radius:10px;width:90%;max-width:600px;max-height:90%;overflow:auto}
-.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.modal-header h3{margin:0}
-.close-btn{cursor:pointer;color:#e6eef8}
-a{color:#4fa3ff;text-decoration:none}
-a:hover{text-decoration:underline}
+  :root{
+    --bg:#0b1220; --card:#081425; --muted:#9fb0d9; --accent:#4fa3ff;
+  }
+  html,body{height:100%;margin:0;padding:0;background:var(--bg);color:#e6eef8;font-family:Inter,Arial,system-ui}
+  header{height:56px;background:#081425;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.03)}
+  header h1{margin:0;font-size:16px}
+  .container{display:flex;height:calc(100vh - 56px);overflow:hidden}
+  /* SIDEBAR */
+  .sidebar{width:300px;min-width:220px;background:linear-gradient(180deg,#061427,#081a30);padding:12px;border-right:1px solid rgba(255,255,255,0.03);box-sizing:border-box;overflow:auto}
+  .sidebar .search{margin-bottom:8px}
+  .sidebar input.searchbox{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.01);color:inherit}
+  .tool-btn{display:block;width:100%;text-align:left;padding:8px;border-radius:8px;border:0;background:transparent;color:inherit;margin-bottom:6px;cursor:pointer;font-size:13px;}
+  .tool-btn:hover{background:rgba(255,255,255,0.02)}
+  .tool-btn.active{background:rgba(79,163,255,0.12);box-shadow:inset 0 0 0 1px rgba(79,163,255,0.06)}
+  /* MAIN */
+  .main{flex:1;padding:16px;box-sizing:border-box;overflow:auto}
+  .controls{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+  button.action{background:#10253a;color:#e6eef8;border:0;padding:8px 12px;border-radius:8px;cursor:pointer}
+  textarea#tool-output{width:100%;height:48vh;padding:12px;border-radius:8px;background:#071527;border:1px solid rgba(255,255,255,0.03);color:inherit;resize:vertical;font-family:monospace}
+  .tips{margin-top:10px;font-size:14px}
+  .muted{color:var(--muted);font-size:13px}
+  /* small screens */
+  @media (max-width:800px){
+    .sidebar{width:46%;min-width:200px}
+    .main{padding:10px}
+  }
 </style>
 </head>
 <body>
+  <header>
+    <h1>Omniverse Marketplace — AI & Tips</h1>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="action" onclick="openSettings()">Owner Settings</button>
+      <span class="muted" id="owner-name-badge"></span>
+    </div>
+  </header>
 
-<header>
-<h1>Omniverse Marketplace — AI & Tips</h1>
-<button onclick="openSettings()">Owner Settings <i class="fa fa-cog"></i></button>
-</header>
+  <div class="container">
+    <aside class="sidebar" id="sidebar">
+      <div class="search">
+        <input class="searchbox" id="tool-search" placeholder="Search tools (type name)..." />
+      </div>
+      <div id="tool-list" aria-live="polite"></div>
+    </aside>
 
-<div class="container">
-  <div class="sidebar" id="tool-list"></div>
-  <div class="main">
-    <div class="tool-header">
-      <h2 id="tool-title">कृपया बाएँ से एक tool चुनें।</h2>
-      <div>
+    <main class="main">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h2 id="tool-title">कृपया बाएँ से एक tool चुनें।</h2>
+        <div class="muted">Tools: <span id="tool-count">0</span></div>
+      </div>
+
+      <div class="controls">
         <button class="action" onclick="runTool()">Run</button>
         <button class="action" onclick="downloadOutput()">Download</button>
         <button class="action" onclick="copyOutput()">Copy</button>
         <button class="action" onclick="cloneTool()">Clone Tool</button>
       </div>
-    </div>
-    <textarea id="tool-output" placeholder="Output will appear here..."></textarea>
-    <div id="tips-links"></div>
-  </div>
-</div>
 
-<div class="modal" id="owner-modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Owner Settings</h3>
-      <span class="close-btn" onclick="closeSettings()">&times;</span>
-    </div>
-    <label>Owner Name</label>
-    <input type="text" id="owner-name" placeholder="आपका नाम">
-    <label>Pay / Donate Links (comma separated)</label>
-    <textarea id="owner-links" placeholder="upi:abc@paytm, https://paypal.me/you"></textarea>
-    <label>OpenAI API Key (optional)</label>
-    <input type="text" id="omniverse-openai-key" placeholder="sk-xxxx">
-    <button class="action" onclick="saveOpenAIKey()">Save API Key</button>
-    <button class="action" onclick="saveOwnerSettings()">Save Owner Settings</button>
-    <button class="action" onclick="exportOwnerSettings()">Export Settings</button>
-    <button class="action" onclick="importOwnerSettings()">Import Settings</button>
-    <hr>
-    <button class="action" onclick="addTool()">+ Add Tool</button>
-    <button class="action" onclick="resetTools()">Reset All Tools</button>
+      <textarea id="tool-output" placeholder="Output will appear here..."></textarea>
+      <div class="tips" id="tips-links"></div>
+      <div class="muted" style="margin-top:12px">Tip: अगर tools नहीं दिखते तो DevTools (F12) खोलकर Console में कोई error तो नहीं दिख रहा — वो screenshot भेजिए मैं तुरन्त देख लूँगा।</div>
+    </main>
   </div>
-</div>
+
+  <!-- Owner Settings modal (simple) -->
+  <div id="owner-modal" style="display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:999">
+    <div style="background:#071827;padding:16px;border-radius:10px;max-width:480px;width:92%;box-shadow:0 10px 30px rgba(0,0,0,0.6)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <strong style="font-size:16px">Owner Settings</strong>
+        <button onclick="closeSettings()" style="background:transparent;border:0;color:#e6eef8;font-size:20px;cursor:pointer">&times;</button>
+      </div>
+
+      <div style="margin-bottom:8px"><label class="muted">Owner name</label><input id="owner-name" style="width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit" placeholder="आपका नाम"></div>
+      <div style="margin-bottom:8px"><label class="muted">Pay / Donate links (comma separated)</label><textarea id="owner-links" rows="2" style="width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit" placeholder="upi:abc@paytm, https://paypal.me/you"></textarea></div>
+      <div style="margin-bottom:8px"><label class="muted">OpenAI API key (optional)</label><input id="omniverse-openai-key" style="width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit" placeholder="sk-..."></div>
+
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="action" onclick="saveOpenAIKey()">Save API Key</button>
+        <button class="action" onclick="saveOwnerSettings()">Save</button>
+      </div>
+    </div>
+  </div>
 
 <script>
-// =========================
-// LocalStorage + Tools Init
-// =========================
-const LS_KEY = 'omniverse_tools_v1';
-let tools = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+/* ===========
+   Robust script: render tools after DOM is ready, ensure buttons block-level,
+   provide search, debug logging.
+   =========== */
 
-if (tools.length === 0) {
-  tools = [];
-  for (let i = 1; i <= 100; i++) {
-    tools.push({
-      name: `Tool ${i}`,
-      generatorPrompt: `Generate content for Tool ${i}`
-    });
-  }
-  localStorage.setItem(LS_KEY, JSON.stringify(tools));
-}
-
-// =========================
-// Render Sidebar
-// =========================
-function renderToolList() {
-  const container = document.getElementById('tool-list');
-  container.innerHTML = '';
-  tools.forEach((t, i) => {
-    const btn = document.createElement('button');
-    btn.textContent = t.name;      // Proper name display
-    btn.id = 'tool-btn-' + i;
-    btn.onclick = () => selectTool(i);
-    container.appendChild(btn);
-  });
-}
-
-// =========================
-// Owner Settings
-// =========================
-function openSettings(){ document.getElementById('owner-modal').style.display='flex'; loadOwnerSettings(); }
-function closeSettings(){ document.getElementById('owner-modal').style.display='none'; }
-function loadOwnerSettings(){
-  document.getElementById('owner-name').value = localStorage.getItem('omniverse_owner_name') || '';
-  document.getElementById('owner-links').value = localStorage.getItem('omniverse_owner_links_raw') || '';
-  document.getElementById('omniverse-openai-key').value = localStorage.getItem('omniverse_openai_key') || '';
-}
-function saveOwnerSettings(){
-  const name = document.getElementById('owner-name').value.trim();
-  const links = document.getElementById('owner-links').value.split(',').map(s=>s.trim()).filter(s=>s);
-  localStorage.setItem('omniverse_owner_name', name);
-  localStorage.setItem('omniverse_owner_links', JSON.stringify(links));
-  localStorage.setItem('omniverse_owner_links_raw', document.getElementById('owner-links').value);
-  alert('Owner settings saved.');
-  renderTips();
-}
-function saveOpenAIKey(){
-  const key = document.getElementById('omniverse-openai-key').value.trim();
-  localStorage.setItem('omniverse_openai_key', key);
-  alert('OpenAI API key saved.');
-}
-function exportOwnerSettings(){
-  const data = {
-    name: document.getElementById('owner-name').value,
-    links: document.getElementById('owner-links').value,
-    openai_key: document.getElementById('omniverse-openai-key').value,
-    tools: tools
-  };
-  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href=url; a.download='omniverse_settings.json'; a.click(); URL.revokeObjectURL(url);
-}
-function importOwnerSettings(){
-  const input=document.createElement('input'); input.type='file'; input.accept='.json';
-  input.onchange=async function(){
-    const file=this.files[0];
-    const text=await file.text();
-    try{
-      const data=JSON.parse(text);
-      document.getElementById('owner-name').value = data.name || '';
-      document.getElementById('owner-links').value = data.links || '';
-      document.getElementById('omniverse-openai-key').value = data.openai_key || '';
-      localStorage.setItem('omniverse_owner_links', JSON.stringify(data.links.split(',').map(s=>s.trim()).filter(s=>s)));
-      localStorage.setItem('omniverse_owner_links_raw', data.links);
-      localStorage.setItem('omniverse_openai_key', data.openai_key || '');
-      resetTools();
-      if(data.tools) data.tools.forEach(t=>addTool(t.name));
-      alert('Settings imported successfully.');
-    }catch(e){ alert('Invalid JSON file'); }
-  };
-  input.click();
-}
-
-// =========================
-// Tools Functions
-// =========================
-function saveTools(){ localStorage.setItem(LS_KEY, JSON.stringify(tools)) }
-let selectedIndex=null;
-
-function addTool(){
-  const name = prompt('Enter new tool name:');
-  if(!name) return;
-  tools.push({name:name, generatorPrompt:`Generate content for ${name}`});
-  saveTools();
-  renderToolList();
-}
-function resetTools(){ if(confirm('Reset all tools?')){ tools=[]; saveTools(); renderToolList(); document.getElementById('tool-output').value=''; } }
-function selectTool(i){
-  selectedIndex=i;
-  document.querySelectorAll('.sidebar button').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tool-btn-'+i).classList.add('active');
-  document.getElementById('tool-title').textContent=tools[i].name;
-  document.getElementById('tool-output').value='';
-  renderTips();
-}
-function cloneTool(){
-  if(selectedIndex===null) return alert('Select a tool to clone');
-  const original = tools[selectedIndex];
-  const cloneName = prompt('Enter name for cloned tool:', original.name + ' Copy');
-  if(!cloneName) return;
-  tools.push({name:cloneName, generatorPrompt:original.generatorPrompt});
-  saveTools();
-  renderToolList();
-}
-
-// =========================
-// Run / AI Output
-// =========================
-async function runTool(){
-  if(selectedIndex===null) return alert('Select a tool first.');
-  const tool = tools[selectedIndex];
-  const textarea = document.getElementById('tool-output');
-  textarea.value = "Generating AI output...";
-
-  const prompt = tool.generatorPrompt || `Generate content for ${tool.name}`;
-  const apiKey = localStorage.getItem('omniverse_openai_key');
-  if(!apiKey) return textarea.value="Add OpenAI API key in Owner Settings to run AI.";
-
+document.addEventListener('DOMContentLoaded', () => {
   try{
-    const response = await fetch("https://api.openai.com/v1/completions",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "Authorization":`Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "text-davinci-003",
-        prompt: prompt,
-        max_tokens: 250
-      })
-    });
-    const data = await response.json();
-    textarea.value = data.choices[0].text.trim();
-  }catch(e){
-    textarea.value = "Error generating AI output: "+e.message;
+    console.log('Omniverse: DOMContentLoaded — initializing tools UI');
+    initApp(); // main init
+  }catch(err){
+    console.error('Initialization error:', err);
+    alert('Error initializing page — open console (F12) and share the error.');
   }
-}
+});
 
-// =========================
-// Copy / Download / Tips
-// =========================
-function downloadOutput(){ 
-  const val=document.getElementById('tool-output').value; 
-  if(!val) return alert('No output'); 
-  const blob=new Blob([val],{type:'text/plain'}); 
-  const url=URL.createObjectURL(blob); 
-  const a=document.createElement('a'); 
-  a.href=url; a.download=(selectedIndex!==null?tools[selectedIndex].name:'output')+'.txt'; 
-  a.click(); URL.revokeObjectURL(url); 
-}
-function copyOutput(){
-  const val=document.getElementById('tool-output').value;
-  if(!val) return alert('No output to copy');
-  navigator.clipboard.writeText(val).then(()=>alert('Output copied to clipboard!'));
-}
-function renderTips(){
-  const div=document.getElementById('tips-links');
-  const links=JSON.parse(localStorage.getItem('omniverse_owner_links')||'[]');
-  div.innerHTML='';
-  if(links.length>0){
-    div.innerHTML='<strong>Support Owner:</strong> ';
-    links.forEach(l=>{
-      const a=document.createElement('a'); a.href=l; a.target='_blank'; a.style.marginRight='10px';
-      a.textContent='💰 Tip';
-      div.appendChild(a);
-    });
+function initApp(){
+  // STORAGE KEY
+  const LS_KEY = 'omniverse_tools_v1';
+  let tools = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
+
+  // ensure at least 100 tools exist
+  if(!Array.isArray(tools) || tools.length < 100){
+    tools = [];
+    for(let i=1;i<=100;i++){
+      tools.push({ name: `Tool ${i}`, generatorPrompt: `Generate content for Tool ${i}` });
+    }
+    localStorage.setItem(LS_KEY, JSON.stringify(tools));
+    console.log('Initialized default 100 tools');
   }
-}
 
-// =========================
-// Initial Render
-// =========================
-renderToolList();
-renderTips();
+  // expose tools to window for debugging
+  window._omniverse_tools = tools;
+
+  // state
+  let selectedIndex = null;
+
+  // DOM refs
+  const toolListEl = document.getElementById('tool-list');
+  const toolTitleEl = document.getElementById('tool-title');
+  const toolOutputEl = document.getElementById('tool-output');
+  const toolCountEl = document.getElementById('tool-count');
+  const ownerNameBadge = document.getElementById('owner-name-badge');
+  const searchBox = document.getElementById('tool-search');
+
+  // render helpers
+  function renderToolList(filter){
+    toolListEl.innerHTML = '';
+    const fragment = document.createDocumentFragment();
+    tools.forEach((t,i) => {
+      if(filter && !t.name.toLowerCase().includes(filter.toLowerCase())) return;
+      const btn = document.createElement('button');
+      btn.className = 'tool-btn';
+      btn.textContent = t.name;
+      btn.type = 'button';
+      btn.id = 'tool-btn-' + i;
+      btn.onclick = () => selectTool(i);
+      fragment.appendChild(btn);
+    });
+    toolListEl.appendChild(fragment);
+    toolCountEl.textContent = tools.length;
+    console.log('Rendered', tools.length, 'tools (filter=', filter||'none',')');
+  }
+
+  function updateOwnerBadge(){
+    const name = localStorage.getItem('omniverse_owner_name') || '';
+    ownerNameBadge.textContent = name ? `Owner: ${name}` : '';
+  }
+
+  // selection
+  function selectTool(i){
+    selectedIndex = i;
+    document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('tool-btn-'+i);
+    if(btn) btn.classList.add('active');
+    const t = tools[i];
+    toolTitleEl.textContent = t.name;
+    toolOutputEl.value = ''; // clear previous
+    renderTips();
+  }
+
+  // search
+  searchBox.addEventListener('input', (e) => {
+    renderToolList(e.target.value.trim());
+  });
+
+  // render tips / links
+  function renderTips(){
+    const div = document.getElementById('tips-links');
+    const links = JSON.parse(localStorage.getItem('omniverse_owner_links')||'[]');
+    div.innerHTML = '';
+    if(links.length){
+      const label = document.createElement('div'); label.textContent='Support Owner:';
+      div.appendChild(label);
+      links.forEach(l => {
+        const a = document.createElement('a');
+        a.href = l; a.target = '_blank';
+        a.textContent = ' 💰 Tip ';
+        a.style.marginRight = '8px';
+        div.appendChild(a);
+      });
+    }
+  }
+
+  // actions
+  async function runTool(){
+    if(selectedIndex===null){ alert('कृपया एक tool चुनें।'); return; }
+    const t = tools[selectedIndex];
+    toolOutputEl.value = 'Generating AI output...';
+    const prompt = t.generatorPrompt || `Generate content for ${t.name}`;
+
+    // try to call OpenAI if key present
+    const apiKey = localStorage.getItem('omniverse_openai_key');
+    if(!apiKey){
+      // fallback: simple placeholder (non-AI)
+      toolOutputEl.value = `Placeholder output for ${t.name}\n\nPrompt: ${prompt}\n\n(Provide OpenAI API key in Owner Settings to get AI output)`;
+      return;
+    }
+
+    try{
+      const res = await fetch('https://api.openai.com/v1/completions', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify({ model:'text-davinci-003', prompt: prompt, max_tokens:250 })
+      });
+      if(!res.ok){
+        const txt = await res.text();
+        toolOutputEl.value = `API Error: ${res.status} ${res.statusText}\n${txt}`;
+        console.error('OpenAI error:', res.status, res.statusText, txt);
+        return;
+      }
+      const data = await res.json();
+      toolOutputEl.value = (data.choices && data.choices[0] && data.choices[0].text) ? data.choices[0].text.trim() : JSON.stringify(data,null,2);
+    }catch(err){
+      console.error('Run error', err);
+      toolOutputEl.value = 'Error generating AI output: ' + (err.message || err);
+    }
+  }
+
+  function downloadOutput(){
+    const val = toolOutputEl.value;
+    if(!val){ alert('No output to download'); return; }
+    const fileName = (selectedIndex!==null ? tools[selectedIndex].name : 'output') + '.txt';
+    const blob = new Blob([val], { type:'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = fileName; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function copyOutput(){
+    const val = toolOutputEl.value;
+    if(!val){ alert('No output to copy'); return; }
+    navigator.clipboard.writeText(val).then(()=> alert('Output copied to clipboard'));
+  }
+
+  function cloneTool(){
+    if(selectedIndex===null){ alert('Select a tool to clone'); return; }
+    const orig = tools[selectedIndex];
+    const name = prompt('Name for cloned tool', orig.name + ' Copy');
+    if(!name) return;
+    tools.push({ name: name, generatorPrompt: orig.generatorPrompt });
+    saveTools();
+    renderToolList();
+  }
+
+  function saveTools(){
+    localStorage.setItem(LS_KEY, JSON.stringify(tools));
+  }
+
+  // owner settings methods (modal)
+  function openSettings(){ document.getElementById('owner-modal').style.display='flex'; document.getElementById('owner-name').value = localStorage.getItem('omniverse_owner_name')||''; document.getElementById('owner-links').value = localStorage.getItem('omniverse_owner_links_raw')||''; document.getElementById('omniverse-openai-key').value = localStorage.getItem('omniverse_openai_key')||''; }
+  function closeSettings(){ document.getElementById('owner-modal').style.display='none'; }
+  function saveOpenAIKey(){ const k = document.getElementById('omniverse-openai-key').value.trim(); localStorage.setItem('omniverse_openai_key', k); alert('API key saved locally'); }
+  function saveOwnerSettingsLocal(){ const name = document.getElementById('owner-name').value.trim(); const linksText = document.getElementById('owner-links').value; const links = linksText.split(',').map(s=>s.trim()).filter(Boolean); localStorage.setItem('omniverse_owner_name', name); localStorage.setItem('omniverse_owner_links', JSON.stringify(links)); localStorage.setItem('omniverse_owner_links_raw', linksText); alert('Owner settings saved'); updateOwnerBadge(); renderTips(); }
+
+  // wire up global helpers for buttons
+  window.openSettings = openSettings;
+  window.closeSettings = closeSettings;
+  window.saveOpenAIKey = saveOpenAIKey;
+  window.saveOwnerSettings = saveOwnerSettingsLocal;
+  window.runTool = runTool;
+  window.downloadOutput = downloadOutput;
+  window.copyOutput = copyOutput;
+  window.cloneTool = cloneTool;
+  window.addTool = function(){ const name = prompt('New tool name'); if(!name) return; tools.push({name:name, generatorPrompt:`Generate content for ${name}`}); saveTools(); renderToolList(); };
+  window.resetTools = function(){ if(confirm('Reset all tools?')){ tools = []; saveTools(); renderToolList(); toolOutputEl.value=''; }};
+
+  // initial render
+  renderToolList();
+  updateOwnerBadge();
+  renderTips();
+
+  console.log('Omniverse UI initialized — tools available:', tools.length);
+
+  // expose for debugging
+  window._omniverse = { tools, renderToolList, runTool };
+}
 </script>
-
 </body>
-                                                                   </html>
+                                                    </html>
   
