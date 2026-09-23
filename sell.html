@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Omniverse Marketplace — Sell & Order</title>
+<style>body{font-family:system-ui,sans-serif;background:#071227;color:#eef;padding:20px;max-width:900px;margin:auto}section{background:#0d1b2f;padding:20px;border-radius:16px;margin:16px 0}input,textarea,select{width:100%;padding:10px;margin:6px 0 12px;border-radius:8px;border:1px solid #355;color:#eef;background:#081425}button{padding:12px 18px;border:0;border-radius:9px;background:#ffd34d;color:#111;font-weight:700;cursor:pointer}.muted{color:#9bb} .ok{color:#7dffb2}.warn{color:#ffd166}</style></head>
+<body>
+<h1>🛒 Omniverse Marketplace</h1>
+<p class="muted">Product discovery → marketing → sales intake → central automation → QC → fulfillment/dispatch.</p>
+<section><h2>Place an Order</h2>
+<label>Product / Service</label><input id="title" required placeholder="Product name">
+<label>Your name</label><input id="name" required>
+<label>Contact</label><input id="contact" required>
+<label>Requirement</label><textarea id="brief" rows="5" required placeholder="What do you need?"></textarea>
+<label>Order type</label><select id="kind"><option value="ecommerce_order">Product order</option><option value="ecommerce_product">New product listing</option><option value="freelance_order">Service order</option></select>
+<button onclick="submitOrder()">Send to Omniverse Automation</button><p id="status" class="muted"></p></section>
+<section><h2>Automation departments</h2><p>📣 Marketing Executive — product copy, SEO, social campaign.</p><p>💼 Sales Executive — qualification and product recommendation.</p><p>📦 Dispatch Executive — fulfillment and tracking preparation.</p><p>✅ QC Executive — catalog/order/delivery checks.</p></section>
+<script>
+const API_URL = window.OMNIVERSE_ORDER_INTAKE_API_URL || localStorage.getItem('omniverse_order_api_url') || '';
+function jobId(){return 'order-'+Date.now()+'-'+crypto.getRandomValues(new Uint32Array(1))[0].toString(16)}
+async function submitOrder(){
+ const status=document.getElementById('status'); status.textContent='Submitting…';
+ if(!API_URL){status.className='warn';status.textContent='Production intake is not connected yet. Configure the official HTTPS Order Intake API URL; no order is falsely marked as queued.';return}
+ const job={job_id:jobId(),kind:document.getElementById('kind').value,status:'queued',created_at:new Date().toISOString(),customer:{name:document.getElementById('name').value.trim(),contact:document.getElementById('contact').value.trim()},request:{title:document.getElementById('title').value.trim(),brief:document.getElementById('brief').value.trim()}};
+ try{const r=await fetch(API_URL.replace(/\/$/,'')+'/orders',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':job.job_id},body:JSON.stringify(job)});const d=await r.json();if(!r.ok)throw new Error(d.error||('HTTP '+r.status));status.className='ok';status.textContent='Order accepted by the central intake queue: '+d.job_id;}catch(e){status.className='warn';status.textContent='Order was not queued: '+e.message;}
+}
+</script></body></html>
