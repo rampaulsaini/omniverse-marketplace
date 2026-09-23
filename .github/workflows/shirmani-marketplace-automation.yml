@@ -1,0 +1,66 @@
+name: Shirmani Marketplace Automation Worker
+
+on:
+  repository_dispatch:
+    types: [shirmani-orchestrator]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shirmani-marketplace-automation
+  cancel-in-progress: false
+
+jobs:
+  marketplace-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout marketplace
+        uses: actions/checkout@v4
+
+      - name: Initialize automation contract
+        env:
+          AUTOMATION_MODE: ${{ vars.SHIRMANI_AUTOMATION_MODE }}
+        run: |
+          mode="${AUTOMATION_MODE:-CONTINUOUS}"
+          case "$mode" in
+            CONTINUOUS|PAUSED) ;;
+            *) echo "::error::Unsupported SHIRMANI_AUTOMATION_MODE: $mode"; exit 1 ;;
+          esac
+          if [ "$mode" = "PAUSED" ]; then
+            echo "Marketplace automation is PAUSED."
+            exit 0
+          fi
+
+      - name: Run marketplace health checks
+        run: |
+          test -f index.html
+          python - <<'PY'
+          from pathlib import Path
+          html = Path("index.html").read_text(encoding="utf-8")
+          required = ["Omniverse", "Marketplace"]
+          missing = [x for x in required if x.lower() not in html.lower()]
+          if missing:
+              raise SystemExit(f"Marketplace health check failed: {missing}")
+          print("Marketplace health check: PASS")
+          PY
+
+      - name: Publish worker status
+        run: |
+          mkdir -p automation-status
+          printf '%s\n' \
+            "service=omniverse-marketplace" \
+            "worker=shirmani-marketplace-automation" \
+            "status=READY" \
+            "trigger=repository_dispatch" \
+            "timestamp=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            > automation-status/status.txt
+
+      - name: Upload automation status
+        uses: actions/upload-artifact@v4
+        with:
+          name: shirmani-marketplace-automation-status
+          path: automation-status/status.txt
+          retention-days: 7
