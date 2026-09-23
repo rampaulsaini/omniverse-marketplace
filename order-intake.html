@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Omniverse Marketplace — Secure Order Intake</title>
+<style>
+body{font-family:system-ui,sans-serif;max-width:760px;margin:auto;padding:24px;background:#0f172a;color:#f8fafc}
+.card{background:#1e293b;padding:24px;border-radius:16px}label{display:block;margin:14px 0 6px}input,select,textarea{width:100%;padding:11px;border-radius:8px;border:1px solid #475569;background:#0f172a;color:#fff;box-sizing:border-box}button{margin-top:18px;padding:12px 18px;border:0;border-radius:9px;font-weight:700;cursor:pointer}small{color:#94a3b8}.ok{margin-top:16px;color:#86efac;white-space:pre-wrap}
+</style></head>
+<body><div class="card">
+<h1>🛒 Omniverse Secure Order Intake</h1>
+<p>यह page customer requirement को एक structured order packet में बदलता है। Browser में secret/token नहीं रखा जाता और यह page सीधे payment या external marketplace action नहीं करता।</p>
+<label>Order ID <small>(unique)</small></label><input id="id" placeholder="order-001">
+<label>Type</label><select id="kind"><option value="freelance_order">Freelance Service</option><option value="ecommerce_product">Ecommerce Product</option></select>
+<label>Service / Product</label><input id="service" placeholder="document / social_pack / landing_page">
+<label>Title</label><input id="title" placeholder="Your project title">
+<label>Requirement</label><textarea id="brief" rows="7" placeholder="Describe the work or product requirement"></textarea>
+<label>Customer email <small>(optional; avoid sensitive data)</small></label><input id="email" type="email">
+<button onclick="makePacket()">Create Secure Order Packet</button><div id="out" class="ok"></div>
+</div>
+<script>
+function makePacket(){
+ const id=document.getElementById('id').value.trim(), kind=document.getElementById('kind').value;
+ const brief=document.getElementById('brief').value.trim();
+ if(id.length<3||brief.length<3){out.textContent='Order ID और requirement आवश्यक हैं।';return}
+ const now=new Date().toISOString();
+ const packet={job_id:id,kind,status:'queued',created_at:now,source:'omniverse-marketplace',service:document.getElementById('service').value.trim(),title:document.getElementById('title').value.trim(),brief,customer_email:document.getElementById('email').value.trim()};
+ const blob=new Blob([JSON.stringify(packet,null,2)],{type:'application/json'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=id+'.json';a.click();
+ out.textContent='Order packet तैयार है। इसे secure central intake/approved connector में जमा किया जा सकता है।\n\nStatus: queued\nNo secret or payment credential was sent.';
+}
+</script></body></html>
